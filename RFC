@@ -1,4 +1,4 @@
- Network Working Group                              M. Emilie and M. Lisa
+Network Working Group                              M. Emilie and M. Lisa
 Request For Comments: XXXX                                         ESIPE
 STD: XX                                                       April 2020
 Obsoletes: None
@@ -36,9 +36,9 @@ Acknowlegements
     services.
     
     Two modes of transfer are supported: a client-server-client TCP connexion,
-    where multiple clients may exchange simple messages (using ASCII encoding)
+    where multiple clients may exchange simple messages (using UTF-8 encoding)
     and a client-client TCP connexion, where two clients may exchange messages
-    (using ASCII encoding) and files between them, after asking for a direct 
+    (using UTF-8 encoding) and files between them, after asking for a direct 
     connexion through the server.
 
 
@@ -56,10 +56,9 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
     messages on the ChatHack.
     
     The client is able to receive and send a message through this connexion.
-    Each packet contains a message encoded in ASCII and will be sent in packets
-    of fixed size **[?? à revoir ??]** to the server. The server will then
-    broadcast it to all connected users. The client will also receive all the 
-    messages sent by other clients to the server.
+    Each packet contains a message encoded in ASCII and will be sent to the
+    server. The server will then broadcast it to all connected users. The client
+    will also receive all the messages sent by other clients to the server.
     
     A client A may send a request to connect to another client B in order to
     send messages and files privately. This will being with a request to the
@@ -76,26 +75,6 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
     are too many corrupted packets or exceeded timeouts coming from a client.
     
     This protocol is very restrictive, in order to simplify implementation.
-    
-    [ TODO :
-        - Fixed lenght packet
-        - Types of packet
-            - Request for connection (client->server)
-            - Request for login (server->client)
-            - Request for login and password (server->client)
-            - Login (client->server)
-            - Password (client->server)
-            - Group message (server->client)
-            - Group message broadcast (server->client)
-            - Request for private connection (clientA->server)
-            - Request for private connection (server->clientB)
-            - Response for private connection (clientB->server)
-            - Response for private connection (server->clientA)
-            - Private message/file (clientA->clientB)
-        ----------------------------------------------------
-        |  Size  |  type:msg/file   |  Metadata  |  Bytes  |
-        ----------------------------------------------------
-    ]
 
 Marti and Mechouk                                                   [Page 2]
 
@@ -122,71 +101,148 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
 
 4. Initial Connection Protocol
 
-
-Sollins                                                         [Page 4]
-
-RFC 1350                    PROTOCOL Revision 1                   April 2020
-
+    An initial connection is established by sending a request to the server and
+    receiving a positive reply, which will come with a request for login with or
+    without password. Users that have already given an alias and password should
+    be known by the server so that their alias cannot be taken or used without
+    its associated password, that is to say, giving an alias and a password for
+    the first time means that the user is signed up to the ChatHack.
     
-     1. Host A sends  a  "WRQ"  to  host  B  with  source=  A's  TID,
-         destination= 69.
-
-     2. Host  B  sends  a "ACK" (with block number= 0) to host A with
-         source= B's TID, destination= A's TID.
+    Users that are only logged in without giving a password can choose an alias 
+    that is not already taken by an already signed up / logged in user.
+    
+    As an example, the following steps show how a client can connect to the
+    global chat via ChatHack protocol :
+    
+        1. Client A wants to connect and sends a connexion request to the
+        server.
+        
+        2. The server acknowledges the connexion request and sends a login
+        request to the Client A.
+        
+        3. Client A acknowledges the login request and sends a login with or
+        without an associated password.
+        
+        4. Server acknowledges the login with or without password.
+        
+    The following steps show how a client can connect to another client in order
+    to exchange messages privately :
+    
+        1. Client A sends a private connexion request to Client B through the
+        server.
+        
+        2. The server acknowledges the private connexion request and sends a
+        request to Client B.
+        
+        3. Client B acknowledges the connexion request to the server.
+        
+        4. The server sends the information of Client B to Client A in order to
+        allow the connexion between the two of them.
+        
+        5. Client A sends a connexion request to Client B.
+        
+        6. Client B acknowledges the connexion request.
          
-5. TFTP Packets
+5. ChatHack Protocol Packets
 
-Sollins                                                         [Page 5]
+    ChatHack protocol supports four types of packets, all of which have been
+    mentioned above [... TODO]:
+    
+        Opcode      Operation
+        00 - 09     Connexion request(CRQ)
+        10 - 19     Acknoledgement (ACK)
+        20 - 29     Message / file (DATA)
+        30 - 39     Error (ERROR)
+        
+    The list of packets described below are the following :
+        
+        Name of packet                      Direction
+        Request for login                   server->client
+        Request for login and password      server->client
+        Login                               client->server
+        Login with Password                 client->server
+        Group message                       client->server
+        Group message broadcast             server->client
+        Request for private connection      clientA->server
+        Request for private connection      server->clientB
+        Response for private connection     clientB->server
+        Response for private connection     server->clientA
+        Private message/file                clientA->clientB
+        
+    The ChatHack protocol header of a packet contains the opcode associated with
+    the packet.
+    
+5.1. ChatHack Request for Connexion Packets
 
-RFC 1350                    PROTOCOL Revision 1                   April 2020
-
-
-            2 bytes     string    1 byte     string   1 byte
-            ------------------------------------------------
-           | Opcode |  Filename  |   0  |    Mode    |   0  |
-            ------------------------------------------------
-
-                       Figure 5-1: RRQ/WRQ packet
-                       
-Sollins                                                         [Page 6]
-
-RFC 1350                    TFTP Revision 1                   April 2020
-
-
-2 bytes     2 bytes      n bytes
-                   ----------------------------------
-                  | Opcode |   Block #  |   Data     |
-                   ----------------------------------
-
-                        Figure 5-2: DATA packet
+5.1.1. ChatHack Login Packets
+    
+                       int        long      String  
+                    --------------------------------
+                    | Opcode | SizeOfLogin | Login |
+                    --------------------------------
+                        Figure 5-? : Login packet
                         
-Sollins                                                         [Page 7]
+    Simple login packets have the format shown in Figure 5-?. The opcode
+    associated to this type of login is 00. The login, corresponding to the
+    alias chosen by the client, must be encoded in ASCII in order to allow only
+    a limited set of characters in the alias.
+    
+              int        long       String        long        String
+           ------------------------------------------------------------
+           | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
+           ------------------------------------------------------------
+                     Figure 5-? : Login with password packet
+    
+    Login with password packets have the format shown in Figure 5-?. The opcode
+    associated to this type of login is 01. The login and password are encoded
+    in ASCII in order to allow a limited set of characters in them.
+    
+    The Login packets are used as Request for Connection to the server.
+                     
+5.3. ChatHack Acknowledgment Packets
+              int      long      String        long       String
+           ------------------------------------------------------------
+           | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
+           ------------------------------------------------------------
+                     Figure 5-2 : Login with password packet
 
-RFC 1350                    TFTP Revision 2                   April 2020
+5.4. ChatHack Data Packets
 
-
-               2 bytes     2 bytes      string    1 byte
-               -----------------------------------------
-              | Opcode |  ErrorCode |   ErrMsg   |   0  |
-               -----------------------------------------
-
-                        Figure 5-4: ERROR packet
-                        
+5.5. ChatHack Error Packets
+                   int         long          String
+                --------------------------------------
+                | Opcode | SizeOfErrorMsg | ErrorMsg |
+                --------------------------------------
+                     Figure 5-? : ERROR packet
+                     
+    An ERROR packet (opcodes [40-49]) has the form described in Figure 5-?. An
+    ERROR packet can be the aknowledgment of any other type of packet. The opcode
+    is an integer indicating the nature of the error. The error message is used
+    for human understanding and should be in ASCII.
+    
+    The return codes for the errors mean the following :
+        30. Timeout
+        31. Login Error
+        32. Login with Password Error
+        33. Invalid / Corrupted Packet
+        34. Invalid File Encoding Error
+    
+       
 6. Normal Termination
 
 7. Premature Termination
 
 
-Sollins                                                         [Page 8]
+Marti and Mechouk                                                   [Page 8]
 
-RFC 1350                    TFTP Revision 1                   April 2020
+RFC 1622                    PROTOCOL Revision 1                   April 2020
 
 FORMAT DE NOTRE PROTOCOL
 
 
-Sollins                                                         [Page 9]
+Marti and Mechouk                                                   [Page 9]
 
-RFC 1350                    TFTP Revision 1                   April 2020
+RFC 1622                    PROTOCOL Revision 1                   April 2020
 
 Error Codes
 
@@ -203,9 +259,9 @@ Error Codes
    
    
 
-Sollins                                                        [Page 10]
+Marti and Mechouk                                                  [Page 10]
 
-RFC 1350                    TFTP Revision 1                   April 2020
+RFC 1622                    PROTOCOL Revision 1                   April 2020
 
 
 References
