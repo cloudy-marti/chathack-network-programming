@@ -407,7 +407,6 @@ Practical examples
     This last packet will be redirected by the server to the user "SkullKid42"
     so that both clients get the address and be able to create a direct connection
     between each other.
-    
     If the connection is refused by the user "SkullKid42" or it is not connected,
     the server will send a response to the requesting user notifying it:
         ----------------------------------
@@ -430,7 +429,6 @@ Practical examples
         -----------------------------------------------------------------
     The server broadcasts, that is to say, sends the packet back to all connected
     users, including "SkullKid42" with the same format.
-    
     If the packet is wrongly formed, for example, size does not match the actual
     size of the packet or the encoding format is not recognised, the server sends
     an error message to the user and destroys the current data packet:
@@ -445,8 +443,7 @@ Practical examples
         -------------------------------------------------------------
         | 21 | 4 | "UTF8" | 32 | "Have you saved the princess yet?" |
         -------------------------------------------------------------
-
-    They may get an error response if the packet is wrongly formed:
+    Sender may get an error response if the packet is wrongly formed:
         ------------------------------
         | 33 | 14 | "Data corrupted" |
         ------------------------------
@@ -458,8 +455,6 @@ Practical examples
         ------------------------------------------
         | 22 | 15 | "MajorasMask.jpg" | 32 | ... |
         ------------------------------------------
-    "..." representing the bytes of the file to be sent.
-    
     If the file name does not contain a valid extension, the receiving client
     sends an error packet and the previous packet is automatically destroyed:
         -------------------------------------
