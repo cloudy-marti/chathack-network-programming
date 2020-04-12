@@ -84,7 +84,7 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     ChatHack is designed to be implemented on top of the Tranmission Control
     protocol (TCP). Since socket is implemented on the Internet protocol,
     packets will have an Internet header, a Control header, and a ChatHack
-    header. ----
+    header. ---- [TODO]
 
          -----------------------------------------------------
          |  Local Medium  |  Internet  |  Datagram  |  TFTP  |
@@ -142,7 +142,7 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
 5. ChatHack Protocol Packets
 
     ChatHack protocol supports four types of packets, all of which have been
-    mentioned above [... TODO]:
+    mentioned above:
     
         Opcode      Operation
         00 - 09     Connection request(CRQ)
@@ -150,6 +150,10 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
         20 - 29     Message / file (DATA)
         30 - 39     Error (ERROR)
         
+    Opcode is a unique identifier for each type of packet. Since there are
+    several packets for each case, we assign a range of codes for each type of
+    packet.
+    
     The list of packets described below are the following :
         
         Name of packet                      Direction
@@ -229,7 +233,7 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
         ----------------------------------------------------------
         | Opcode | SizeOfLogin | Login | SizeOfAddress | Address |
         ----------------------------------------------------------
-                Figure 5-4 : Positive private connection
+         Figure 5-4 : Positive private connection response packet
                         
     When a private connection request is accepted by a client, it will send an
     acknowledgment packet to the server as shown in the Figure 5-4. The opcode
@@ -243,7 +247,7 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
                                 ----------
                                 | Opcode |
                                 ----------
-                Figure 5-5 : Negative private connection
+         Figure 5-5 : Negative private connection response packet
                 
     If the client refuses the private connexion, a packet with a single opcode
     of 24 will be sent to the requesting client through the server.
@@ -260,7 +264,7 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
                             
     Global chat messages are transferred in DATA packets as shown in the Figure
     5-5. The opcode associated to this data packet is 20. Encoding and login
-    fields are encoded in ASCII.
+    fields are encoded in ASCII. Login field corresponds to the sender's alias.
     
     Broadcast of the message by the server is done with the same packet.
     
@@ -313,7 +317,8 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
        
 6. Normal Termination
 
-    
+    A termination of the connection is done when a client makes a request.
+    [TODO - add packets too ?]
 
 7. Premature Termination
 
