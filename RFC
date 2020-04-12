@@ -313,7 +313,13 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
        
 6. Normal Termination
 
+    
+
 7. Premature Termination
+
+    If a timeout is registered by the server several times by one client, the
+    server may close the connection to the client in order to prevent an
+    accumulation of unhealthy connections.
 
 
 Marti and Mechouk                                                   [Page 8]
