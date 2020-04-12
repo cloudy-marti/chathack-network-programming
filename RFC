@@ -85,7 +85,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     ChatHack is designed to be implemented on top of the Tranmission Control
     protocol (TCP). Since socket is implemented on the Internet protocol,
     packets will have an Internet header, a Control header, and a ChatHack
-    header. ---- [TODO]
+    header.
 
          ---------------------------------------------------------
          |  Local Medium  |  Internet  |  Datagram  |  ChatHack  |
@@ -320,13 +320,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 6. Normal Termination
 
     A termination of the connection is done when a client makes a request and
-    this request is accepted without any errors.
-    For the sending, the normal termination is when the clientA has sending his
-    message to all of the connected client and they all get it whitout any 
-    error.
-    For a private connection between two clients, the normal termination is when
-    the connection between client A and Client B is accepted and the Client B
-    receive all of the messages and files from the Client A.
+    this request is accepted without any errors. The server then marks the user
+    as disconnected. In the case of a non-registered user, the nickname becomes
+    available for further use.
 
 7. Premature Termination
 
