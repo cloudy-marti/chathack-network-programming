@@ -27,12 +27,12 @@ Acknowlegements
 
 1. Purpose
 
-    ChatHack is a protocol to transfer files and messages. It is implemented
-    on top of the Internet Transmission Control Protocol (TCP or socket). [1]
-    It is used to exchange messages and files between several clients. It is
-    designed to be small and easy to implement, therefore it lacks most of the
-    features of the secured authentification system we can find on usual chat
-    services.
+    ChatHack is a protocol which aims to transfer files and messages. It is 
+    implemented on top of the Internet Transmission Control Protocol 
+    (TCP or socket). [1] It is used to exchange messages and files between 
+    several clients. It is designed to be small and easy to implement, therefore
+    it lacks most of the features of the secured authentification system we can 
+    find on usual chat services.
     
     Two modes of transfer are supported: a client-server-client TCP connexion,
     where multiple clients may exchange simple messages (using UTF-8 encoding)
@@ -55,7 +55,7 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
     messages on the ChatHack.
     
     The client is able to receive and send a message through this connexion.
-    Each packet contains a message encoded in ASCII and will be sent to the
+    Each packet contains a message encoded in UTF_8 and will be sent to the
     server. The server will then broadcast it to all connected users. The client
     will also receive all the messages sent by other clients to the server.
     
@@ -70,8 +70,9 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
     files.
     
     Errors cause termination of the connection. An error is signaled by an
-    error packet. The server is responsible of closing the connection if there 
-    are too many corrupted packets or exceeded timeouts coming from a client.
+    error packet, or by a wrong login, or login password. The server is 
+    responsible of closing the connection if there are too many corrupted 
+    packets or exceeded timeouts coming from a client.
     
     This protocol is very restrictive, in order to simplify implementation.
 
@@ -86,9 +87,9 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     packets will have an Internet header, a Control header, and a ChatHack
     header. ---- [TODO]
 
-         -----------------------------------------------------
-         |  Local Medium  |  Internet  |  Datagram  |  TFTP  |
-         -----------------------------------------------------
+         ---------------------------------------------------------
+         |  Local Medium  |  Internet  |  Datagram  |  ChatHack  |
+         ---------------------------------------------------------
 
                       Figure 3-1: Order of Headers
 
@@ -119,7 +120,7 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
         4. Server acknowledges the login with or without password.
         
     The following steps show how a client can connect to another client in order
-    to exchange messages privately :
+    to exchange messages or files privately :
     
         1. Client A sends a private connexion to Client B request to the server.
         
@@ -176,10 +177,13 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
 
 5.1.1. ChatHack Login Packets
     
-                       int        long      String  
+                       byte       long      String  
                     --------------------------------
                     | Opcode | SizeOfLogin | Login |
                     --------------------------------
+                     ----------------------------
+                     | 00 | SizeOfLogin | Login |
+                     ----------------------------
                         Figure 5-1 : Login packet
                         
     Login packets have the format shown in Figure 5-1. The opcode associated to
@@ -187,10 +191,13 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     by the client, must be encoded in ASCII in order to allow only a limited set
     of characters in the alias.
     
-              int        long       String        long        String
+              byte       long       String        long        String
            ------------------------------------------------------------
            | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
            ------------------------------------------------------------
+           --------------------------------------------------------
+           | 01 | SizeOfLogin | Login | SizeOfPassword | Password |
+           --------------------------------------------------------
                      Figure 5-2 : Login with password packet
     
     Login with password packets have the format shown in Figure 5-2. The opcode
@@ -200,6 +207,10 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     The Login packets are used as Request for Connection to the server.
     
 5.1.2. ChatHack Request for Private Connection Packet
+
+                     ----------------------------
+                     | 03 | SizeOfLogin | Login |
+                     ----------------------------
                 
     Request for private connection packets have the same format as Login packets,
     as shown in Figure 5-1. The opcode associated to this type of request is 03
@@ -213,7 +224,7 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
 
 5.3.1. Chat connection response packets
 
-                   int        long        String
+                   byte       long        String
                 ----------------------------------
                 | Opcode | SizeOfAckMsg | AckMsg |
                 ----------------------------------
@@ -223,43 +234,64 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     connection to the global chat. The server may add a response message.
     
     The return codes of the responses mean:
-        20. Connection with Log in OK
-        21. Connection with Log in and password OK
-        22. Connection with Register OK
+                
+        10. Connection with Log in OK
+                ------------------------------
+                | 10 | SizeOfAckMsg | AckMsg |
+                ------------------------------
+        
+        11. Connection with Log in and password OK
+                ------------------------------
+                | 11 | SizeOfAckMsg | AckMsg |
+                ------------------------------
+        
+        12. Connection with Register OK
+                ------------------------------
+                | 12 | SizeOfAckMsg | AckMsg |
+                ------------------------------
         
 5.3.2. Private connection response packets
 
-           int        long      String       long        String
+           byte     long      String       long        String
         ----------------------------------------------------------
         | Opcode | SizeOfLogin | Login | SizeOfAddress | Address |
         ----------------------------------------------------------
+        ------------------------------------------------------
+        | 13 | SizeOfLogin | Login | SizeOfAddress | Address |
+        ------------------------------------------------------
          Figure 5-4 : Positive private connection response packet
                         
     When a private connection request is accepted by a client, it will send an
     acknowledgment packet to the server as shown in the Figure 5-4. The opcode
-    is 23 and it contains its address an the login of the requesting client.
+    is 13 and it contains its address an the login of the requesting client.
     
     The server will redirect this packet to the requesting client. The requesting
     client will send the same packet with its address and the other client's
     login so that both can then open a direct connection between them.
     
-                                   int
+                                   byte
                                 ----------
                                 | Opcode |
                                 ----------
+                                ------
+                                | 14 |
+                                ------
          Figure 5-5 : Negative private connection response packet
                 
     If the client refuses the private connexion, a packet with a single opcode
-    of 24 will be sent to the requesting client through the server.
+    of 14 will be sent to the requesting client through the server.
         
 5.4. ChatHack Data Packets
 
 5.4.1. Global data transmission
 
-    int       long      String        long         String      long      String
+    byte      long      String        long         String      long      String
 --------------------------------------------------------------------------------
 | Opcode | SizeOfLogin | Login | SizeOfEncoding | Encoding | SizeOfData | Data |
 --------------------------------------------------------------------------------
+----------------------------------------------------------------------------
+| 20 | SizeOfLogin | Login | SizeOfEncoding | Encoding | SizeOfData | Data |
+----------------------------------------------------------------------------
                    Figure 5-5 : Global chat message packet
                             
     Global chat messages are transferred in DATA packets as shown in the Figure
@@ -270,20 +302,26 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     
 5.4.2. Private data transmission
 
-            int         long         String      long      String
+            byte       long         String      long      String
         ----------------------------------------------------------
         | Opcode | SizeOfEncoding | Encoding | SizeOfData | Data |
         ----------------------------------------------------------
+        ------------------------------------------------------
+        | 21 | SizeOfEncoding | Encoding | SizeOfData | Data |
+        ------------------------------------------------------
                     Figure 5-6 : Private message packet
                     
     Private messages are transferred in DATA packets as shown in the Figure 5-6.
     The opcode associated to this data packet is 21. Encoding field must be
     encoded in ASCII.
     
-            int         long         String      long      String
+            byte        long         String      long      String
         ----------------------------------------------------------
         | Opcode | SizeOfFileName | FileName | SizeOfData | Data |
         ----------------------------------------------------------
+        ------------------------------------------------------
+        | 22 | SizeOfFileName | FileName | SizeOfData | Data |
+        ------------------------------------------------------
                     Figure 5-7 : Private file data packet
                     
     Files are transferred in DATA packets as shown in the Figure 5-7. The opcode
@@ -297,27 +335,53 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
 
 5.5. ChatHack Error Packets
 
-                   int         long          String
+                   byte         long          String
                 --------------------------------------
                 | Opcode | SizeOfErrorMsg | ErrorMsg |
                 --------------------------------------
                      Figure 5-8 : ERROR packet
                      
     An ERROR packet (opcodes [30-39]) has the form described in Figure 5-8. An
-    ERROR packet can be the aknowledgment of any other type of packet. The opcode
-    is an integer indicating the nature of the error. The error message is used
-    for human understanding and should be in ASCII.
+    ERROR packet can be the aknowledgment of any other type of packet. The 
+    opcode is an integer indicating the nature of the error. The error message 
+    is used for human understanding and should be in ASCII.
     
     The return codes for the errors mean the following :
         30. Timeout
+                ----------------------------------
+                | 30 | SizeOfErrorMsg | ErrorMsg |
+                ----------------------------------
+                
         31. Login Error
+                ----------------------------------
+                | 31 | SizeOfErrorMsg | ErrorMsg |
+                ----------------------------------
+                
         32. Login with Password Error
+                ----------------------------------
+                | 32 | SizeOfErrorMsg | ErrorMsg |
+                ----------------------------------
+                
         33. Invalid / Corrupted Packet
+                ----------------------------------
+                | 33 | SizeOfErrorMsg | ErrorMsg |
+                ----------------------------------
+        
         34. Invalid File Encoding Error
+                ----------------------------------
+                | 34 | SizeOfErrorMsg | ErrorMsg |
+                ----------------------------------
        
 6. Normal Termination
 
-    A termination of the connection is done when a client makes a request.
+    A termination of the connection is done when a client makes a request and
+    this request is accepted without any errors.
+    For the sending, the normal termination is when the clientA has sending his
+    message to all of the connected client and they all get it whitout any 
+    error.
+    For a private connection between two clients, the normal termination is when
+    the connection between client A and Client B is accepted and the Client B
+    receive all of the messages and files from the Client A.
     [TODO - add packets too ?]
 
 7. Premature Termination
