@@ -1,4 +1,4 @@
-Network Working Group                              M. Emilie and M. Lisa
+ Network Working Group                              M. Emilie and M. Lisa
 Request For Comments: XXXX                                         ESIPE
 STD: XX                                                       April 2020
 Obsoletes: None
@@ -16,14 +16,14 @@ Status of this Memo
 Summary
 
     ChatHack is a protocol used to transfer messages to a group of clients
-    and privately and to transfer files between two clients, who will need to
-    authenticate to use the service. The group exchange will be done
-    through a server, while private exchanges will be done directly between
+    and privately and to transfer files and messages between two clients, who 
+    will need to authenticate to use the service. The group exchange will be 
+    done through a server, while private exchanges will be done directly between
     clients via TCP connection.
 
 Acknowlegements
 
-    The protocol was originally designed by Arnaud Carayol and Etienne Duris
+    The protocol was originally designed by Carayol Arnaud and Duris Etienne
     as part of the Network Programming course.
 
 1. Purpose
