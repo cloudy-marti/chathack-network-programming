@@ -82,14 +82,18 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 3. Relation to other Protocols
 
-    ChatHack is designed to be implemented on top of the Tranmission Control
-    protocol (TCP). Since socket is implemented on the Internet protocol,
-    packets will have an Internet header, a Control header, and a ChatHack
-    header.
+    ChatHack is designed to be implemented on top of the Transmission Control
+    Protocol (TCP) which is based on the IP(Internet Protocol) to send and 
+    receive segments of variable-length with source and destination. Since 
+    socket is implemented on the Internet protocol, packets will have an 
+    Internet header, a Control header, a SocketChannel for the connection and a 
+    ChatHack header.
 
-         ---------------------------------------------------------
-         |  Local Medium  |  Internet  |  Datagram  |  ChatHack  |
-         ---------------------------------------------------------
+    -------------------------------------------------------
+    |  Internet |  Control |  SocketChannel  |  ChatHack  |
+    -------------------------------------------------------
+
+
 
                       Figure 3-1: Order of Headers
 
