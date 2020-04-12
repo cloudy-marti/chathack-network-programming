@@ -121,20 +121,23 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     The following steps show how a client can connect to another client in order
     to exchange messages privately :
     
-        1. Client A sends a private connexion request to Client B through the
-        server.
+        1. Client A sends a private connexion to Client B request to the server.
         
-        2. The server acknowledges the private connexion request and sends a
-        request to Client B.
+        2. The server transfers the request to Client B.
         
-        3. Client B acknowledges the connection request to the server.
+        3. Client B acknowledges the connection request to the server; if it
+        refuses the server will return the negative response to Client A.
         
-        4. The server sends the information of Client B to Client A in order to
-        allow the connexion between the two of them.
+        4. If Client B accepts the private connection request it sends a
+        response to the server with its address and the Client A's login.
         
-        5. Client A sends a connection request to Client B.
+        5. The server redirects this packet to Client A and Client A sends to
+        the server a packet with its address and Client B's login.
         
-        6. Client B acknowledges the connection request.
+        6. The server redirects this packet to Client B.
+        
+        7. Client A and Client B have each other's addresses and may open the
+        private and direct connection.
          
 5. ChatHack Protocol Packets
 
@@ -229,12 +232,21 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
                 Figure 5-4 : Positive private connection
                         
     When a private connection request is accepted by a client, it will send an
-    acknowledgment packet with its address to the server. The login field
-    corresponds to the requesting client.
+    acknowledgment packet to the server as shown in the Figure 5-4. The opcode
+    is 23 and it contains its address an the login of the requesting client.
     
     The server will redirect this packet to the requesting client. The requesting
     client will send the same packet with its address and the other client's
     login so that both can then open a direct connection between them.
+    
+                                   int
+                                ----------
+                                | Opcode |
+                                ----------
+                Figure 5-5 : Negative private connection
+                
+    If the client refuses the private connexion, a packet with a single opcode
+    of 24 will be sent to the requesting client through the server.
         
 5.4. ChatHack Data Packets
 
