@@ -43,7 +43,7 @@ Acknowlegements
 
 Marti and Mechouk                                                   [Page 1]
 
-RFC 1622                    PROTOCOL Revision 1                   April 2020
+RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 2. Overview of the Protocol
     
@@ -78,7 +78,7 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
 
 Marti and Mechouk                                                   [Page 2]
 
-RFC 1350                    PROTOCOL Revision 1                   April 2020
+RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 3. Relation to other Protocols
 
@@ -181,9 +181,6 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
                     --------------------------------
                     | Opcode | SizeOfLogin | Login |
                     --------------------------------
-                     ----------------------------
-                     | 00 | SizeOfLogin | Login |
-                     ----------------------------
                         Figure 5-1 : Login packet
                         
     Login packets have the format shown in Figure 5-1. The opcode associated to
@@ -195,9 +192,6 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
            ------------------------------------------------------------
            | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
            ------------------------------------------------------------
-           --------------------------------------------------------
-           | 01 | SizeOfLogin | Login | SizeOfPassword | Password |
-           --------------------------------------------------------
                      Figure 5-2 : Login with password packet
     
     Login with password packets have the format shown in Figure 5-2. The opcode
@@ -207,14 +201,10 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     The Login packets are used as Request for Connection to the server.
     
 5.1.2. ChatHack Request for Private Connection Packet
-
-                     ----------------------------
-                     | 03 | SizeOfLogin | Login |
-                     ----------------------------
                 
     Request for private connection packets have the same format as Login packets,
-    as shown in Figure 5-1. The opcode associated to this type of request is 03
-    and the field Login corresponds to the alias of the user to whow the client
+    as shown in Figure 5-1. The opcode associated to this type of request is 02
+    and the field Login corresponds to the alias of the user to whom the client
     wants to be directly connected.
     
     This same packet is used by the server to transmit the request to the client
@@ -236,19 +226,8 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     The return codes of the responses mean:
                 
         10. Connection with Log in OK
-                ------------------------------
-                | 10 | SizeOfAckMsg | AckMsg |
-                ------------------------------
-        
         11. Connection with Log in and password OK
-                ------------------------------
-                | 11 | SizeOfAckMsg | AckMsg |
-                ------------------------------
-        
         12. Connection with Register OK
-                ------------------------------
-                | 12 | SizeOfAckMsg | AckMsg |
-                ------------------------------
         
 5.3.2. Private connection response packets
 
@@ -256,9 +235,6 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
         ----------------------------------------------------------
         | Opcode | SizeOfLogin | Login | SizeOfAddress | Address |
         ----------------------------------------------------------
-        ------------------------------------------------------
-        | 13 | SizeOfLogin | Login | SizeOfAddress | Address |
-        ------------------------------------------------------
          Figure 5-4 : Positive private connection response packet
                         
     When a private connection request is accepted by a client, it will send an
@@ -269,13 +245,10 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     client will send the same packet with its address and the other client's
     login so that both can then open a direct connection between them.
     
-                                   byte
-                                ----------
-                                | Opcode |
-                                ----------
-                                ------
-                                | 14 |
-                                ------
+                       byte      long    String
+                    ----------------------------
+                    | Opcode | SizeOfMsg | Msg |
+                    ----------------------------
          Figure 5-5 : Negative private connection response packet
                 
     If the client refuses the private connexion, a packet with a single opcode
@@ -284,14 +257,11 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
 5.4. ChatHack Data Packets
 
 5.4.1. Global data transmission
-
-    byte      long      String        long         String      long      String
+ 
+   byte       long      String        long         String      long      String
 --------------------------------------------------------------------------------
 | Opcode | SizeOfLogin | Login | SizeOfEncoding | Encoding | SizeOfData | Data |
 --------------------------------------------------------------------------------
-----------------------------------------------------------------------------
-| 20 | SizeOfLogin | Login | SizeOfEncoding | Encoding | SizeOfData | Data |
-----------------------------------------------------------------------------
                    Figure 5-5 : Global chat message packet
                             
     Global chat messages are transferred in DATA packets as shown in the Figure
@@ -302,26 +272,20 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     
 5.4.2. Private data transmission
 
-            byte       long         String      long      String
+            byte       long         String      long       String
         ----------------------------------------------------------
         | Opcode | SizeOfEncoding | Encoding | SizeOfData | Data |
         ----------------------------------------------------------
-        ------------------------------------------------------
-        | 21 | SizeOfEncoding | Encoding | SizeOfData | Data |
-        ------------------------------------------------------
                     Figure 5-6 : Private message packet
                     
     Private messages are transferred in DATA packets as shown in the Figure 5-6.
     The opcode associated to this data packet is 21. Encoding field must be
     encoded in ASCII.
     
-            byte        long         String      long      String
+            byte        long         String      long       Bytes
         ----------------------------------------------------------
         | Opcode | SizeOfFileName | FileName | SizeOfData | Data |
         ----------------------------------------------------------
-        ------------------------------------------------------
-        | 22 | SizeOfFileName | FileName | SizeOfData | Data |
-        ------------------------------------------------------
                     Figure 5-7 : Private file data packet
                     
     Files are transferred in DATA packets as shown in the Figure 5-7. The opcode
@@ -348,29 +312,10 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     
     The return codes for the errors mean the following :
         30. Timeout
-                ----------------------------------
-                | 30 | SizeOfErrorMsg | ErrorMsg |
-                ----------------------------------
-                
         31. Login Error
-                ----------------------------------
-                | 31 | SizeOfErrorMsg | ErrorMsg |
-                ----------------------------------
-                
         32. Login with Password Error
-                ----------------------------------
-                | 32 | SizeOfErrorMsg | ErrorMsg |
-                ----------------------------------
-                
         33. Invalid / Corrupted Packet
-                ----------------------------------
-                | 33 | SizeOfErrorMsg | ErrorMsg |
-                ----------------------------------
-        
         34. Invalid File Encoding Error
-                ----------------------------------
-                | 34 | SizeOfErrorMsg | ErrorMsg |
-                ----------------------------------
        
 6. Normal Termination
 
@@ -382,26 +327,145 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     For a private connection between two clients, the normal termination is when
     the connection between client A and Client B is accepted and the Client B
     receive all of the messages and files from the Client A.
-    [TODO - add packets too ?]
 
 7. Premature Termination
 
     If a timeout is registered by the server several times by one client, the
     server may close the connection to the client in order to prevent an
     accumulation of unhealthy connections.
+    
+I. Appendix
 
+Practical examples
 
-Marti and Mechouk                                                   [Page 8]
+1. ChatHack connexion
 
-RFC 1622                    PROTOCOL Revision 1                   April 2020
+1.1. Simple Login
 
-FORMAT DE NOTRE PROTOCOL
+    A client wants to connect to the chat with a temporary nickname "Link13". It
+    sends a request to the server:
+        ---------------------
+        | 00 | 6 | "Link13" |
+        ---------------------
+    The server checks if "Link13" is already taken by a connected or registered
+    user. If it is available, the server sends an acceptation response:
+        -----------------------------------
+        | 10 | 19 | "Welcome to ChatHack" |
+        -----------------------------------
+    If the nickname is unavailable it sends an error packet:
+        ---------------------------------
+        | 31 | 17 | "Unavailable Login" |
+        ---------------------------------
 
+1.2. Login with Password
 
-Marti and Mechouk                                                   [Page 9]
+    A client wants to connect to the chat with the nickname "Link13" and the
+    password "gAn0nD0Rf". It sends a request to the server:
+        ---------------------------------------
+        | 01 | 6 | "Link13" | 9 | "gAn0nD0Rf" |
+        ---------------------------------------
+    If the nickname and the password match, the server sends an acceptation
+    response:
+        -----------------------------------
+        | 11 | 19 | "Welcome to ChatHack" |
+        -----------------------------------
+    If the nickname is available and is not found within already registered
+    users, the server registers the user and sends an acceptation response:
+        -----------------------------------
+        | 12 | 19 | "Welcome to ChatHack" |
+        -----------------------------------
+    The server checks if "Link13" is already taken by a connected or registered
+    user. If the nickname is unavailable it sends an error packet:
+        ---------------------------------
+        | 31 | 17 | "Unavailable Login" |
+        ---------------------------------
+    If the alias is found within the registered users but the password does not
+    match, the server sends an error packet:
+        ------------------------------
+        | 32 | 14 | "Wrong password" |
+        ------------------------------
 
-RFC 1622                    PROTOCOL Revision 1                   April 2020
+1.3 Private connection between two users
 
+    A user with the nickname "Link13" wants to communicate privately to another
+    user "SkullKid42". It sends a request to the server:
+        --------------------------
+        | 02 | 10 | "SkullKid42" |
+        --------------------------
+    If the user "SkullKid42" is online, the server will simply redirect the same
+    packet to it.
+    The client may respond positively by sending a packet back to the server
+    with its address "Termina".
+        -------------------------------------
+        | 13 | 6 | "Link13" | 7 | "Termina" |
+        -------------------------------------
+    The server will redirect the same packet to the user "Link13". This user
+    will respond sending his address:
+        -----------------------------------------
+        | 13 | 10 | "SkullKid42" | 6 | "Hyrule" |
+        -----------------------------------------
+    This last packet will be redirected by the server to the user "SkullKid42"
+    so that both clients get the address and be able to create a direct connection
+    between each other.
+    
+    If the connection is refused by the user "SkullKid42" or it is not connected,
+    the server will send a response to the requesting user notifying it:
+        ----------------------------------
+        | 14 | 18 | "User not connected" |
+        ----------------------------------
+    If the request does not receive a response within timeout seconds, the
+    requesting user gets an error response from the server:
+        -------------------------------------
+        | 30 | 21 | "client not responding" |
+        -------------------------------------
+        
+2. Data transmission
+
+2.1. ChatHack global chat
+
+    Several users are connected to the ChatHack. The user "SkullKid42" writes a
+    message to the server:
+        -----------------------------------------------------------------
+        | 20 | 10 | "SkullKid42" | 4 | "UTF8" | 16 | "Hello my friends" |
+        -----------------------------------------------------------------
+    The server broadcasts, that is to say, sends the packet back to all connected
+    users, including "SkullKid42" with the same format.
+    
+    If the packet is wrongly formed, for example, size does not match the actual
+    size of the packet or the encoding format is not recognised, the server sends
+    an error message to the user and destroys the current data packet:
+        ------------------------------
+        | 33 | 14 | "Data corrupted" |
+        ------------------------------
+    
+2.2. Private message exchange
+
+    Two clients, "Link13" and "SkullKid42" are directly connected (see section
+    1.3) and want to exchange messages:
+        -------------------------------------------------------------
+        | 21 | 4 | "UTF8" | 32 | "Have you saved the princess yet?" |
+        -------------------------------------------------------------
+
+    They may get an error response if the packet is wrongly formed:
+        ------------------------------
+        | 33 | 14 | "Data corrupted" |
+        ------------------------------
+
+2.3. Private file exchange
+
+    Two clients, "Link13" and "SkullKid42" are directly connected (see section
+    1.3) and want to exchange a file:
+        ------------------------------------------
+        | 22 | 15 | "MajorasMask.jpg" | 32 | ... |
+        ------------------------------------------
+    "..." representing the bytes of the file to be sent.
+    
+    If the file name does not contain a valid extension, the receiving client
+    sends an error packet and the previous packet is automatically destroyed:
+        -------------------------------------
+        | 34 | 21 | "Cannot recognise file" |
+        -------------------------------------
+    
 Error Codes
 
     Value   Meaning
@@ -413,7 +477,7 @@ Error Codes
 
 Marti and Mechouk                                                  [Page 10]
 
-RFC 1622                    PROTOCOL Revision 1                   April 2020
+RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 
 References
