@@ -8,16 +8,15 @@ Obsoletes: None
                      
 Status of this Memo
     
-    This RFC specifies a message and file exchange service protocol for 
-    the project of Network Programming course in ESIPE and requests
-    discussion and suggestions for improvements. Distribution of this memo
-    is limited.
+    This RFC specifies a message and file exchange service protocol for the
+    project of Network Programming course in ESIPE and requests discussion and
+    suggestions for improvements. Distribution of this memo is limited.
     
 Summary
 
     ChatHack is a protocol used to transfer messages to a group of clients
     and privately and to transfer files and messages between two clients, who 
-    will need to authenticate to use the service. The group exchange will be 
+    will need to be authenticated to use the service. The group exchange will be 
     done through a server, while private exchanges will be done directly between
     clients via TCP connection.
 
@@ -87,17 +86,11 @@ RFC 1350                    PROTOCOL Revision 1                   April 2020
     packets will have an Internet header, a Control header, and a ChatHack
     header. ----
 
-Marti and Mechouk                                                   [Page 3]
-
-RFC 1622                    PROTOCOL Revision 1                   April 2020
-
-
          -----------------------------------------------------
          |  Local Medium  |  Internet  |  Datagram  |  TFTP  |
          -----------------------------------------------------
 
                       Figure 3-1: Order of Headers
-
 
 4. Initial Connection Protocol
 
@@ -134,14 +127,14 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
         2. The server acknowledges the private connexion request and sends a
         request to Client B.
         
-        3. Client B acknowledges the connexion request to the server.
+        3. Client B acknowledges the connection request to the server.
         
         4. The server sends the information of Client B to Client A in order to
         allow the connexion between the two of them.
         
-        5. Client A sends a connexion request to Client B.
+        5. Client A sends a connection request to Client B.
         
-        6. Client B acknowledges the connexion request.
+        6. Client B acknowledges the connection request.
          
 5. ChatHack Protocol Packets
 
@@ -149,30 +142,30 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
     mentioned above [... TODO]:
     
         Opcode      Operation
-        00 - 09     Connexion request(CRQ)
-        10 - 19     Acknoledgement (ACK)
+        00 - 09     Connection request(CRQ)
+        10 - 19     Acknowledgement (ACK)
         20 - 29     Message / file (DATA)
         30 - 39     Error (ERROR)
         
     The list of packets described below are the following :
         
         Name of packet                      Direction
-        Request for login                   server->client
-        Request for login and password      server->client
         Login                               client->server
         Login with Password                 client->server
+        Response for login                  server->client
+        Response for login and password     server->client
         Group message                       client->server
         Group message broadcast             server->client
         Request for private connection      clientA->server
         Request for private connection      server->clientB
         Response for private connection     clientB->server
         Response for private connection     server->clientA
-        Private message/file                clientA->clientB
+        Private message/file                clientA->clientB/clientB->clientA
         
     The ChatHack protocol header of a packet contains the opcode associated with
     the packet.
     
-5.1. ChatHack Request for Connexion Packets
+5.1. ChatHack Request for Connection Packets
 
 5.1.1. ChatHack Login Packets
     
@@ -180,42 +173,121 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
                     --------------------------------
                     | Opcode | SizeOfLogin | Login |
                     --------------------------------
-                        Figure 5-? : Login packet
+                        Figure 5-1 : Login packet
                         
-    Simple login packets have the format shown in Figure 5-?. The opcode
-    associated to this type of login is 00. The login, corresponding to the
-    alias chosen by the client, must be encoded in ASCII in order to allow only
-    a limited set of characters in the alias.
+    Login packets have the format shown in Figure 5-1. The opcode associated to
+    this type of login packet is 00. The login, corresponding to the alias chosen
+    by the client, must be encoded in ASCII in order to allow only a limited set
+    of characters in the alias.
     
               int        long       String        long        String
            ------------------------------------------------------------
            | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
            ------------------------------------------------------------
-                     Figure 5-? : Login with password packet
+                     Figure 5-2 : Login with password packet
     
-    Login with password packets have the format shown in Figure 5-?. The opcode
+    Login with password packets have the format shown in Figure 5-2. The opcode
     associated to this type of login is 01. The login and password are encoded
     in ASCII in order to allow a limited set of characters in them.
     
     The Login packets are used as Request for Connection to the server.
+    
+5.1.2. ChatHack Request for Private Connection Packet
+                
+    Request for private connection packets have the same format as Login packets,
+    as shown in Figure 5-1. The opcode associated to this type of request is 03
+    and the field Login corresponds to the alias of the user to whow the client
+    wants to be directly connected.
+    
+    This same packet is used by the server to transmit the request to the client
+    to whom the first user wants to be connected to.
                      
 5.3. ChatHack Acknowledgment Packets
-              int      long      String        long       String
-           ------------------------------------------------------------
-           | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
-           ------------------------------------------------------------
-                     Figure 5-2 : Login with password packet
 
+5.3.1. Chat connection response packets
+
+                   int        long        String
+                ----------------------------------
+                | Opcode | SizeOfAckMsg | AckMsg |
+                ----------------------------------
+                Figure 5-3 : Acknowledgment packet
+    
+    Simple acknowledgment packet that is sent back to the client to accept the
+    connection to the global chat. The server may add a response message.
+    
+    The return codes of the responses mean:
+        20. Connection with Log in OK
+        21. Connection with Log in and password OK
+        22. Connection with Register OK
+        
+5.3.2. Private connection response packets
+
+           int        long      String       long        String
+        ----------------------------------------------------------
+        | Opcode | SizeOfLogin | Login | SizeOfAddress | Address |
+        ----------------------------------------------------------
+                Figure 5-4 : Positive private connection
+                        
+    When a private connection request is accepted by a client, it will send an
+    acknowledgment packet with its address to the server. The login field
+    corresponds to the requesting client.
+    
+    The server will redirect this packet to the requesting client. The requesting
+    client will send the same packet with its address and the other client's
+    login so that both can then open a direct connection between them.
+        
 5.4. ChatHack Data Packets
 
+5.4.1. Global data transmission
+
+    int       long      String        long         String      long      String
+--------------------------------------------------------------------------------
+| Opcode | SizeOfLogin | Login | SizeOfEncoding | Encoding | SizeOfData | Data |
+--------------------------------------------------------------------------------
+                   Figure 5-5 : Global chat message packet
+                            
+    Global chat messages are transferred in DATA packets as shown in the Figure
+    5-5. The opcode associated to this data packet is 20. Encoding and login
+    fields are encoded in ASCII.
+    
+    Broadcast of the message by the server is done with the same packet.
+    
+5.4.2. Private data transmission
+
+            int         long         String      long      String
+        ----------------------------------------------------------
+        | Opcode | SizeOfEncoding | Encoding | SizeOfData | Data |
+        ----------------------------------------------------------
+                    Figure 5-6 : Private message packet
+                    
+    Private messages are transferred in DATA packets as shown in the Figure 5-6.
+    The opcode associated to this data packet is 21. Encoding field must be
+    encoded in ASCII.
+    
+            int         long         String      long      String
+        ----------------------------------------------------------
+        | Opcode | SizeOfFileName | FileName | SizeOfData | Data |
+        ----------------------------------------------------------
+                    Figure 5-7 : Private file data packet
+                    
+    Files are transferred in DATA packets as shown in the Figure 5-7. The opcode
+    associated to this data packet is 22. File name must be encoded in ASCII.
+    The encoding of the data is given by the extension after the last "." of the
+    file name.
+    
+    If no valid extension is given, whether it is because the file name does not
+    have a clear extension or the extension is not recognised, data packet is
+    considered invalid. See error packets below for further information.
+
 5.5. ChatHack Error Packets
+
                    int         long          String
                 --------------------------------------
                 | Opcode | SizeOfErrorMsg | ErrorMsg |
                 --------------------------------------
-                     Figure 5-? : ERROR packet
+                     Figure 5-8 : ERROR packet
                      
-    An ERROR packet (opcodes [40-49]) has the form described in Figure 5-?. An
+    An ERROR packet (opcodes [30-39]) has the form described in Figure 5-8. An
     ERROR packet can be the aknowledgment of any other type of packet. The opcode
     is an integer indicating the nature of the error. The error message is used
     for human understanding and should be in ASCII.
@@ -226,7 +298,6 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
         32. Login with Password Error
         33. Invalid / Corrupted Packet
         34. Invalid File Encoding Error
-    
        
 6. Normal Termination
 
@@ -246,18 +317,12 @@ RFC 1622                    PROTOCOL Revision 1                   April 2020
 
 Error Codes
 
-   Value     Meaning
-
-   0         Not defined, see error message (if any).
-   1         File not found.
-   2         Access violation.
-   3         Disk full or allocation exceeded.
-   4         Illegal TFTP operation.
-   5         Unknown transfer ID.
-   6         File already exists.
-   7         No such user.
-   
-   
+    Value   Meaning
+    30      Timeout
+    31      Login Error
+    32      Login with Password Error
+    33      Invalid / Corrupted Packet
+    34      Invalid File Encoding Error
 
 Marti and Mechouk                                                  [Page 10]
 
@@ -271,6 +336,22 @@ References
 
 
 Security Considerations
+    
+    Since this version of ChatHack protocol does not include per se any form of
+    personal data encryption, passwords and logins are transmitted to the network
+    in the clear, which is a huge security breach if used alone. Also, ChatHack
+    does not allow suppression of personal data saved by the server (such as
+    login and password).
+    
+    There is no more limitations to file transmission other than needing a known
+    format of the file. Binaries and executables may be transferred freely so be
+    aware of this when implementing this protocol.
 
+Author's Addresses
 
-Author's Address
+    Emilie Marti and Lisa Mechouk
+    Ecole Supérieure d'Ingénieurs Marne-La-Vallée
+    Université Gustave Eiffel
+    Boulevard Copernic, 77600 Champs-Sur-Marne
+    
+    Email: emarti@etud.u-pem.fr and lmechouk@etud.u-pem.fr
