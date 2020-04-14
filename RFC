@@ -92,10 +92,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     -------------------------------------------------------
     |  Internet |  Control |  SocketChannel  |  ChatHack  |
     -------------------------------------------------------
-
-
-
-                      Figure 3-1: Order of Headers
+                Figure 3-1: Order of Headers
 
 4. Initial Connection Protocol
 
