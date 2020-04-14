@@ -70,9 +70,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     files.
     
     Errors cause termination of the connection. An error is signaled by an
-    error packet, or by a wrong login, or login password. The server is 
+    error frame, or by a wrong login, or login password. The server is 
     responsible of closing the connection if there are too many corrupted 
-    packets or exceeded timeouts coming from a client.
+    frames or exceeded timeouts coming from a client.
     
     This protocol is very restrictive, in order to simplify implementation.
 
@@ -85,7 +85,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     ChatHack is designed to be implemented on top of the Transmission Control
     Protocol (TCP) which is based on the IP(Internet Protocol) to send and 
     receive segments of variable-length with source and destination. Since 
-    socket is implemented on the Internet protocol, packets will have an 
+    socket is implemented on the Internet protocol, frames will have an 
     Internet header, a Control header, a SocketChannel for the connection and a 
     ChatHack header.
 
@@ -152,13 +152,13 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         20 - 29     Message / file (DATA)
         30 - 39     Error (ERROR)
         
-    Opcode is a unique identifier for each type of packet. Since there are
-    several packets for each case, we assign a range of codes for each type of
-    packet.
+    Opcode is a unique identifier for each type of frame. Since there are
+    several frames for each case, we assign a range of codes for each type of
+    frame.
     
-    The list of packets described below are the following :
+    The list of frames described below are the following :
         
-        Name of packet                      Direction
+        Name of frame                       Direction
         Login                               client->server
         Login with Password                 client->server
         Response for login                  server->client
@@ -171,21 +171,21 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         Response for private connection     server->clientA
         Private message/file                clientA->clientB/clientB->clientA
         
-    The ChatHack protocol header of a packet contains the opcode associated with
-    the packet.
+    The ChatHack protocol header of a frame contains the opcode associated with
+    the frame.
     
-5.1. ChatHack Request for Connection Packets
+5.1. ChatHack Request for Connection Frames
 
-5.1.1. ChatHack Login Packets
+5.1.1. ChatHack Login Frames
     
                        byte       long      String  
                     --------------------------------
                     | Opcode | SizeOfLogin | Login |
                     --------------------------------
-                        Figure 5-1 : Login packet
+                        Figure 5-1 : Login frame
                         
-    Login packets have the format shown in Figure 5-1. The opcode associated to
-    this type of login packet is 00. The login, corresponding to the alias chosen
+    Login frames have the format shown in Figure 5-1. The opcode associated to
+    this type of login frame is 00. The login, corresponding to the alias chosen
     by the client, must be encoded in ASCII in order to allow only a limited set
     of characters in the alias.
     
@@ -193,35 +193,35 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
            ------------------------------------------------------------
            | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
            ------------------------------------------------------------
-                     Figure 5-2 : Login with password packet
+                     Figure 5-2 : Login with password frame
     
-    Login with password packets have the format shown in Figure 5-2. The opcode
+    Login with password frames have the format shown in Figure 5-2. The opcode
     associated to this type of login is 01. The login and password are encoded
     in ASCII in order to allow a limited set of characters in them.
     
-    The Login packets are used as Request for Connection to the server.
+    The Login frames are used as Request for Connection to the server.
     
-5.1.2. ChatHack Request for Private Connection Packet
+5.1.2. ChatHack Request for Private Connection Frame
                 
-    Request for private connection packets have the same format as Login packets,
+    Request for private connection frames have the same format as Login frames,
     as shown in Figure 5-1. The opcode associated to this type of request is 02
     and the field Login corresponds to the alias of the user to whom the client
     wants to be directly connected.
     
-    This same packet is used by the server to transmit the request to the client
+    This same frame is used by the server to transmit the request to the client
     to whom the first user wants to be connected to.
                      
-5.3. ChatHack Acknowledgment Packets
+5.3. ChatHack Acknowledgment Frames
 
-5.3.1. Chat connection response packets
+5.3.1. Chat connection response frames
 
                    byte       long        String
                 ----------------------------------
                 | Opcode | SizeOfAckMsg | AckMsg |
                 ----------------------------------
-                Figure 5-3 : Acknowledgment packet
+                Figure 5-3 : Acknowledgment frame
     
-    Simple acknowledgment packet that is sent back to the client to accept the
+    Simple acknowledgment frame that is sent back to the client to accept the
     connection to the global chat. The server may add a response message.
     
     The return codes of the responses mean:
@@ -230,32 +230,32 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         11. Connection with Log in and password OK
         12. Connection with Register OK
         
-5.3.2. Private connection response packets
+5.3.2. Private connection response frames
 
            byte     long      String       long        String
         ----------------------------------------------------------
         | Opcode | SizeOfLogin | Login | SizeOfAddress | Address |
         ----------------------------------------------------------
-         Figure 5-4 : Positive private connection response packet
+         Figure 5-4 : Positive private connection response frame
                         
     When a private connection request is accepted by a client, it will send an
-    acknowledgment packet to the server as shown in the Figure 5-4. The opcode
+    acknowledgment frame to the server as shown in the Figure 5-4. The opcode
     is 13 and it contains its address an the login of the requesting client.
     
-    The server will redirect this packet to the requesting client. The requesting
-    client will send the same packet with its address and the other client's
+    The server will redirect this frame to the requesting client. The requesting
+    client will send the same frame with its address and the other client's
     login so that both can then open a direct connection between them.
     
                        byte      long    String
                     ----------------------------
                     | Opcode | SizeOfMsg | Msg |
                     ----------------------------
-         Figure 5-5 : Negative private connection response packet
+         Figure 5-5 : Negative private connection response frame
                 
-    If the client refuses the private connexion, a packet with a single opcode
+    If the client refuses the private connexion, a frame with a single opcode
     of 14 will be sent to the requesting client through the server.
         
-5.4. ChatHack Data Packets
+5.4. ChatHack Data Frames
 
 5.4.1. Global data transmission
  
@@ -263,13 +263,13 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 --------------------------------------------------------------------------------
 | Opcode | SizeOfLogin | Login | SizeOfEncoding | Encoding | SizeOfData | Data |
 --------------------------------------------------------------------------------
-                   Figure 5-5 : Global chat message packet
+                   Figure 5-5 : Global chat message frame
                             
-    Global chat messages are transferred in DATA packets as shown in the Figure
-    5-5. The opcode associated to this data packet is 20. Encoding and login
+    Global chat messages are transferred in DATA frames as shown in the Figure
+    5-5. The opcode associated to this data frame is 20. Encoding and login
     fields are encoded in ASCII. Login field corresponds to the sender's alias.
     
-    Broadcast of the message by the server is done with the same packet.
+    Broadcast of the message by the server is done with the same frame.
     
 5.4.2. Private data transmission
 
@@ -277,37 +277,37 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         ----------------------------------------------------------
         | Opcode | SizeOfEncoding | Encoding | SizeOfData | Data |
         ----------------------------------------------------------
-                    Figure 5-6 : Private message packet
+                    Figure 5-6 : Private message frame
                     
-    Private messages are transferred in DATA packets as shown in the Figure 5-6.
-    The opcode associated to this data packet is 21. Encoding field must be
+    Private messages are transferred in DATA frames as shown in the Figure 5-6.
+    The opcode associated to this data frame is 21. Encoding field must be
     encoded in ASCII.
     
             byte        long         String      long       Bytes
         ----------------------------------------------------------
         | Opcode | SizeOfFileName | FileName | SizeOfData | Data |
         ----------------------------------------------------------
-                    Figure 5-7 : Private file data packet
+                    Figure 5-7 : Private file data frame
                     
-    Files are transferred in DATA packets as shown in the Figure 5-7. The opcode
-    associated to this data packet is 22. File name must be encoded in ASCII.
+    Files are transferred in DATA frames as shown in the Figure 5-7. The opcode
+    associated to this data frame is 22. File name must be encoded in ASCII.
     The encoding of the data is given by the extension after the last "." of the
     file name.
     
     If no valid extension is given, whether it is because the file name does not
-    have a clear extension or the extension is not recognised, data packet is
-    considered invalid. See error packets below for further information.
+    have a clear extension or the extension is not recognised, data frame is
+    considered invalid. See error frames below for further information.
 
-5.5. ChatHack Error Packets
+5.5. ChatHack Error Frames
 
                    byte         long          String
                 --------------------------------------
                 | Opcode | SizeOfErrorMsg | ErrorMsg |
                 --------------------------------------
-                     Figure 5-8 : ERROR packet
+                     Figure 5-8 : ERROR frame
                      
-    An ERROR packet (opcodes [30-39]) has the form described in Figure 5-8. An
-    ERROR packet can be the aknowledgment of any other type of packet. The 
+    An ERROR frame (opcodes [30-39]) has the form described in Figure 5-8. An
+    ERROR frame can be the aknowledgment of any other type of frame. The 
     opcode is an integer indicating the nature of the error. The error message 
     is used for human understanding and should be in ASCII.
     
@@ -315,7 +315,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         30. Timeout
         31. Login Error
         32. Login with Password Error
-        33. Invalid / Corrupted Packet
+        33. Invalid / Corrupted Frame
         34. Invalid File Encoding Error
        
 6. Normal Termination
@@ -349,7 +349,7 @@ Practical examples
         -----------------------------------
         | 10 | 19 | "Welcome to ChatHack" |
         -----------------------------------
-    If the nickname is unavailable it sends an error packet:
+    If the nickname is unavailable it sends an error frame:
         ---------------------------------
         | 31 | 17 | "Unavailable Login" |
         ---------------------------------
@@ -372,12 +372,12 @@ Practical examples
         | 12 | 19 | "Welcome to ChatHack" |
         -----------------------------------
     The server checks if "Link13" is already taken by a connected or registered
-    user. If the nickname is unavailable it sends an error packet:
+    user. If the nickname is unavailable it sends an error frame:
         ---------------------------------
         | 31 | 17 | "Unavailable Login" |
         ---------------------------------
     If the alias is found within the registered users but the password does not
-    match, the server sends an error packet:
+    match, the server sends an error frame:
         ------------------------------
         | 32 | 14 | "Wrong password" |
         ------------------------------
@@ -390,18 +390,18 @@ Practical examples
         | 02 | 10 | "SkullKid42" |
         --------------------------
     If the user "SkullKid42" is online, the server will simply redirect the same
-    packet to it.
-    The client may respond positively by sending a packet back to the server
+    frame to it.
+    The client may respond positively by sending a frame back to the server
     with its address "Termina".
         -------------------------------------
         | 13 | 6 | "Link13" | 7 | "Termina" |
         -------------------------------------
-    The server will redirect the same packet to the user "Link13". This user
+    The server will redirect the same frame to the user "Link13". This user
     will respond sending his address:
         -----------------------------------------
         | 13 | 10 | "SkullKid42" | 6 | "Hyrule" |
         -----------------------------------------
-    This last packet will be redirected by the server to the user "SkullKid42"
+    This last frame will be redirected by the server to the user "SkullKid42"
     so that both clients get the address and be able to create a direct connection
     between each other.
     If the connection is refused by the user "SkullKid42" or it is not connected,
@@ -424,11 +424,11 @@ Practical examples
         -----------------------------------------------------------------
         | 20 | 10 | "SkullKid42" | 4 | "UTF8" | 16 | "Hello my friends" |
         -----------------------------------------------------------------
-    The server broadcasts, that is to say, sends the packet back to all connected
+    The server broadcasts, that is to say, sends the frame back to all connected
     users, including "SkullKid42" with the same format.
-    If the packet is wrongly formed, for example, size does not match the actual
-    size of the packet or the encoding format is not recognised, the server sends
-    an error message to the user and destroys the current data packet:
+    If the frame is wrongly formed, for example, size does not match the actual
+    size of the frame or the encoding format is not recognised, the server sends
+    an error message to the user and destroys the current data frame:
         ------------------------------
         | 33 | 14 | "Data corrupted" |
         ------------------------------
@@ -440,7 +440,7 @@ Practical examples
         -------------------------------------------------------------
         | 21 | 4 | "UTF8" | 32 | "Have you saved the princess yet?" |
         -------------------------------------------------------------
-    Sender may get an error response if the packet is wrongly formed:
+    Sender may get an error response if the frame is wrongly formed:
         ------------------------------
         | 33 | 14 | "Data corrupted" |
         ------------------------------
@@ -453,7 +453,7 @@ Practical examples
         | 22 | 15 | "MajorasMask.jpg" | 32 | ... |
         ------------------------------------------
     If the file name does not contain a valid extension, the receiving client
-    sends an error packet and the previous packet is automatically destroyed:
+    sends an error frame and the previous frame is automatically destroyed:
         -------------------------------------
         | 34 | 21 | "Cannot recognise file" |
         -------------------------------------
@@ -464,7 +464,7 @@ Error Codes
     30      Timeout
     31      Login Error
     32      Login with Password Error
-    33      Invalid / Corrupted Packet
+    33      Invalid / Corrupted Frame
     34      Invalid File Encoding Error
 
 Marti and Mechouk                                                  [Page 10]
