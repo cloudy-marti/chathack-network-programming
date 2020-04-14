@@ -55,7 +55,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     messages on the ChatHack.
     
     The client is able to receive and send a message through this connexion.
-    Each packet contains a message encoded in UTF_8 and will be sent to the
+    Each frame contains a message encoded in UTF_8 and will be sent to the
     server. The server will then broadcast it to all connected users. The client
     will also receive all the messages sent by other clients to the server.
     
@@ -133,17 +133,17 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         4. If Client B accepts the private connection request it sends a
         response to the server with its address and the Client A's login.
         
-        5. The server redirects this packet to Client A and Client A sends to
-        the server a packet with its address and Client B's login.
+        5. The server redirects this frame to Client A and Client A sends to
+        the server a frame with its address and Client B's login.
         
-        6. The server redirects this packet to Client B.
+        6. The server redirects this frame to Client B.
         
         7. Client A and Client B have each other's addresses and may open the
         private and direct connection.
          
-5. ChatHack Protocol Packets
+5. ChatHack Protocol Frames
 
-    ChatHack protocol supports four types of packets, all of which have been
+    ChatHack protocol supports four types of frames, all of which have been
     mentioned above:
     
         Opcode      Operation
