@@ -73,7 +73,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
     Errors cause termination of the connection. An error is signaled by an
     error frame, or by a wrong login, or login password. The server is 
-    responsible of closing the connection if there are too many corrupted 
+    responsible of closing the connection if there are too many losted 
     frames or exceeded timeouts coming from a client.
     
     This protocol is very restrictive, in order to simplify implementation.
@@ -393,7 +393,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         30. Timeout
         31. Login Error
         32. Login with Password Error
-        33. Invalid / Corrupted Frame
+        33. Lost Frames
         34. Invalid File Encoding Error
         
         
@@ -527,12 +527,11 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         -----------------------------------------------------------------
     The server broadcasts, that is to say, sends the frame back to all connected
     users, including "SkullKid42" with the same format.
-    If the frame is wrongly formed, for example, size does not match the actual
-    size of the frame or the encoding format is not recognised, the server sends
+    If the frame is lost, for example, the server will sends
     an error message to the user and destroys the current data frame:
-        ------------------------------
-        | 33 | 14 | "Data corrupted" |
-        ------------------------------
+        -------------------------
+        | 33 | 14 | "Data Lost" |
+        -------------------------
     
 2.2. Private message exchange
 
@@ -541,10 +540,10 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         -------------------------------------------------------------
         | 21 | 4 | "UTF8" | 32 | "Have you saved the princess yet?" |
         -------------------------------------------------------------
-    Sender may get an error response if the frame is wrongly formed:
-        ------------------------------
-        | 33 | 14 | "Data corrupted" |
-        ------------------------------
+    Sender may get an error response if the frame is lost:
+        -------------------------
+        | 33 | 14 | "Data Lost" |
+        -------------------------
 
 2.3. Private file exchange
 
@@ -565,7 +564,7 @@ Error Codes
     30      Timeout
     31      Login Error
     32      Login with Password Error
-    33      Invalid / Corrupted Frame
+    33      Lost Frame
     34      Invalid File Encoding Error
     35      Invalid Address
 
