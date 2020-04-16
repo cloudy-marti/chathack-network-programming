@@ -468,6 +468,7 @@ Error Codes
     32      Login with Password Error
     33      Invalid / Corrupted Frame
     34      Invalid File Encoding Error
+    35      Port Already Used
 
 Marti and Mechouk                                                  [Page 10]
 
