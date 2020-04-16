@@ -83,7 +83,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 3. Relation to other Protocols
 
     ChatHack is designed to be implemented on top of the Transmission Control
-    Protocol (TCP) which is based on the IP(Internet Protocol) to send and 
+    Protocol (TCP) which is based on the IP (Internet Protocol) to send and 
     receive segments of variable-length with source and destination. Since 
     socket is implemented on the Internet protocol, frames will have an 
     Internet header, a Control header, a SocketChannel for the connection and a 
@@ -101,13 +101,15 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 4. Initial Connection Protocol
 
-    An initial connection is established by sending a request to the server with
-    an ip adress and a port which must not already be in use and receiving a 
-    positive reply, which will come with a request for login with or without 
-    password. Users that have already given an alias and password should be 
-    known by the server so that their alias cannot be taken or used without its 
-    associated password, that is to say, giving an alias and a password for the 
-    first time means that the user is signed up to the ChatHack.
+    An initial connection is established when a client sends a request to the
+    server with its IP address and a port which must be available. The server
+    sends a positive reply, which will come with a request for login with or
+    without password.
+    
+    Users that have already given an alias and password should be known by the
+    server so that their alias cannot be taken or used without its associated
+    password, that is to say, giving an alias and a password for the first time
+    means that the user is signed up to the ChatHack.
     
     Users that are only logged in without giving a password can choose an alias 
     that is not already taken by an already signed up / logged in user.
@@ -125,6 +127,15 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         without an associated password.
         
         4. Server acknowledges the login with or without password.
+        
+     Client A                         ChatHack
+        |                             |
+        | can I connect to ChatHack   |
+        |---------------------------->|
+        | yes, can I have your login  |
+        |<----------------------------|
+        |
+        |
         
 Marti and Mechouk                                                   [Page 4]
 
@@ -251,10 +262,10 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         
 5.3.2. Private connection response frames
 
-           byte     long      String       long        String
-        ----------------------------------------------------------
-        | Opcode | SizeOfLogin | Login | SizeOfAddress | Address |
-        ----------------------------------------------------------
+           byte     long      String        long        4 bytes    int
+       -----------------------------------------------------------------
+       | Opcode | SizeOfLogin | Login | SizeOfAddress | Address | Port |
+       -----------------------------------------------------------------
          Figure 5-4 : Positive private connection response frame
                         
     When a private connection request is accepted by a client, it will send an
@@ -424,18 +435,18 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     If the user "SkullKid42" is online, the server will simply redirect the same
     frame to it.
     The client may respond positively by sending a frame back to the server
-    with its address "Termina".
-        -------------------------------------
-        | 13 | 6 | "Link13" | 7 | "Termina" |
-        -------------------------------------
+    with its IP address 172.168.0.1 and available port 7777.
+        ----------------------------------------------
+        | 13 | 6 | "Link13" | 7 | 172.168.0.1 | 7777 |
+        ----------------------------------------------
     The server will redirect the same frame to the user "Link13". This user
-    will respond sending his address:
-        -----------------------------------------
-        | 13 | 10 | "SkullKid42" | 6 | "Hyrule" |
-        -----------------------------------------
-    This last frame will be redirected by the server to the user "SkullKid42"
-    so that both clients get the address and be able to create a direct connection
-    between each other.
+    will respond sending its IP address 172.168.10.1 and available port 7767.
+        ----------------------------------------------------
+        | 13 | 10 | "SkullKid42" | 6 | 172.168.10.1 | 7767 |
+        ----------------------------------------------------
+    This last frame will be first received by the server and then redirected to
+    the user "SkullKid42" so that both clients get the address and the port to
+    be able to create a direct connection between each other.
     If the connection is refused by the user "SkullKid42" or it is not connected,
     the server will send a response to the requesting user notifying it:
         ----------------------------------
@@ -446,6 +457,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         -------------------------------------
         | 30 | 21 | "client not responding" |
         -------------------------------------
+    If the address cannot be found or recognised by the client, the requesting
+    user gets an error response from the server:
+    
         
 Marti and Mechouk                                                   [Page 10]
 
@@ -502,7 +516,7 @@ Error Codes
     32      Login with Password Error
     33      Invalid / Corrupted Frame
     34      Invalid File Encoding Error
-    35      Port Already Used
+    35      Invalid Address
 
 Marti and Mechouk                                                  [Page 11]
 
