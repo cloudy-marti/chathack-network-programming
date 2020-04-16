@@ -98,10 +98,12 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
     An initial connection is established by sending a request to the server and
     receiving a positive reply, which will come with a request for login with or
-    without password. Users that have already given an alias and password should
-    be known by the server so that their alias cannot be taken or used without
-    its associated password, that is to say, giving an alias and a password for
-    the first time means that the user is signed up to the ChatHack.
+    without password. To make that connection, the sender needs to send a 
+    request with an IP adress and a port, a TCP connection. Users that have 
+    already given an alias and password should be known by the server so that 
+    their alias cannot be taken or used without its associated password, that is
+    to say, giving an alias and a password for the first time means that the 
+    user is signed up to the ChatHack.
     
     Users that are only logged in without giving a password can choose an alias 
     that is not already taken by an already signed up / logged in user.
