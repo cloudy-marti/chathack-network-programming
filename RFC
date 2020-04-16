@@ -41,6 +41,8 @@ Acknowlegements
     connexion through the server.
 
 
+
+
 Marti and Mechouk                                                   [Page 1]
 
 RFC 9692                    PROTOCOL Revision 1                   April 2020
@@ -76,6 +78,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
     This protocol is very restrictive, in order to simplify implementation.
 
+
+
+
 Marti and Mechouk                                                   [Page 2]
 
 RFC 9692                    PROTOCOL Revision 1                   April 2020
@@ -94,6 +99,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     |  Internet |  Control |  SocketChannel  |  ChatHack  |
     -------------------------------------------------------
                 Figure 3-1: Order of Headers
+                
+                
+                
                 
 Marti and Mechouk                                                   [Page 3]
 
@@ -139,6 +147,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
                 |   Connection establishment  |
                 |<--------------------------->|
                 |                             |
+        
+        
+        
         
 Marti and Mechouk                                                   [Page 4]
 
@@ -220,6 +231,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     The ChatHack protocol header of a frame contains the opcode associated with
     the frame.
     
+    
+    
+    
 Marti and Mechouk                                                   [Page 5]
 
 RFC 9692                    PROTOCOL Revision 1                   April 2020
@@ -260,6 +274,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
     This same frame is used by the server to transmit the request to the client
     to whom the first user wants to be connected to.
+    
+    
+    
     
 Marti and Mechouk                                                   [Page 6]
 
@@ -326,6 +343,8 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     Broadcast of the message by the server is done with the same frame.
     
     
+    
+    
 Marti and Mechouk                                                   [Page 7]
 
 RFC 9692                    PROTOCOL Revision 1                   April 2020
@@ -376,6 +395,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         32. Login with Password Error
         33. Invalid / Corrupted Frame
         34. Invalid File Encoding Error
+        
+        
+        
         
 Marti and Mechouk                                                   [Page 8]
 
@@ -445,6 +467,9 @@ Practical examples
         | 32 | 14 | "Wrong password" |
         ------------------------------
         
+        
+        
+        
 Marti and Mechouk                                                   [Page 9]
 
 RFC 9692                    PROTOCOL Revision 1                   April 2020
@@ -484,6 +509,8 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     If the address cannot be found or recognised by the client, the requesting
     user gets an error response from the server:
     
+        
+        
         
 Marti and Mechouk                                                   [Page 10]
 
@@ -541,6 +568,9 @@ Error Codes
     33      Invalid / Corrupted Frame
     34      Invalid File Encoding Error
     35      Invalid Address
+
+
+
 
 Marti and Mechouk                                                  [Page 11]
 
