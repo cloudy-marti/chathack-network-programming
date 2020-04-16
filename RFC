@@ -286,11 +286,11 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         
 5.3.2. Private connection response frames
 
-           byte     long      String        long        4 bytes    int
-       -----------------------------------------------------------------
-       | Opcode | SizeOfLogin | Login | SizeOfAddress | Address | Port |
-       -----------------------------------------------------------------
-         Figure 5-4 : Positive private connection response frame
+                byte     long      String    4 bytes    int
+            -------------------------------------------------
+            | Opcode | SizeOfLogin | Login | Address | Port |
+            -------------------------------------------------
+          Figure 5-4 : Positive private connection response frame
                         
     When a private connection request is accepted by a client, it will send an
     acknowledgment frame to the server as shown in the Figure 5-4. The opcode
@@ -460,14 +460,14 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     frame to it.
     The client may respond positively by sending a frame back to the server
     with its IP address 172.168.0.1 and available port 7777.
-        ----------------------------------------------
-        | 13 | 6 | "Link13" | 7 | 172.168.0.1 | 7777 |
-        ----------------------------------------------
+        ------------------------------------------
+        | 13 | 6 | "Link13" | 172.168.0.1 | 7777 |
+        ------------------------------------------
     The server will redirect the same frame to the user "Link13". This user
     will respond sending its IP address 172.168.10.1 and available port 7767.
-        ----------------------------------------------------
-        | 13 | 10 | "SkullKid42" | 6 | 172.168.10.1 | 7767 |
-        ----------------------------------------------------
+        ------------------------------------------------
+        | 13 | 10 | "SkullKid42" | 172.168.10.1 | 7767 |
+        ------------------------------------------------
     This last frame will be first received by the server and then redirected to
     the user "SkullKid42" so that both clients get the address and the port to
     be able to create a direct connection between each other.
