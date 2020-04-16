@@ -118,7 +118,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     global chat via ChatHack protocol :
     
         1. Client A wants to connect and sends a connexion request to the
-        server.
+        server, including its alias/ID and password.
         
         2. The server acknowledges the connexion request and sends a login
         request to the Client A.
@@ -128,14 +128,17 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         
         4. Server acknowledges the login with or without password.
         
-     Client A                         ChatHack
-        |                             |
-        | can I connect to ChatHack   |
-        |---------------------------->|
-        | yes, can I have your login  |
-        |<----------------------------|
-        |
-        |
+            Client                       Server
+                |                             |
+                | Can I connect to ChatHack with login X and password Y
+                |---------------------------->|
+                |                             |
+                | OK or KO response           |
+                |<----------------------------|
+                |                             |
+                |   Connection establishment  |
+                |<--------------------------->|
+                |                             |
         
 Marti and Mechouk                                                   [Page 4]
 
@@ -161,6 +164,27 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         
         7. Client A and Client B have each other's addresses and may open the
         private and direct connection.
+        
+         Client A                      Server                       Client B
+            |                             |                             |
+            | Can I connect to client B   |                             |
+            |---------------------------->|                             |
+            |                             | Can I connect to client B   |
+            |                             |---------------------------->|
+            |                             |                             |
+            |                             | Yes here my address (B)     |
+            |                             |<----------------------------|
+            | Yes here my address (B)     |                             |
+            |<----------------------------|                             |
+            |                             |                             |
+            | Here my address (A)         |                             |
+            |---------------------------->|                             |
+            |                             | Here my address (A)         |
+            |                             |---------------------------->|
+            |                                                           |
+            |                Connection establishment                   |
+            |<--------------------------------------------------------->|
+            |                                                           |
         
          
 5. ChatHack Protocol Frames
