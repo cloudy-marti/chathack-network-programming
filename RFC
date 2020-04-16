@@ -87,7 +87,8 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     receive segments of variable-length with source and destination. Since 
     socket is implemented on the Internet protocol, frames will have an 
     Internet header, a Control header, a SocketChannel for the connection and a 
-    ChatHack header.
+    ChatHack header. So ChatHack uses the TCP protocol on its connection part
+    with an IP address and a Port in order to be assigned a connection.
 
     -------------------------------------------------------
     |  Internet |  Control |  SocketChannel  |  ChatHack  |
