@@ -1,4 +1,4 @@
-##ChatHack
+**ChatHack**
 
 The ChatHack project is an application that allows users to chat with each other.
 To do so, users can chat publicly, by sending messages to all connected users, 
