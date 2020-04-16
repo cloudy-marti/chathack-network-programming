@@ -172,14 +172,14 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
             |                             | Can I connect to client B   |
             |                             |---------------------------->|
             |                             |                             |
-            |                             | Yes here my address (B)     |
+            |                             | Here my address and port (B)|
             |                             |<----------------------------|
-            | Yes here my address (B)     |                             |
+            | Here my address and port (B)|                             |
             |<----------------------------|                             |
             |                             |                             |
-            | Here my address (A)         |                             |
+            | Here my address and port (A)|                             |
             |---------------------------->|                             |
-            |                             | Here my address (A)         |
+            |                             | Here my address and port (A)|
             |                             |---------------------------->|
             |                                                           |
             |                Connection establishment                   |
