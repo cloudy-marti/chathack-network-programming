@@ -88,12 +88,12 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 3. Relation to other Protocols
 
     ChatHack is designed to be implemented on top of the Transmission Control
-    Protocol (TCP) which is based on the IP (Internet Protocol) to send and 
-    receive segments of variable-length with source and destination. Since 
-    socket is implemented on the Internet protocol, frames will have an 
+    Protocol (TCP) which is based on the IP (Internet Protocol) with IPV4 to 
+    send and receive segments of variable-length with source and destination. 
+    Since socket is implemented on the Internet protocol, frames will have an 
     Internet header, a Control header, a SocketChannel for the connection and a 
     ChatHack header. So ChatHack uses the TCP protocol on its connection part
-    with an IP address and a Port in order to be assigned a connection.
+    with an IPV4 address and a Port in order to be assigned a connection.
 
     -------------------------------------------------------
     |  Internet |  Control |  SocketChannel  |  ChatHack  |
@@ -484,12 +484,12 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     If the user "SkullKid42" is online, the server will simply redirect the same
     frame to it.
     The client may respond positively by sending a frame back to the server
-    with its IP address 172.168.0.1 and available port 7777.
+    with its IPV4 address 172.168.0.1 and available port 7777.
         ------------------------------------------
         | 13 | 6 | "Link13" | 172.168.0.1 | 7777 |
         ------------------------------------------
     The server will redirect the same frame to the user "Link13". This user
-    will respond sending its IP address 172.168.10.1 and available port 7767.
+    will respond sending its IPV4 address 172.168.10.1 and available port 7767.
         ------------------------------------------------
         | 13 | 10 | "SkullKid42" | 172.168.10.1 | 7767 |
         ------------------------------------------------
