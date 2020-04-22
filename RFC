@@ -208,7 +208,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
             Client                       Server
                 |                             |
-                | I want to disconnect (OpCode 13)
+                | I want to disconnect (OpCode 03)
                 |---------------------------->|
                 |                             |
                 | OK or KO response           |
