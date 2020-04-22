@@ -219,10 +219,10 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
                 |                             |
                 
     
-    There is a timeout that allowed the server to know if clients are active or
-    not. If the client has no activity for a period longer than the timeout is 
-    that the client didn't give him any information. So the server will going to
-    cut the connection between him and the inactive client.
+    There is a timeout in the server that allowed it to know if clients are
+    active or not. If the client has no activity for a period longer than the 
+    timeout is that the client didn't give him any information. So the server 
+    will going to cut the connection between him and the inactive client.
         
          
 5. ChatHack Protocol Frames
