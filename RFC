@@ -1,7 +1,7 @@
 Network Working Group                              M. Emilie and M. Lisa
 Request For Comments: 9692                                     ESIPE UGE
-STD: XX                                                       April 2020
-Obsoletes: None
+Obsoletes: None                                                April 2020
+
 
 
                     THE CHATHACK PROTOCOL (REVISION 1)
@@ -34,9 +34,10 @@ Acknowlegements
     it lacks most of the features of the secured authentification system we can 
     find on usual chat services.
     
-    Two modes of transfer are supported: a client-server-client TCP connexion,
-    where multiple clients may exchange simple messages (using UTF-8 encoding)
-    and a client-client TCP connexion, where two clients may exchange messages
+    Two modes of transfer are supported: a client-server TCP connexion, where a 
+    client may exchange simple messages (using UTF-8 encoding) with every 
+    connected, the server will send the message to all connected clients and a 
+    client-client TCP connexion, where two clients may exchange messages 
     (using UTF-8 encoding) and files between them, after asking for a direct 
     connexion through the server.
 
