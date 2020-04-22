@@ -202,7 +202,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     The disconnection part is managed by the server, it can be done several ways
     The client can send a frame with OpCode 03 to disconnect himself from 
     ChatHack. If all goes well, then the server will return a frame with OpCode 
-    equals to 13. If there is any problem when the client ask for a 
+    equals to 15. If there is any problem when the client ask for a 
     disconnection, then the server will return a frame with OpCode 36 for a KO
     disconnection.
     
