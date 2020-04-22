@@ -95,9 +95,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     ChatHack header. So ChatHack uses the TCP protocol on its connection part
     with an IPV4 address and a Port in order to be assigned a connection.
 
-    -------------------------------------------------------
-    |  Internet |  Control |  SocketChannel  |  ChatHack  |
-    -------------------------------------------------------
+          -------------------------------------------------------
+          |  Internet |  Control |  SocketChannel  |  ChatHack  |
+          -------------------------------------------------------
                 Figure 3-1: Order of Headers
                 
                 
@@ -147,8 +147,8 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
                 |   Connection establishment  |
                 |<--------------------------->|
                 |                             |
-        
-        
+
+                
         
         
 Marti and Mechouk                                                   [Page 4]
@@ -196,6 +196,33 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
             |                Connection establishment                   |
             |<--------------------------------------------------------->|
             |                                                           |
+            
+    4.1. Client disconnection
+    
+    The disconnection part is managed by the server, it can be done several ways
+    The client can send a frame with OpCode 03 to disconnect himself from 
+    ChatHack. If all goes well, then the server will return a frame with OpCode 
+    equals to 13. If there is any problem when the client ask for a 
+    disconnection, then the server will return a frame with OpCode 36 for a KO
+    disconnection.
+    
+            Client                       Server
+                |                             |
+                | I want to disconnect (OpCode 13)
+                |---------------------------->|
+                |                             |
+                | OK or KO response           |
+                |<----------------------------|
+                |                             |
+                |        Disconnection        |
+                |<--------------------------->|
+                |                             |
+                
+    
+    There is a timeout that allowed the server to know if clients are active or
+    not. If the client has no activity for a period longer than the timeout is 
+    that the client didn't give him any information. So the server will going to
+    cut the connection between him and the inactive client.
         
          
 5. ChatHack Protocol Frames
@@ -265,6 +292,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
     The Login frames are used as Request for Connection to the server.
     
+    
 5.1.2. ChatHack Request for Private Connection Frame
                 
     Request for private connection frames have the same format as Login frames,
@@ -275,6 +303,18 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     This same frame is used by the server to transmit the request to the client
     to whom the first user wants to be connected to.
     
+5.1.3. ChatHack Request for Logout
+    
+    The client can send a disconnect request to the server to be disconnected
+    from ChatHack.It has the same format than the Login Frames in Figure 5-1.
+    The OpCode for this request is 03.
+    
+    The return codes of the responses mean:
+    
+        00. Connection With Login
+        01. Connection With Login And Password
+        02. Private Connection Between Two Clients
+        03. Disconnect Request
     
     
     
@@ -300,6 +340,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         10. Connection with Log in OK
         11. Connection with Log in and password OK
         12. Connection with Register OK
+        13. Disconnection OK
         
 5.3.2. Private connection response frames
 
@@ -394,8 +435,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         31. Login Error
         32. Login with Password Error
         33. Lost Frames
-        34. Invalid File Encoding Error
-        
+        34. Invalid File Encoding 
+        35. Invalid Address
+        36. Disconneted KO
         
         
         
@@ -567,6 +609,7 @@ Error Codes
     33      Lost Frame
     34      Invalid File Encoding Error
     35      Invalid Address
+    36      Disconneted KO
 
 
 
