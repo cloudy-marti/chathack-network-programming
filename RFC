@@ -14,9 +14,9 @@ Status of this Memo
     
 Summary
 
-    ChatHack is a protocol used to transfer messages to a group of clients
-    and privately and to transfer files and messages between two clients, who 
-    will need to be authenticated to use the service. The group exchange will be 
+    ChatHack is a protocol used to transfer messages to a group of clients and
+    to transfer files and messages privately between two clients. The clients
+    will need to be authenticated to use the service. The group exchange will be
     done through a server, while private exchanges will be done directly between
     clients via TCP connection.
 
@@ -28,18 +28,17 @@ Acknowlegements
 1. Purpose
 
     ChatHack is a protocol which aims to transfer files and messages. It is 
-    implemented on top of the Internet Transmission Control Protocol 
-    (TCP or socket). [1] It is used to exchange messages and files between 
-    several clients. It is designed to be small and easy to implement, therefore
-    it lacks most of the features of the secured authentification system we can 
+    implemented on top of the Internet Transmission Control Protocol (TCP or
+    socket). [1] It is used to exchange messages and files between several
+    clients. It is designed to be small and easy to implement, therefore it
+    lacks most of the features of the secured authentification system we can 
     find on usual chat services.
     
     Two modes of transfer are supported: a client-server TCP connexion, where a 
-    client may exchange simple messages (using UTF-8 encoding) with every 
-    connected, the server will send the message to all connected clients and a 
-    client-client TCP connexion, where two clients may exchange messages 
-    (using UTF-8 encoding) and files between them, after asking for a direct 
-    connexion through the server.
+    client may exchange simple messages with the server, which will broadcast it
+    to all connected clients and a client-client TCP connexion, where two clients
+    may exchange messages and files between them, after asking for a direct
+    connection through the server.
 
 
 
@@ -54,7 +53,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     ask for a login and a password to authenticate the client. If the client
     is not recognised by the server, he will be signed up. The login has to be
     unique for each client. If the server grants the request, the connection is
-    opened and the client will be able to start sending and receiving groups
+    opened and the client will be able to start sending and receiving group
     messages on the ChatHack.
     
     The client is able to receive and send a message through this connexion.
@@ -63,7 +62,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     will also receive all the messages sent by other clients to the server.
     
     A client A may send a request to connect to another client B in order to
-    send messages and files privately. This will being with a request to the
+    send messages and files privately. This will begin with a request to the
     server. The server will ask the client B if it accepts to make the connexion
     and send the response to the client A. If the response is positive, a TCP-
     based connexion will be open between the two clients and they will be able 
@@ -74,8 +73,8 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     files.
     
     Errors cause termination of the connection. An error is signaled by a 
-    request with the OpCode between 30 and 39. The server is responsible of 
-    closing the connection if there are too many losted frames or exceeded 
+    frame with the OpCode between 30 and 39. The server is responsible of 
+    closing the connection if there are too many lost frames or exceeded 
     timeouts coming from a client.
     
     This protocol is very restrictive, in order to simplify implementation.
@@ -112,9 +111,8 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 4. Initial Connection Protocol
 
     An initial connection is established when a client sends a request to the
-    server with its IP address and a port which must be available. The server
-    sends a positive reply, which will come with a request for login with or
-    without password.
+    server with its username and/or a password. The server responds to the client
+    if the username and/or passwords are OK.
     
     Users that have already given an alias and password should be known by the
     server so that their alias cannot be taken or used without its associated
@@ -201,16 +199,16 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
             
     4.1. Client disconnection
     
-    The disconnection part is managed by the server, it can be done several ways
-    The client can send a frame with OpCode 03 to disconnect himself from 
-    ChatHack. If all goes well, then the server will return a frame with OpCode 
-    equals to 15. If there is any problem when the client ask for a 
-    disconnection, then the server will return a frame with OpCode 36 for a KO
-    disconnection.
+    The disconnection is asked by the client and it can be triggered by several
+    reasons.
     
-            Client                       Server
+    The first one, the client can send a frame to disconnect itself from 
+    ChatHack or from another client. The server or the other client will then
+    return a positive response.
+    
+            Client                      Server/Client
                 |                             |
-                | I want to disconnect (OpCode 03)
+                | I want to disconnect        |
                 |---------------------------->|
                 |                             |
                 | OK or KO response           |
@@ -219,13 +217,12 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
                 |        Disconnection        |
                 |<--------------------------->|
                 |                             |
-                
     
-    A timeout is set by the server in order to know whether the connected 
-    clients are still active or not. If a client shows no activity for a long 
-    time, bigger than the timeout, the server closes the connection between
-    itself and the inactive client.
-        
+    In the case of a global chat connexion, a timeout is set by the server in
+    order to know whether the connected clients are still active or not. If a
+    client shows no activity or it sends only bad frames for a long time, bigger
+    than the timeout, the server closes the connection between itself and the
+    inactive client.
          
 5. ChatHack Protocol Frames
 
@@ -255,12 +252,12 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         Request for private connection      server->clientB
         Response for private connection     clientB->server
         Response for private connection     server->clientA
+        Request for logout                  client->server
+        Response for logout                 server->client
         Private message/file                clientA->clientB/clientB->clientA
         
     The ChatHack protocol header of a frame contains the OpCode associated with
     the frame.
-    
-    
     
     
 Marti and Mechouk                                                   [Page 5]
@@ -294,7 +291,6 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
     The Login frames are used as Request for Connection to the server.
     
-    
 5.1.2. ChatHack Request for Private Connection Frame
                 
     Request for private connection frames have the same format as Login frames,
@@ -309,7 +305,8 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
     The client can send a disconnect request to the server to be disconnected
     from ChatHack. It has the same format than the Login Frames in Figure 5-1.
-    The OpCode for this request is 03.
+    The OpCode for this request is 03. The request for disconnection with another
+    client in the case of private connection is done the same way.
     
     The return codes of the request mean:
     
@@ -319,14 +316,13 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         03. Disconnect Request
     
     
-    
 Marti and Mechouk                                                   [Page 6]
 
 RFC 9692                    PROTOCOL Revision 1                   April 2020
                      
-5.3. ChatHack Acknowledgment Frames
+5.2. ChatHack Acknowledgment Frames
 
-5.3.1. Chat connection response frames
+5.2.1. Chat connection response frames
 
                    byte       long        String
                 ----------------------------------
@@ -336,9 +332,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
     Simple acknowledgment frame that is sent back to the client to accept the
     connection to the global chat. The server may add a response message. The
-    OpCode 10,11,12 and 15 are based on this.
+    OpCodes 10, 11, 12 and 15 are based on this.
         
-5.3.2. Private connection response frames
+5.2.2. Private connection response frames
 
                 byte     long      String    4 bytes    int
             -------------------------------------------------
@@ -363,7 +359,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     If the client refuses the private connexion, a frame with an OpCode
     of 14 will be sent to the requesting client through the server.
     
-5.3.3. Disconnection frame 
+5.2.3. Disconnection frame 
 
     The disconnected frame is based on the Figure 5-3. The server answer with a 
     frame with the OpCode 15 for a good disconnection.
@@ -377,10 +373,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         14. Private connection request KO
         15. Disconnection OK
         
-        
-5.4. ChatHack Data Frames
+5.3. ChatHack Data Frames
 
-5.4.1. Global data transmission
+5.3.1. Global data transmission
  
    byte       long      String        long         String      long      String
 --------------------------------------------------------------------------------
@@ -395,13 +390,11 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     Broadcast of the message by the server is done with the same frame.
     
     
-    
-    
 Marti and Mechouk                                                   [Page 7]
 
 RFC 9692                    PROTOCOL Revision 1                   April 2020
     
-5.4.2. Private data transmission
+5.3.2. Private data transmission
 
             byte       long         String      long       String
         ----------------------------------------------------------
@@ -435,7 +428,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         22. Files Transmission
         
 
-5.5. ChatHack Error Frames
+5.4. ChatHack Error Frames
 
                    byte         long          String
                 --------------------------------------
@@ -455,9 +448,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         33. Lost Frames
         34. Invalid File Encoding 
         35. Invalid Address
-        36. Disconneted KO
-        
-        
+        36. Disconnection KO
         
 Marti and Mechouk                                                   [Page 8]
 
@@ -465,7 +456,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
        
 6. Normal Termination
 
-    A termination of the connection is done when a client makes a disconnecteed 
+    A termination of the connection is done when a client makes a disconnection 
     request and this request is accepted without any errors. The server then 
     marks the user as disconnected. In the case of a non-registered user, the 
     nickname becomes available for further use.
@@ -474,7 +465,13 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
     If a timeout is registered by the server several times by one client, the
     server may close the connection to the client in order to prevent an
-    accumulation of unhealthy connections.
+    accumulation of unhealthy connections. The server then marks the user as
+    disconnected and in the case of a non-registered user, the username becomes
+    available for further use.
+    
+    In the case of the client disconnecting promptly, the server will mark the
+    user as disconnected and in the case of a non-registered user, the username
+    becomes available for further use.
     
 I. Appendix
 
@@ -528,8 +525,6 @@ Practical examples
         ------------------------------
         
         
-        
-        
 Marti and Mechouk                                                   [Page 9]
 
 RFC 9692                    PROTOCOL Revision 1                   April 2020
@@ -556,6 +551,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     This last frame will be first received by the server and then redirected to
     the user "SkullKid42" so that both clients get the address and the port to
     be able to create a direct connection between each other.
+    
     If the connection is refused by the user "SkullKid42" or it is not connected,
     the server will send a response to the requesting user notifying it:
         ----------------------------------
@@ -569,8 +565,6 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     If the address cannot be found or recognised by the client, the requesting
     user gets an error response from the server:
     
-        
-        
         
 Marti and Mechouk                                                   [Page 10]
 
