@@ -333,14 +333,8 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
                 Figure 5-3 : Acknowledgment frame
     
     Simple acknowledgment frame that is sent back to the client to accept the
-    connection to the global chat. The server may add a response message.
-    
-    The return codes of the responses mean:
-                
-        10. Connection with Log in OK
-        11. Connection with Log in and password OK
-        12. Connection with Register OK
-        13. Disconnection OK
+    connection to the global chat. The server may add a response message. The
+    OpCode 10,11,12 and 15 are based on this.
         
 5.3.2. Private connection response frames
 
@@ -366,6 +360,21 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
                 
     If the client refuses the private connexion, a frame with a single opcode
     of 14 will be sent to the requesting client through the server.
+    
+5.3.3. Disconnection frame 
+
+    The disconnected frame is based on the Figure 5-3. The server answer with a 
+    frame with the OpCode 15 for a good disconnection.
+    
+    The return codes of the responses mean:
+                
+        10. Connection with Log in OK
+        11. Connection with Log in and password OK
+        12. Connection with Register OK
+        13. Private connection request OK
+        14. Private connection request KO
+        15. Disconnection OK
+        
         
 5.4. ChatHack Data Frames
 
@@ -416,6 +425,13 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     If no valid extension is given, whether it is because the file name does not
     have a clear extension or the extension is not recognised, data frame is
     considered invalid. See error frames below for further information.
+    
+     The return codes of the responses mean:
+                
+        20. Global Messages Transmission
+        21. Private Messages Transmission
+        22. Files Transmission
+        
 
 5.5. ChatHack Error Frames
 
