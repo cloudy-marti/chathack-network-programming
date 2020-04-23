@@ -464,11 +464,11 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 7. Premature Termination
 
-    If the timeout is set by the server in order to know whether the connected 
-    clients are still active or not is exceeded by the client, the server will
-    closed the connection between him and the client.The server then marks the 
-    user as disconnected and in the case of a non-registered user, the username 
-    becomes available for further use.
+    A timeout is set by the server in order to know whether the connected clients
+    are still active or not. If the timeout is exceeded by a client when
+    waiting for a response, the server will close the connection between itself
+    and the client. The server then marks the user as disconnected and in the
+    case of a non-registered user, the username becomes available for further use.
     
     In the case of the client disconnecting promptly, the server will mark the
     user as disconnected and in the case of a non-registered user, the username
