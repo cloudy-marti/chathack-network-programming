@@ -29,7 +29,7 @@ Acknowlegements
 
     ChatHack is a protocol which aims to transfer files and messages. It is 
     implemented on top of the Internet Transmission Control Protocol (TCP or
-    socket). [1] It is used to exchange messages and files between two client
+    socket). [1] It is used to exchange messages and files between two clients
     and messages between all clients. It is designed to be small and easy to 
     implement, therefore it lacks most of the features of the secured 
     authentification system we can find on usual chat services.
@@ -57,9 +57,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     messages on the ChatHack.
     
     The client is able to receive and send a message through this connexion.
-    Each frame contains a message encoded in UTF_8 and will be sent to the
-    server. The server will then broadcast it to all connected users. The client
-    will also receive all the messages sent by other clients to the server.
+    Each frame contains a message and will be sent to the server. The server
+    will then broadcast it to all connected users. The client will also receive
+    all the messages sent by other clients to the server.
     
     A client A may send a request to connect to another client B in order to
     send messages and files privately. This will begin with a request to the
