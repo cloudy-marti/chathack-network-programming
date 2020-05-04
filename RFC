@@ -269,7 +269,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 5.1.1. ChatHack Login Frames
     
-                       byte       long      String  
+                       byte       byte      String  
                     --------------------------------
                     | Opcode | SizeOfLogin | Login |
                     --------------------------------
@@ -280,7 +280,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     by the client, must be encoded in ASCII in order to allow only a limited set
     of characters in the alias.
     
-              byte       long       String        long        String
+              byte       byte       String        long        String
            ------------------------------------------------------------
            | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
            ------------------------------------------------------------
@@ -337,7 +337,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         
 5.2.2. Private connection response frames
 
-                byte     long      String    4 bytes    int
+                byte    byte      String    4 or 16 bytes    int
             -------------------------------------------------
             | Opcode | SizeOfLogin | Login | Address | Port |
             -------------------------------------------------
@@ -378,7 +378,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 5.3.1. Global data transmission
  
-   byte       long      String        long         String      long      String
+   byte       byte      String        long         String      long      String
 --------------------------------------------------------------------------------
 | Opcode | SizeOfLogin | Login | SizeOfEncoding | Encoding | SizeOfData | Data |
 --------------------------------------------------------------------------------
