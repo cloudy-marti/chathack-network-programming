@@ -89,12 +89,13 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 3. Relation to other Protocols
 
     ChatHack is designed to be implemented on top of the Transmission Control
-    Protocol (TCP) which is based on the IP (Internet Protocol) with IPV4 to 
-    send and receive segments of variable-length with source and destination. 
-    Since socket is implemented on the Internet Protocol, frames will have an 
-    Internet header, a Control header, a SocketChannel for the connection and a 
-    ChatHack header. So ChatHack uses the TCP protocol on its connection part
-    with an IPV4 address and a Port in order to be assigned a connection.
+    Protocol (TCP) which is based on the IP (Internet Protocol) with IPV4 or 
+    IPV6 to send and receive segments of variable-length with source and 
+    destination. Since socket is implemented on the Internet Protocol, frames 
+    will have an Internet header, a Control header, a SocketChannel for the 
+    connection and a ChatHack header. So ChatHack uses the TCP protocol on its 
+    connection part with an IPV4 or IPV6 address and a Port in order to be 
+    assigned a connection.
 
           -------------------------------------------------------
           |  Internet |  Control |  SocketChannel  |  ChatHack  |
