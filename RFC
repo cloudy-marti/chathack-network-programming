@@ -378,15 +378,16 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 5.3.1. Global data transmission
  
-   byte       byte      String        long         String      long      String
---------------------------------------------------------------------------------
-| Opcode | SizeOfLogin | Login | SizeOfEncoding | Encoding | SizeOfData | Data |
---------------------------------------------------------------------------------
+   byte       byte      String   String      long      String
+---------------------------------------------------------------
+| Opcode | SizeOfLogin | Login | Encoding | SizeOfData | Data |
+---------------------------------------------------------------
                    Figure 5-5 : Global chat message frame
                             
     Global chat messages are transferred in DATA frames as shown in the Figure
     5-5. The opcode associated to this data frame is 20. Encoding and login
-    fields are encoded in ASCII. Login field corresponds to the sender's alias.
+    fields are encoded in ASCII, and chat messages are encoded in UTF_8. 
+    Login field corresponds to the sender's alias.
     
     Broadcast of the message by the server is done with the same frame.
     
@@ -397,15 +398,15 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
 5.3.2. Private data transmission
 
-            byte       long         String      long       String
-        ----------------------------------------------------------
-        | Opcode | SizeOfEncoding | Encoding | SizeOfData | Data |
-        ----------------------------------------------------------
+            byte     String      long       String
+        -----------------------------------------
+        | Opcode | Encoding | SizeOfData | Data |
+        -----------------------------------------
                     Figure 5-6 : Private message frame
                     
     Private messages are transferred in DATA frames as shown in the Figure 5-6.
-    The opcode associated to this data frame is 21. Encoding field must be
-    encoded in ASCII.
+    The opcode associated to this data frame is 21. Encoding messages must be
+    encoded in UTF_8.
     
             byte        long         String      long       Bytes
         ----------------------------------------------------------
@@ -415,12 +416,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
                     
     Files are transferred in DATA frames as shown in the Figure 5-7. The opcode
     associated to this data frame is 22. File name must be encoded in ASCII.
-    The encoding of the data is given by the extension after the last "." of the
-    file name.
-    
-    If no valid extension is given, whether it is because the file name does not
-    have a clear extension or the extension is not recognised, data frame is
-    considered invalid. See error frames below for further information.
+    The encoding of the data is given by a sequence of bytes.
     
      The return codes of the Data Frames mean:
                 
@@ -447,10 +443,9 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         31. Login Error
         32. Login with Password Error
         33. Lost Frames
-        34. Invalid File Encoding 
-        35. Invalid Address
-        36. Invalid Port
-        37. Disconnection KO
+        34. Invalid Address
+        35. Invalid Port
+        36. Disconnection KO
         
 Marti and Mechouk                                                   [Page 8]
 
@@ -621,9 +616,8 @@ Error Codes
     31.     Login Error
     32.     Login with Password Error
     33.     Lost Frame
-    34.     Invalid File Encoding Error
-    35.     Invalid Address
-    36.     Disconneted KO
+    34.     Invalid Address
+    35.     Disconneted KO
 
 
 
