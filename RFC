@@ -180,22 +180,16 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
          Client A                      Server                       Client B
             |                             |                             |
             | Can I connect to client B   |                             |
+            | with my address and port    |                             |
             |---------------------------->|                             |
             |                             | Can I connect to client B   |
             |                             |---------------------------->|
             |                             |                             |
-            |                             | Here my address and port (B)|
+            |                             | Ok / KO                     |
             |                             |<----------------------------|
-            | Here my address and port (B)|                             |
-            |<----------------------------|                             |
-            |                             |                             |
-            | Here my address and port (A)|                             |
-            |---------------------------->|                             |
-            |                             | Here my address and port (A)|
-            |                             |---------------------------->|
             |                                                           |
             |                Connection establishment                   |
-            |<--------------------------------------------------------->|
+            |<----------------------------------------------------------|
             |                                                           |
             
     4.1. Client disconnection
@@ -212,18 +206,13 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
                 | I want to disconnect        |
                 |---------------------------->|
                 |                             |
-                | OK or KO response           |
+                |     OK or KO response       |
                 |<----------------------------|
                 |                             |
                 |        Disconnection        |
                 |<--------------------------->|
                 |                             |
-    
-    In the case of a global chat connexion, a timeout is set by the server in
-    order to know whether the connected clients are still active or not. If a
-    client shows no activity or it sends only bad frames for a long time, bigger
-    than the timeout, the server closes the connection between itself and the
-    inactive client.
+                
          
 5. ChatHack Protocol Frames
 
@@ -294,10 +283,15 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
 5.1.2. ChatHack Request for Private Connection Frame
                 
-    Request for private connection frames have the same format as Login frames,
-    as shown in Figure 5-1. The OpCode associated to this type of request is 02
-    and the field Login corresponds to the alias of the user to whom the client
-    wants to be directly connected.
+          byte       byte       String      byte         byte      int
+        -----------------------------------------------------------------
+        | Opcode | SizeOfLogin | Login | SizeOfAddress | Address | Port |
+        -----------------------------------------------------------------
+                        Figure 5-3 : Login frame
+                        
+    Login frames have the format shown in Figure 5-3. The OpCode associated to
+    this type of request is 02 and the field Login corresponds to the alias of
+    the user to whom the client wants to be directly connected.
     
     This same frame is used by the server to transmit the request to the client
     to whom the first user wants to be connected to.
@@ -325,11 +319,11 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 5.2.1. Chat connection response frames
 
-                   byte       long        String
+                   byte       byte        String
                 ----------------------------------
                 | Opcode | SizeOfAckMsg | AckMsg |
                 ----------------------------------
-                Figure 5-3 : Acknowledgment frame
+                Figure 5-4 : Acknowledgment frame
     
     Simple acknowledgment frame that is sent back to the client to accept the
     connection to the global chat. The server may add a response message. The
@@ -337,28 +331,17 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
         
 5.2.2. Private connection response frames
 
-                byte    byte      String    4 or 16 bytes    int
-            -------------------------------------------------
-            | Opcode | SizeOfLogin | Login | Address | Port |
-            -------------------------------------------------
-          Figure 5-4 : Positive private connection response frame
-                        
-    When a private connection request is accepted by a client, it will send an
-    acknowledgment frame to the server as shown in the Figure 5-4. The OpCode
-    is 13 and it contains its address an the login of the requesting client.
-    
-    The server will redirect this frame to the requesting client. The requesting
-    client will send the same frame with its address and the other client's
-    login so that both can then open a direct connection between them.
-    
-                       byte      long    String
+                       byte      byte    String
                     ----------------------------
                     | Opcode | SizeOfMsg | Msg |
                     ----------------------------
-         Figure 5-5 : Negative private connection response frame
+           Figure 5-5 : Private connection response frame
+                        
+    When a private connection request is accepted by a client, it will send an
+    acknowledgment frame to the server as shown in the Figure 5-4. The OpCode
+    is 13. The server will redirect this frame to the requesting client.
                 
-    If the client refuses the private connexion, a frame with an OpCode
-    of 14 will be sent to the requesting client through the server.
+    If the client refuses the private connexion, the opcode will be 14.
     
 5.2.3. Disconnection frame 
 
@@ -378,10 +361,10 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 5.3.1. Global data transmission
  
-   byte       byte      String   String      long      String
----------------------------------------------------------------
-| Opcode | SizeOfLogin | Login | Encoding | SizeOfData | Data |
----------------------------------------------------------------
+               byte       byte      String     byte      String
+            ----------------------------------------------------
+            | Opcode | SizeOfLogin | Login | SizeOfData | Data |
+            ----------------------------------------------------
                    Figure 5-5 : Global chat message frame
                             
     Global chat messages are transferred in DATA frames as shown in the Figure
@@ -398,17 +381,17 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
 5.3.2. Private data transmission
 
-            byte     String      long       String
-        -----------------------------------------
-        | Opcode | Encoding | SizeOfData | Data |
-        -----------------------------------------
+                       byte      byte      String
+                    ------------------------------
+                    | Opcode | SizeOfData | Data |
+                    ------------------------------
                     Figure 5-6 : Private message frame
                     
     Private messages are transferred in DATA frames as shown in the Figure 5-6.
     The opcode associated to this data frame is 21. Encoding messages must be
     encoded in UTF_8.
     
-            byte        long         String      long       Bytes
+            byte        byte         String      byte       byte
         ----------------------------------------------------------
         | Opcode | SizeOfFileName | FileName | SizeOfData | Data |
         ----------------------------------------------------------
@@ -427,7 +410,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 5.4. ChatHack Error Frames
 
-                   byte         long          String
+                   byte         byte          String
                 --------------------------------------
                 | Opcode | SizeOfErrorMsg | ErrorMsg |
                 --------------------------------------
@@ -439,13 +422,12 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     is used for human understanding and should be in ASCII.
     
     The return codes for the errors mean the following :
-        30. Timeout
-        31. Login Error
-        32. Login with Password Error
-        33. Lost Frames
-        34. Invalid Address
-        35. Invalid Port
-        36. Disconnection KO
+        30. Login Error
+        31. Login with Password Error
+        32. Lost Frames
+        33. Invalid Address
+        34. Invalid Port
+        35. Disconnection KO
         
 Marti and Mechouk                                                   [Page 8]
 
@@ -460,12 +442,6 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 7. Premature Termination
 
-    A timeout is set by the server in order to know whether the connected clients
-    are still active or not. If the timeout is exceeded by a client when
-    waiting for a response, the server will close the connection between itself
-    and the client. The server then marks the user as disconnected and in the
-    case of a non-registered user, the username becomes available for further use.
-    
     In the case of the client disconnecting promptly, the server will mark the
     user as disconnected and in the case of a non-registered user, the username
     becomes available for further use.
@@ -478,12 +454,12 @@ Practical examples
 
 1.1. Simple Login
 
-    A client wants to connect to the chat with a temporary nickname "Link13". It
+    A client wants to connect to the chat with a temporary nickname "Bob". It
     sends a request to the server:
         ---------------------
-        | 00 | 6 | "Link13" |
+        | 00 | 6 | "Bob" |
         ---------------------
-    The server checks if "Link13" is already taken by a connected or registered
+    The server checks if "Bob" is already taken by a connected or registered
     user. If it is available, the server sends an acceptation response:
         -----------------------------------
         | 10 | 19 | "Welcome to ChatHack" |
@@ -495,11 +471,11 @@ Practical examples
 
 1.2. Login with Password
 
-    A client wants to connect to the chat with the nickname "Link13" and the
+    A client wants to connect to the chat with the nickname "Bob" and the
     password "gAn0nD0Rf". It sends a request to the server:
-        ---------------------------------------
-        | 01 | 6 | "Link13" | 9 | "gAn0nD0Rf" |
-        ---------------------------------------
+        ------------------------------------
+        | 01 | 3 | "Bob" | 9 | "gAn0nD0Rf" |
+        ------------------------------------
     If the nickname and the password match, the server sends an acceptation
     response:
         -----------------------------------
@@ -510,7 +486,7 @@ Practical examples
         -----------------------------------
         | 12 | 19 | "Welcome to ChatHack" |
         -----------------------------------
-    The server checks if "Link13" is already taken by a connected or registered
+    The server checks if "Bob" is already taken by a connected or registered
     user. If the nickname is unavailable it sends an error frame:
         ---------------------------------
         | 31 | 17 | "Unavailable Login" |
@@ -528,39 +504,37 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 1.3 Private connection between two users
 
-    A user with the nickname "Link13" wants to communicate privately to another
-    user "SkullKid42". It sends a request to the server:
-        --------------------------
-        | 02 | 10 | "SkullKid42" |
-        --------------------------
-    If the user "SkullKid42" is online, the server will simply redirect the same
+    A user with the nickname "Bob" wants to communicate privately to another
+    user "Alice". It sends a request to the server:
+        --------------------
+        | 02 | 5 | "Alice" |
+        --------------------
+    If the user "Alice" is online, the server will simply redirect the same
     frame to it.
     The client may respond positively by sending a frame back to the server
     with its IPV4 address 172.168.0.1 and available port 7777.
-        ------------------------------------------
-        | 13 | 6 | "Link13" | 172.168.0.1 | 7777 |
-        ------------------------------------------
-    The server will redirect the same frame to the user "Link13". This user
+        -------------------------------------------
+        | 13 | 6 | "Bob" | 4 | 172.168.0.1 | 7777 |
+        -------------------------------------------
+    The server will redirect the same frame to the user "Bob". This user
     will respond sending its IPV4 address 172.168.10.1 and available port 7767.
-        ------------------------------------------------
-        | 13 | 10 | "SkullKid42" | 172.168.10.1 | 7767 |
-        ------------------------------------------------
+    ---------------------------------------------------------------------------
+    | 13 | 10 | "Alice" | 16 | 2001:0db8:85a3:0000:0000:8a2e:0370:7334 | 7767 |
+    ---------------------------------------------------------------------------
     This last frame will be first received by the server and then redirected to
-    the user "SkullKid42" so that both clients get the address and the port to
+    the user "Alice" so that both clients get the address and the port to
     be able to create a direct connection between each other.
     
-    If the connection is refused by the user "SkullKid42" or it is not connected,
+    If the connection is refused by the user "Alice" or it is not connected,
     the server will send a response to the requesting user notifying it:
         ----------------------------------
         | 14 | 18 | "User not connected" |
         ----------------------------------
-    If the request does not receive a response within timeout seconds, the
-    requesting user gets an error response from the server:
-        -------------------------------------
-        | 30 | 21 | "client not responding" |
-        -------------------------------------
     If the address cannot be found or recognised by the client, the requesting
     user gets an error response from the server:
+        ----------------------------------------
+        | 33 | 21 | "client address not valid" |
+        ----------------------------------------
     
         
 Marti and Mechouk                                                   [Page 10]
@@ -571,13 +545,13 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 2.1. ChatHack global chat
 
-    Several users are connected to the ChatHack. The user "SkullKid42" writes a
+    Several users are connected to the ChatHack. The user "Alice" writes a
     message to the server:
-        -----------------------------------------------------------------
-        | 20 | 10 | "SkullKid42" | 4 | "UTF8" | 16 | "Hello my friends" |
-        -----------------------------------------------------------------
+        -----------------------------------------------------------
+        | 20 | 5 | "Alice" | 4 | "UTF8" | 16 | "Hello my friends" |
+        -----------------------------------------------------------
     The server broadcasts, that is to say, sends the frame back to all connected
-    users, including "SkullKid42" with the same format.
+    users, including "Alice" with the same format.
     If the frame is lost, for example, the server will sends
     an error message to the user and destroys the current data frame:
         -------------------------
@@ -586,7 +560,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
     
 2.2. Private message exchange
 
-    Two clients, "Link13" and "SkullKid42" are directly connected (see section
+    Two clients, "Bob" and "Alice" are directly connected (see section
     1.3) and want to exchange messages:
         -------------------------------------------------------------
         | 21 | 4 | "UTF8" | 32 | "Have you saved the princess yet?" |
@@ -598,7 +572,7 @@ RFC 9692                    PROTOCOL Revision 1                   April 2020
 
 2.3. Private file exchange
 
-    Two clients, "Link13" and "SkullKid42" are directly connected (see section
+    Two clients, "Bob" and "Alice" are directly connected (see section
     1.3) and want to exchange a file:
         ------------------------------------------
         | 22 | 15 | "MajorasMask.jpg" | 32 | ... |
