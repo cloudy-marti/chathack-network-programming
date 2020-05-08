@@ -8,10 +8,10 @@ public enum OpCodeType {
     ERROR(40),                  // 30-39
     INVALID(Byte.MAX_VALUE);    // 40-127 (max byte value)
 
-    private final int value;
+    private final int opCode;
 
     OpCodeType(int opCode) { // private default
-        this.value = opCode;
+        this.opCode = opCode;
     }
 
     /**
@@ -21,7 +21,7 @@ public enum OpCodeType {
      */
     public static OpCodeType getOpCodeType(int opCode) {
         for(OpCodeType opCodeType : values()) {
-            if(opCode < opCodeType.value) {
+            if(opCode < opCodeType.opCode) {
                 return opCodeType;
             }
         }
