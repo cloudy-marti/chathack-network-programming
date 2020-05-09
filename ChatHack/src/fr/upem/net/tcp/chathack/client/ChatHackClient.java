@@ -72,6 +72,7 @@ public class ChatHackClient {
 
     private void sendCommand(String msg) throws InterruptedException {
         // TODO
+        /*Test commit*/
     }
 
     /**
