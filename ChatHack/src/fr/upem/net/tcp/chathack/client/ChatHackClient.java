@@ -22,30 +22,23 @@ public class ChatHackClient {
     private final SocketChannel sc;
     private final Selector selector;
     private final InetSocketAddress serverAddress;
-    private final String login;
-    private final String password;
+    private String login;
+    private String password;
     private final Thread console;
+    private final int port;
     private final ArrayBlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(10);
     private Context uniqueContext;
+    private final ServerSocketChannel ssc;
+    boolean isConnected = false;
 
-    // constructor with login
-    public ChatHackClient(String login, InetSocketAddress serverAddress) throws IOException {
+    public ChatHackClient(InetSocketAddress serverAddress, int port) throws IOException {
         this.serverAddress = serverAddress;
-        this.login = login;
-        this.password = ""; // empty string means that there is no password
         this.sc = SocketChannel.open();
         this.selector = Selector.open();
+        //To instanciated a Client Client communication
+        this.ssc = ServerSocketChannel.open();
         this.console = new Thread(this::consoleRun);
-    }
-
-    // constructor with login and password
-    public ChatHackClient(String login, String password, InetSocketAddress serverAddress) throws IOException {
-        this.serverAddress = serverAddress;
-        this.login = login;
-        this.password = password;
-        this.sc = SocketChannel.open();
-        this.selector = Selector.open();
-        this.console = new Thread(this::consoleRun);
+        this.port = port;
     }
 
     private void consoleRun() {
@@ -72,14 +65,13 @@ public class ChatHackClient {
 
     private void sendCommand(String msg) throws InterruptedException {
         // TODO
-        /*Test commit*/
     }
 
     /**
      * Processes the command from commandQueue
      */
 
-    private void processCommands(){
+    private void processCommands() {
         // TODO
     }
 
@@ -89,10 +81,9 @@ public class ChatHackClient {
         uniqueContext = new Context(key);
         key.attach(uniqueContext);
         sc.connect(serverAddress);
-
         console.start();
 
-        while(!Thread.interrupted()) {
+        while (!Thread.interrupted()) {
             try {
                 selector.select(this::treatKey);
                 processCommands();
@@ -113,7 +104,7 @@ public class ChatHackClient {
             if (key.isValid() && key.isReadable()) {
                 uniqueContext.doRead();
             }
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             // lambda call in select requires to tunnel IOException
             throw new UncheckedIOException(ioe);
         }
@@ -129,22 +120,18 @@ public class ChatHackClient {
         }
     }
 
-    private static void usage(){
+    private static void usage() {
         System.out.println("Usage : ChatHackClient login hostname port\n" +
                 "Usage with password : ChatHackClient login password hostname port");
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {
-        if (args.length != 3 && args.length != 4) {
+        if (args.length != 3) {
             usage();
             return;
         }
-
-        if(args.length == 3) {
-            new ChatHackClient(args[0], new InetSocketAddress(args[1], Integer.parseInt(args[2]))).launch();
-        } else {
-            new ChatHackClient(args[0], args[1], new InetSocketAddress(args[2], Integer.parseInt(args[3]))).launch();
-        }
+        //For the inetsocket port and the client port
+        new ChatHackClient(new InetSocketAddress(args[0], Integer.parseInt(args[1])), Integer.parseInt(args[2])).launch();
     }
 
     static private class Context {
@@ -159,17 +146,16 @@ public class ChatHackClient {
         final private FrameReader frameReader = new FrameReader();
         private boolean inputClosed = false;
 
-        private Context(SelectionKey key){
+        private Context(SelectionKey key) {
             this.key = key;
             this.sc = (SocketChannel) key.channel();
         }
 
         /**
          * Process the content of bbin
-         *
+         * <p>
          * The convention is that bbin is in write-mode before the call
          * to process and after the call
-         *
          */
         private void processIn() {
             // TODO
@@ -188,12 +174,11 @@ public class ChatHackClient {
 
         /**
          * Try to fill bbout from the message queue
-         *
          */
         private void processOut() {
-            while (!queue.isEmpty()){
+            while (!queue.isEmpty()) {
                 var bb = queue.peek();
-                if (bb.remaining()<= outputBuffer.remaining()){
+                if (bb.remaining() <= outputBuffer.remaining()) {
                     queue.remove();
                     outputBuffer.put(bb);
                 } else {
@@ -206,7 +191,7 @@ public class ChatHackClient {
          * Update the interestOps of the key looking
          * only at values of the boolean closed and
          * of both ByteBuffers.
-         *
+         * <p>
          * The convention is that both buffers are in write-mode before the call
          * to updateInterestOps and after the call.
          * Also it is assumed that process has been be called just
@@ -214,14 +199,14 @@ public class ChatHackClient {
          */
 
         private void updateInterestOps() {
-            var interestOps=0;
-            if (!inputClosed && inputBuffer.hasRemaining()){
-                interestOps=interestOps|SelectionKey.OP_READ;
+            var interestOps = 0;
+            if (!inputClosed && inputBuffer.hasRemaining()) {
+                interestOps = interestOps | SelectionKey.OP_READ;
             }
-            if (outputBuffer.position()!=0){
-                interestOps|=SelectionKey.OP_WRITE;
+            if (outputBuffer.position() != 0) {
+                interestOps |= SelectionKey.OP_WRITE;
             }
-            if (interestOps==0){
+            if (interestOps == 0) {
                 silentlyClose();
                 return;
             }
@@ -244,16 +229,16 @@ public class ChatHackClient {
 
         /**
          * Performs the read action on sc
-         *
+         * <p>
          * The convention is that both buffers are in write-mode before the call
          * to doRead and after the call
          *
          * @throws IOException
          */
         private void doRead() throws IOException {
-            if (sc.read(inputBuffer)==-1) {
+            if (sc.read(inputBuffer) == -1) {
                 logger.log(Level.INFO, "closed before reading");
-                inputClosed =true;
+                inputClosed = true;
             }
             processIn();
             updateInterestOps();
@@ -261,7 +246,7 @@ public class ChatHackClient {
 
         /**
          * Performs the write action on sc
-         *
+         * <p>
          * The convention is that both buffers are in write-mode before the call
          * to doWrite and after the call
          *
