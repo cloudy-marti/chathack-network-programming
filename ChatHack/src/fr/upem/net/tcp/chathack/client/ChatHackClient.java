@@ -25,21 +25,31 @@ public class ChatHackClient {
     private String login;
     private String password;
     private final Thread console;
-    private final int port;
+    //private final int port;
     private final ArrayBlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(10);
     private Context uniqueContext;
-    private final ServerSocketChannel ssc;
+    // private final ServerSocketChannel ssc;
     boolean isConnected = false;
 
-    public ChatHackClient(InetSocketAddress serverAddress, int port) throws IOException {
+    public ChatHackClient(String login, InetSocketAddress serverAddress) throws IOException {
         this.serverAddress = serverAddress;
+        this.login = login;
+        this.password = ""; // empty string means that there is no password
         this.sc = SocketChannel.open();
         this.selector = Selector.open();
-        //To instanciated a Client Client communication
-        this.ssc = ServerSocketChannel.open();
         this.console = new Thread(this::consoleRun);
-        this.port = port;
     }
+
+    // constructor with login and password
+    public ChatHackClient(String login, String password, InetSocketAddress serverAddress) throws IOException {
+        this.serverAddress = serverAddress;
+        this.login = login;
+        this.password = password;
+        this.sc = SocketChannel.open();
+        this.selector = Selector.open();
+        this.console = new Thread(this::consoleRun);
+    }
+
 
     private void consoleRun() {
         try {
@@ -126,12 +136,16 @@ public class ChatHackClient {
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {
-        if (args.length != 3) {
+        if (args.length != 3 && args.length != 4) {
             usage();
             return;
         }
-        //For the inetsocket port and the client port
-        new ChatHackClient(new InetSocketAddress(args[0], Integer.parseInt(args[1])), Integer.parseInt(args[2])).launch();
+        if (args.length == 3) {
+            new ChatHackClient(args[0], new InetSocketAddress(args[1], Integer.parseInt(args[2]))).launch();
+        } else {
+            new ChatHackClient(args[0], args[1], new InetSocketAddress(args[2], Integer.parseInt(args[3]))).launch();
+        }
+
     }
 
     static private class Context {
