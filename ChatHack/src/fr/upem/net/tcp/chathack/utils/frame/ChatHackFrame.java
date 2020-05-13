@@ -4,5 +4,6 @@ import java.nio.ByteBuffer;
 
 public interface ChatHackFrame {
 
-    ByteBuffer asByteBuffer();
+    void asByteBuffer(ByteBuffer bbdst);
+
 }

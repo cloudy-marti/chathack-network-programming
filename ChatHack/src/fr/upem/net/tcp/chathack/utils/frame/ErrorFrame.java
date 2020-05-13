@@ -1,33 +1,58 @@
 package fr.upem.net.tcp.chathack.utils.frame;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
+
+/*
+                    byte        int        String
+                --------------------------------------
+                | Opcode | SizeOfErrorMsg | ErrorMsg |
+                --------------------------------------
+ */
 public class ErrorFrame implements ChatHackFrame {
+    private final ErrorOpCode opcode;
 
-    public ErrorFrame() {
+    private final String errorMessage;
+    private final ByteBuffer errorFrame;
+    private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
+    public ErrorFrame(ErrorOpCode opcode, String errorMessage) {
+        this.opcode = opcode;
+        this.errorMessage = errorMessage;
+
+        ByteBuffer errorMsg = UTF_8.encode(errorMessage);
+        int sizeErrorMsg = errorMsg.remaining();
+        errorFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeErrorMsg);
+
+        errorFrame.put(opcode.getOpCode());
+        errorFrame.putInt(sizeErrorMsg);
+        errorFrame.put(errorMsg);
+        errorFrame.flip();
     }
 
     @Override
-    public ByteBuffer asByteBuffer() {
-        return null;
+    public void asByteBuffer(ByteBuffer bbdst) {
+        bbdst.put(errorFrame);
+        errorFrame.flip();
     }
 
     private static enum ErrorOpCode {
-        LOGIN_ERROR (30),
-        LOGIN_WITH_PASSWORD_ERROR (31),
-        LOST_FRAME (32),
-        INVALID_ADDRESS (33),
-        INVALID_PORT (34),
-        DISCONNECTION_KO (35);
+        LOGIN_ERROR((byte) 30),
+        LOGIN_WITH_PASSWORD_ERROR((byte) 31),
+        LOST_FRAME((byte) 32),
+        INVALID_ADDRESS((byte) 33),
+        INVALID_PORT((byte) 34),
+        DISCONNECTION_KO((byte) 35);
 
-        private final int opCode;
+        private final byte opCode;
 
-        ErrorOpCode(int opCode) {
+        ErrorOpCode(byte opCode) {
             this.opCode = opCode;
         }
 
-        public int getOpCode() {
+        public byte getOpCode() {
             return this.opCode;
         }
     }
