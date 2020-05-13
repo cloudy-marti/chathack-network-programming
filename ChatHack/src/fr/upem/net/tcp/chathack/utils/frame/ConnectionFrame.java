@@ -20,10 +20,11 @@ public class ConnectionFrame implements ChatHackFrame {
     public ConnectionFrame(int opcode, String login) {
         this.opcode = opcode;
         this.login = login;
+        byte opCodeByte = Integer.valueOf(opcode).byteValue();
         ByteBuffer loginConnection = ASCII.encode(login);
         int sizeOfLogin = loginConnection.remaining();
         connectionFrame = ByteBuffer.allocate(Byte.BYTES + Byte.BYTES + sizeOfLogin);
-        connectionFrame.put(Integer.valueOf(opcode).byteValue());
+        connectionFrame.put(opCodeByte);
         connectionFrame.putInt(sizeOfLogin);
         connectionFrame.put(loginConnection);
         connectionFrame.flip();

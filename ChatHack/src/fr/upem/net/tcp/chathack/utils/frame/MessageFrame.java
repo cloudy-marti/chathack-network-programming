@@ -24,12 +24,13 @@ public class MessageFrame implements ChatHackFrame {
         this.opCode = opCode;
         this.login = login;
         this.msg = msg;
+        byte opCodeByte = Integer.valueOf(opCode).byteValue();
         ByteBuffer loginConnection = ASCII.encode(login);
         int sizeOfLogin = loginConnection.remaining();
         ByteBuffer databb = UTF_8.encode(msg);
         int sizeOfData = databb.remaining();
         messageFrame = ByteBuffer.allocate(Byte.BYTES + Byte.BYTES + sizeOfLogin + Integer.BYTES + sizeOfData);
-        messageFrame.put(Integer.valueOf(opCode).byteValue());
+        messageFrame.put(opCodeByte);
         messageFrame.putInt(sizeOfLogin);
         messageFrame.put(loginConnection);
         messageFrame.putInt(sizeOfData);

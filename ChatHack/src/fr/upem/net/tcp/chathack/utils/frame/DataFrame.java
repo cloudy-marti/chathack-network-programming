@@ -14,13 +14,13 @@ public class DataFrame implements ChatHackFrame {
         ----------------------------------------------------------
      */
 
-    private final byte opCode;
+    private final int opCode;
     private final String fileName;
     private final byte[] fileData;
     private final ByteBuffer dataFrame;
     private final static Charset ASCII = StandardCharsets.US_ASCII;
 
-    public DataFrame(byte opCode, String fileName, byte[] fileData) {
+    public DataFrame(int opCode, String fileName, byte[] fileData) {
         this.opCode = opCode;
         this.fileName = fileName;
         this.fileData = fileData;

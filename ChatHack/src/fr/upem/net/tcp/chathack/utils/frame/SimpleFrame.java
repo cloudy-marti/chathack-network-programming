@@ -20,10 +20,11 @@ public class SimpleFrame implements ChatHackFrame {
     public SimpleFrame(int opcode, String Message) {
         this.opcode = opcode;
         this.Message = Message;
+        byte opCodeByte = Integer.valueOf(opcode).byteValue();
         ByteBuffer errorMsg = UTF_8.encode(Message);
         int sizeErrorMsg = errorMsg.remaining();
         simpleFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeErrorMsg);
-        simpleFrame.put(Integer.valueOf(opcode).byteValue());
+        simpleFrame.put(opCodeByte);
         simpleFrame.putInt(sizeErrorMsg);
         simpleFrame.put(errorMsg);
         simpleFrame.flip();
