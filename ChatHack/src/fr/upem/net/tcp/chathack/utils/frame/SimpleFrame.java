@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
                 | Opcode | Size | Msg |
                 -----------------------
 
-                ErrorFrame/AckFrame/ConnectionFrame
+                ErrorFrame/AckFrame/ConnectionFrame/ResponseFrame
  */
 public class SimpleFrame implements ChatHackFrame {
     private final ErrorOpCode opcode;
@@ -41,10 +41,8 @@ public class SimpleFrame implements ChatHackFrame {
     }
 
     private static enum ErrorOpCode {
-        CONNECTION_WITH_LOGIN((byte) 0),
-        CONNECTION_WITH_LOGIN_AND_PASSWORD((byte) 1),
-        PRIVATE_CONNECTION_REQUEST((byte) 2),
-        DISCONNECTION_REQUEST((byte) 3),
+
+
         CONNECTION_WITH_LOGIN_OK((byte) 10),
         CONNECTION_WITH_LOGIN_AND_PASSWORD_OK((byte) 11),
         CONNECTION_WITH_REGISTER_OK((byte) 12),
