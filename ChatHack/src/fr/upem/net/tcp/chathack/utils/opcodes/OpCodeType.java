@@ -1,4 +1,4 @@
-package fr.upem.net.tcp.chathack.utils;
+package fr.upem.net.tcp.chathack.utils.opcodes;
 
 
 public enum OpCodeType {

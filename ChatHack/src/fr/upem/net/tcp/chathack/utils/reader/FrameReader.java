@@ -1,14 +1,27 @@
 package fr.upem.net.tcp.chathack.utils.reader;
 
-import fr.upem.net.tcp.chathack.client.ChatHackClient;
-import fr.upem.net.tcp.chathack.utils.OpCodeType;
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
 
 import java.nio.ByteBuffer;
 
 public class FrameReader implements Reader<ChatHackFrame> {
+    @Override
+    public ProcessStatus process(ByteBuffer bb) {
+        return null;
+    }
 
-    public static final int MASK = 0xff;
+    @Override
+    public ChatHackFrame get() {
+        return null;
+    }
+
+    @Override
+    public void reset() {
+
+    }
+
+    /*
+    private static final int MASK = 0xff;
 
     @Override
     public ProcessStatus process(ByteBuffer bb) {
@@ -44,4 +57,6 @@ public class FrameReader implements Reader<ChatHackFrame> {
     public void reset() {
 
     }
+
+     */
 }

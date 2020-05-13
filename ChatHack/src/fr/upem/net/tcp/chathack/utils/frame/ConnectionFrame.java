@@ -2,15 +2,14 @@ package fr.upem.net.tcp.chathack.utils.frame;
 
 import java.nio.ByteBuffer;
 /*
-               byte       byte      String     int       String
-            ----------------------------------------------------
-            | Opcode | SizeOfLogin | Login | SizeOfData | Data |
-            ----------------------------------------------------
-
-
-
+               byte       byte      String
+            --------------------------------
+            | Opcode | SizeOfLogin | Login |
+            --------------------------------
  */
 public class ConnectionFrame implements ChatHackFrame {
+
+    public static final int MASK = 0xff;
 
     public ConnectionFrame() {
 
@@ -22,19 +21,19 @@ public class ConnectionFrame implements ChatHackFrame {
     }
 
     private static enum DataOpCode {
-        CONNECTION_WITH_LOGIN((byte) 0),
-        CONNECTION_WITH_LOGIN_AND_PASSWORD((byte) 1),
-        PRIVATE_CONNECTION_REQUEST((byte) 2),
-        DISCONNECTION_REQUEST((byte) 3);
+        CONNECTION_WITH_LOGIN(0),
+        CONNECTION_WITH_LOGIN_AND_PASSWORD(1),
+        PRIVATE_CONNECTION_REQUEST(2),
+        DISCONNECTION_REQUEST(3);
 
-        private final byte opCode;
+        private final int opCode;
 
-        DataOpCode(byte opCode) {
-            this.opCode = opCode;
+        DataOpCode(int opCode) {
+            this.opCode = opCode & MASK;
         }
 
-        public byte getOpCode() {
-            return this.opCode;
+        public int getOpCode() {
+            return opCode;
         }
     }
 }

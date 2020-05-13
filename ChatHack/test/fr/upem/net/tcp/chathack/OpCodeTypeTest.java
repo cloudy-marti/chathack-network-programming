@@ -1,7 +1,7 @@
 package fr.upem.net.tcp.chathack;
 
 // junit 5.6.2
-import fr.upem.net.tcp.chathack.utils.OpCodeType;
+import fr.upem.net.tcp.chathack.utils.opcodes.OpCodeType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
