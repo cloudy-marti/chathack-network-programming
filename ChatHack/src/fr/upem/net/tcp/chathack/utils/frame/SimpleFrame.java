@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
                 | Opcode | Size | Msg |
                 -----------------------
 
-                ErrorFrame/AckFrame/ConnectionFrame/ResponseFrame
+                ErrorFrame/AckFrame/ResponseFrame
  */
 public class SimpleFrame implements ChatHackFrame {
     private final ErrorOpCode opcode;
