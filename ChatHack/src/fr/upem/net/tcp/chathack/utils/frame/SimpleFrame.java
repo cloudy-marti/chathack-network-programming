@@ -17,7 +17,7 @@ public class SimpleFrame implements ChatHackFrame {
     private final ErrorOpCode opcode;
 
     private final String Message;
-    private final ByteBuffer errorFrame;
+    private final ByteBuffer simpleFrame;
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
     public SimpleFrame(ErrorOpCode opcode, String Message) {
@@ -26,18 +26,18 @@ public class SimpleFrame implements ChatHackFrame {
 
         ByteBuffer errorMsg = UTF_8.encode(Message);
         int sizeErrorMsg = errorMsg.remaining();
-        errorFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeErrorMsg);
+        simpleFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeErrorMsg);
 
-        errorFrame.put(opcode.getOpCode());
-        errorFrame.putInt(sizeErrorMsg);
-        errorFrame.put(errorMsg);
-        errorFrame.flip();
+        simpleFrame.put(opcode.getOpCode());
+        simpleFrame.putInt(sizeErrorMsg);
+        simpleFrame.put(errorMsg);
+        simpleFrame.flip();
     }
 
     @Override
     public void asByteBuffer(ByteBuffer bbdst) {
-        bbdst.put(errorFrame);
-        errorFrame.flip();
+        bbdst.put(simpleFrame);
+        simpleFrame.flip();
     }
 
     private static enum ErrorOpCode {
