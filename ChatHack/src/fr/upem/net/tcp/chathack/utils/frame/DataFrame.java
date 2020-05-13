@@ -1,39 +1,35 @@
 package fr.upem.net.tcp.chathack.utils.frame;
 
+import javax.xml.crypto.Data;
 import java.nio.ByteBuffer;
-/*
-               byte       byte      String     int       String
-            ----------------------------------------------------
-            | Opcode | SizeOfLogin | Login | SizeOfData | Data |
-            ----------------------------------------------------
+import java.nio.charset.StandardCharsets;
 
-
-
- */
 public class DataFrame implements ChatHackFrame {
 
-    public DataFrame() {
+    /*
+           byte        int          String       int       byte
+        ----------------------------------------------------------
+        | Opcode | SizeOfFileName | FileName | SizeOfData | Data |
+        ----------------------------------------------------------
+     */
 
+    private final int opCode;
+    private final String fileName;
+    private final byte[] fileData;
+
+    public DataFrame(int opCode, String fileName, byte[] fileData) {
+        this.opCode = opCode;
+        this.fileName = fileName;
+        this.fileData = fileData;
     }
 
     @Override
     public void asByteBuffer(ByteBuffer bbdst) {
+        byte opCodeByte = Integer.valueOf(opCode).byteValue();
+        ByteBuffer fileNameTmp = StandardCharsets.US_ASCII.encode(fileName);
+        int sizeOfFileName = fileNameTmp.remaining();
+        int sizeOfData = fileData.length;
 
-    }
-
-    private static enum DataOpCode {
-        GLOBAL_MESSAGE((byte) 20),
-        PRIVATE_MESSAGE((byte) 21),
-        PRIVATE_FILE ((byte) 22);
-
-        private final byte opCode;
-
-        DataOpCode(byte opCode) {
-            this.opCode = opCode;
-        }
-
-        public byte getOpCode() {
-            return this.opCode;
-        }
+        bbdst.put(opCodeByte).putInt(sizeOfFileName).put(fileNameTmp).putInt(sizeOfData).put(fileData).flip();
     }
 }
