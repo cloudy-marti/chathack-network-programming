@@ -1,6 +1,17 @@
 package fr.upem.net.tcp.chathack.utils.frame;
 
-public class ConnectFrame {
+import java.nio.ByteBuffer;
+
+public class ConnectFrame implements ChatHackFrame {
+
+    public ConnectFrame() {
+
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer() {
+        return null;
+    }
 
     private static enum ConnectOpCode {
         CONNECTION_WITH_LOGIN (0),

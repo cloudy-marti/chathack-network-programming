@@ -1,6 +1,17 @@
 package fr.upem.net.tcp.chathack.utils.frame;
 
-public class ErrorFrame {
+import java.nio.ByteBuffer;
+
+public class ErrorFrame implements ChatHackFrame {
+
+    public ErrorFrame() {
+
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer() {
+        return null;
+    }
 
     private static enum ErrorOpCode {
         LOGIN_ERROR (30),

@@ -1,6 +1,17 @@
 package fr.upem.net.tcp.chathack.utils.frame;
 
-public class AcquitFrame {
+import java.nio.ByteBuffer;
+
+public class AcquitFrame implements ChatHackFrame {
+
+    public AcquitFrame() {
+
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer() {
+        return null;
+    }
 
     private static enum AcquitOpCode {
         CONNECTION_WITH_LOGIN_OK (10),

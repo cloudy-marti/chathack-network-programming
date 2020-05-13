@@ -1,6 +1,17 @@
 package fr.upem.net.tcp.chathack.utils.frame;
 
-public class DataFrame {
+import java.nio.ByteBuffer;
+
+public class DataFrame implements ChatHackFrame {
+
+    public DataFrame() {
+
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer() {
+        return null;
+    }
 
     private static enum DataOpCode {
         GLOBAL_MESSAGE (20),
