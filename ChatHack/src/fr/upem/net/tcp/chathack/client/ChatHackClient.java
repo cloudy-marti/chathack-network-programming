@@ -25,10 +25,8 @@ public class ChatHackClient {
     private String login;
     private String password;
     private final Thread console;
-    //private final int port;
     private final ArrayBlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(10);
     private Context uniqueContext;
-    // private final ServerSocketChannel ssc;
     boolean isConnected = false;
 
     public ChatHackClient(String login, InetSocketAddress serverAddress) throws IOException {
@@ -74,7 +72,10 @@ public class ChatHackClient {
 
 
     private void sendCommand(String msg) throws InterruptedException {
-        // TODO
+        synchronized (commandQueue){
+            commandQueue.put(msg);
+            selector.wakeup();
+        }
     }
 
     /**
@@ -82,7 +83,20 @@ public class ChatHackClient {
      */
 
     private void processCommands() {
-        // TODO
+        for(;;){
+            synchronized (commandQueue){
+                var msg = commandQueue.poll();
+                if(msg==null){
+                    return;
+                }//Creation en fonction du login mdp ou juste login
+                /*if(){
+
+                }else{
+
+                }*/
+
+            }
+        }
     }
 
     public void launch() throws IOException {
@@ -171,8 +185,11 @@ public class ChatHackClient {
          * The convention is that bbin is in write-mode before the call
          * to process and after the call
          */
+        //TODO
         private void processIn() {
-            // TODO
+            for(;;){
+
+            }
         }
 
         /**
@@ -276,7 +293,10 @@ public class ChatHackClient {
         }
 
         public void doConnect() throws IOException {
-            // TODO
+            if(!sc.finishConnect()){
+                return;
+            }
+            updateInterestOps();
         }
     }
 }
