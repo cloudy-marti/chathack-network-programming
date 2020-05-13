@@ -6,23 +6,25 @@ import java.nio.charset.StandardCharsets;
 
 
 /*
-                    byte        int        String
-                --------------------------------------
-                | Opcode | SizeOfErrorMsg | ErrorMsg |
-                --------------------------------------
+                  byte     int   String
+                -----------------------
+                | Opcode | Size | Msg |
+                -----------------------
+
+                ErrorFrame/AckFrame/ConnectionFrame
  */
-public class ErrorFrame implements ChatHackFrame {
+public class SimpleFrame implements ChatHackFrame {
     private final ErrorOpCode opcode;
 
-    private final String errorMessage;
+    private final String Message;
     private final ByteBuffer errorFrame;
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
-    public ErrorFrame(ErrorOpCode opcode, String errorMessage) {
+    public SimpleFrame(ErrorOpCode opcode, String Message) {
         this.opcode = opcode;
-        this.errorMessage = errorMessage;
+        this.Message = Message;
 
-        ByteBuffer errorMsg = UTF_8.encode(errorMessage);
+        ByteBuffer errorMsg = UTF_8.encode(Message);
         int sizeErrorMsg = errorMsg.remaining();
         errorFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeErrorMsg);
 
@@ -39,6 +41,18 @@ public class ErrorFrame implements ChatHackFrame {
     }
 
     private static enum ErrorOpCode {
+        CONNECTION_WITH_LOGIN((byte) 0),
+        CONNECTION_WITH_LOGIN_AND_PASSWORD((byte) 1),
+        PRIVATE_CONNECTION_REQUEST((byte) 2),
+        DISCONNECTION_REQUEST((byte) 3),
+        CONNECTION_WITH_LOGIN_OK((byte) 10),
+        CONNECTION_WITH_LOGIN_AND_PASSWORD_OK((byte) 11),
+        CONNECTION_WITH_REGISTER_OK((byte) 12),
+        PRIVATE_CONNECTION_OK((byte) 13),
+        PRIVATE_CONNECTION_KO((byte) 14),
+        DISCONNECTION_OK((byte) 15),
+        GLOBAL_MESSAGE((byte) 20),
+        PRIVATE_MESSAGE((byte) 21),
         LOGIN_ERROR((byte) 30),
         LOGIN_WITH_PASSWORD_ERROR((byte) 31),
         LOST_FRAME((byte) 32),
