@@ -6,6 +6,13 @@ import fr.upem.net.tcp.chathack.utils.opcodes.OpCodeType;
 import java.nio.ByteBuffer;
 
 public class FrameReader implements Reader<ChatHackFrame> {
+
+    private enum State {DONE,WAITING,ERROR};
+
+    private State state = State.WAITING;
+    private final ByteBuffer internalBuffer = ByteBuffer.allocate(Integer.BYTES); // write-mode
+    private ChatHackFrame frame;
+
     @Override
     public ProcessStatus process(ByteBuffer bb) {
         int opcode = bb.get() & 0xFF;
@@ -36,33 +43,15 @@ public class FrameReader implements Reader<ChatHackFrame> {
 
     @Override
     public ChatHackFrame get() {
-        return null;
+        if(state != State.DONE) {
+            throw new IllegalStateException();
+        }
+        return frame;
     }
 
     @Override
     public void reset() {
-
+        state = State.WAITING;
+        internalBuffer.clear();
     }
-
-    /*
-    private static final int MASK = 0xff;
-
-    @Override
-    public ProcessStatus process(ByteBuffer bb) {
-        // TODO
-        // get opCode from bb
-
-    }
-
-    @Override
-    public ChatHackFrame get() {
-        return null;
-    }
-
-    @Override
-    public void reset() {
-
-    }
-
-     */
 }

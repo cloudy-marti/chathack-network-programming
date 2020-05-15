@@ -66,7 +66,7 @@ public class MessageReader implements Reader<MessageFrame> {
         if (state != State.DONE) {
             throw new IllegalStateException();
         }
-        return new MessageFrame(opcode, login, message);
+        return MessageFrame.createMessageFrame(opcode, login, message);
     }
 
     @Override

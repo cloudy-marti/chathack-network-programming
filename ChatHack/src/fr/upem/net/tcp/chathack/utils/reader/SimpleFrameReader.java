@@ -55,7 +55,7 @@ public class SimpleFrameReader implements Reader<SimpleFrame> {
         if (state != State.DONE) {
             throw new IllegalStateException();
         }
-        return new SimpleFrame(opcode, message);
+        return SimpleFrame.createSimpleFrame(opcode, message);
     }
 
     @Override
