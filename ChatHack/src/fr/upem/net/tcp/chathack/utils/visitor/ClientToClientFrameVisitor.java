@@ -8,7 +8,7 @@ import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
 public class ClientToClientFrameVisitor implements FrameVisitor {
     @Override
     public void visit(ConnectionFrame frame) {
-
+        throw new UnsupportedOperationException("Connection frames between clients are not allowed.");
     }
 
     @Override

@@ -24,7 +24,7 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(DataFrame frame) {
-
+        throw new UnsupportedOperationException("Files are not allowed on global chat.");
     }
 
     @Override
