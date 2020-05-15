@@ -1,6 +1,7 @@
 package fr.upem.net.tcp.chathack.utils.context;
 
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
+import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -13,7 +14,7 @@ public class ClientToClientContext implements Context {
 
     @Override
     public void treatFrame(ChatHackFrame frame) {
-
+        // frame.accept(frameVisitor);
     }
 
     @Override

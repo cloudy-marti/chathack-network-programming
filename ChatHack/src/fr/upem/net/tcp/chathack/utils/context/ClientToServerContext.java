@@ -57,7 +57,7 @@ public class ClientToServerContext implements Context {
 
     @Override
     public void treatFrame(ChatHackFrame frame) {
-
+        frame.accept(frameVisitor);
     }
 
     @Override

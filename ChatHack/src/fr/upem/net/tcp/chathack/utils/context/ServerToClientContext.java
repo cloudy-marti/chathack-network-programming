@@ -34,13 +34,6 @@ public class ServerToClientContext implements Context {
         this.frameVisitor = new ServerToClientFrameVisitor(this, server);
     }
 
-    /**
-     * Process the content of bbin
-     *
-     * The convention is that bbin is in write-mode before the call
-     * to process and after the call
-     *
-     */
     public void processIn() {
         FrameReader frameReader = new FrameReader();
         for(;;){
@@ -64,33 +57,13 @@ public class ServerToClientContext implements Context {
         frame.accept(frameVisitor);
     }
 
-    /**
-     * Add a message to the message queue, tries to fill bbOut and updateInterestOps
-     *
-     * @param msg
-     */
     public void queueMessage(ByteBuffer msg) {
         // TODO
     }
 
-    /**
-     * Try to fill bbout from the message queue
-     *
-     */
     public void processOut() {
         // TODO
     }
-
-    /**
-     * Update the interestOps of the key looking
-     * only at values of the boolean closed and
-     * of both ByteBuffers.
-     *
-     * The convention is that both buffers are in write-mode before the call
-     * to updateInterestOps and after the call.
-     * Also it is assumed that process has been be called just
-     * before updateInterestOps.
-     */
 
     public void updateInterestOps() {
         int interestOps = 0;
@@ -115,14 +88,6 @@ public class ServerToClientContext implements Context {
         }
     }
 
-    /**
-     * Performs the read action on sc
-     *
-     * The convention is that both buffers are in write-mode before the call
-     * to doRead and after the call
-     *
-     * @throws IOException
-     */
     public void doRead() throws IOException {
         if(sc.read(inputBuffer) == -1) {
             //logger.log(Level.INFO, "Client has closed the connection");
@@ -132,14 +97,6 @@ public class ServerToClientContext implements Context {
         updateInterestOps();
     }
 
-    /**
-     * Performs the write action on sc
-     *
-     * The convention is that both buffers are in write-mode before the call
-     * to doWrite and after the call
-     *
-     * @throws IOException
-     */
     @Override
     public void doWrite() throws IOException {
         outputBuffer.flip();
