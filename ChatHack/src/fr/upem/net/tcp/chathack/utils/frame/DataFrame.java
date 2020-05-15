@@ -1,6 +1,7 @@
 package fr.upem.net.tcp.chathack.utils.frame;
 
-import javax.xml.crypto.Data;
+import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -44,5 +45,10 @@ public class DataFrame implements ChatHackFrame {
         dataFrame.flip();
         bbdst.flip();
 
+    }
+
+    @Override
+    public void accept(FrameVisitor visitor) {
+        visitor.visit(this);
     }
 }

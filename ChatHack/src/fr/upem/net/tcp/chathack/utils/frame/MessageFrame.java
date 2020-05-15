@@ -1,5 +1,7 @@
 package fr.upem.net.tcp.chathack.utils.frame;
 
+import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -43,5 +45,10 @@ public class MessageFrame implements ChatHackFrame {
         bbdst.put(messageFrame);
         messageFrame.flip();
         bbdst.flip();
+    }
+
+    @Override
+    public void accept(FrameVisitor visitor) {
+        visitor.visit(this);
     }
 }
