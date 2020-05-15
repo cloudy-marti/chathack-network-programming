@@ -1,17 +1,14 @@
 package fr.upem.net.tcp.chathack.client;
 
-import fr.upem.net.tcp.chathack.utils.reader.FrameReader;
+import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
+import fr.upem.net.tcp.chathack.utils.context.Context;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ChatHackClient {
@@ -26,7 +23,8 @@ public class ChatHackClient {
     private String password;
     private final Thread console;
     private final ArrayBlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(10);
-    private Context uniqueContext;
+    private Context clientToServerContext;
+    private Context clientToClientContext;
     boolean isConnected = false;
 
     public ChatHackClient(String login, InetSocketAddress serverAddress) throws IOException {
@@ -69,8 +67,6 @@ public class ChatHackClient {
      * @param msg
      * @throws InterruptedException
      */
-
-
     private void sendCommand(String msg) throws InterruptedException {
         synchronized (commandQueue){
             commandQueue.put(msg);
@@ -81,7 +77,6 @@ public class ChatHackClient {
     /**
      * Processes the command from commandQueue
      */
-
     private void processCommands() {
         for(;;){
             synchronized (commandQueue){
@@ -102,8 +97,8 @@ public class ChatHackClient {
     public void launch() throws IOException {
         sc.configureBlocking(false);
         var key = sc.register(selector, SelectionKey.OP_CONNECT);
-        uniqueContext = new Context(key);
-        key.attach(uniqueContext);
+        clientToServerContext = new ClientToServerContext(key);
+        key.attach(clientToServerContext);
         sc.connect(serverAddress);
         console.start();
 
@@ -120,13 +115,13 @@ public class ChatHackClient {
     private void treatKey(SelectionKey key) {
         try {
             if (key.isValid() && key.isConnectable()) {
-                uniqueContext.doConnect();
+                clientToServerContext.doConnect();
             }
             if (key.isValid() && key.isWritable()) {
-                uniqueContext.doWrite();
+                clientToServerContext.doWrite();
             }
             if (key.isValid() && key.isReadable()) {
-                uniqueContext.doRead();
+                clientToServerContext.doRead();
             }
         } catch (IOException ioe) {
             // lambda call in select requires to tunnel IOException
@@ -162,6 +157,8 @@ public class ChatHackClient {
 
     }
 
+
+    /*
     static private class Context {
 
         private static final Logger logger = Logger.getLogger(Context.class.getName());
@@ -174,38 +171,46 @@ public class ChatHackClient {
         final private FrameReader frameReader = new FrameReader();
         private boolean inputClosed = false;
 
+        private final ClientToServerFrameVisitor frameVisitor = new ClientToServerFrameVisitor(this);
+
         private Context(SelectionKey key) {
             this.key = key;
             this.sc = (SocketChannel) key.channel();
         }
 
-        /**
-         * Process the content of bbin
-         * <p>
-         * The convention is that bbin is in write-mode before the call
-         * to process and after the call
-         */
+
         //TODO
         private void processIn() {
+            FrameReader frameReader = new FrameReader();
             for(;;){
-
+                Reader.ProcessStatus status = frameReader.process(inputBuffer);
+                switch (status){
+                    case ERROR:
+                        silentlyClose();
+                        return;
+                    case REFILL:
+                        return;
+                    case DONE:
+                        ChatHackFrame frame = frameReader.get();
+                        frameReader.reset();
+                        treatFrame(frame);
+                        break;
+                }
             }
         }
 
-        /**
-         * Add a message to the message queue, tries to fill bbOut and updateInterestOps
-         *
-         * @param bb
-         */
+        private void treatFrame(ChatHackFrame frame) {
+            frame.accept(frameVisitor);
+        }
+
+
         private void queueMessage(ByteBuffer bb) {
             queue.add(bb);
             processOut();
             updateInterestOps();
         }
 
-        /**
-         * Try to fill bbout from the message queue
-         */
+
         private void processOut() {
             while (!queue.isEmpty()) {
                 var bb = queue.peek();
@@ -218,16 +223,7 @@ public class ChatHackClient {
             }
         }
 
-        /**
-         * Update the interestOps of the key looking
-         * only at values of the boolean closed and
-         * of both ByteBuffers.
-         * <p>
-         * The convention is that both buffers are in write-mode before the call
-         * to updateInterestOps and after the call.
-         * Also it is assumed that process has been be called just
-         * before updateInterestOps.
-         */
+
 
         private void updateInterestOps() {
             var interestOps = 0;
@@ -258,14 +254,7 @@ public class ChatHackClient {
             }
         }
 
-        /**
-         * Performs the read action on sc
-         * <p>
-         * The convention is that both buffers are in write-mode before the call
-         * to doRead and after the call
-         *
-         * @throws IOException
-         */
+
         private void doRead() throws IOException {
             if (sc.read(inputBuffer) == -1) {
                 logger.log(Level.INFO, "closed before reading");
@@ -275,14 +264,7 @@ public class ChatHackClient {
             updateInterestOps();
         }
 
-        /**
-         * Performs the write action on sc
-         * <p>
-         * The convention is that both buffers are in write-mode before the call
-         * to doWrite and after the call
-         *
-         * @throws IOException
-         */
+
 
         private void doWrite() throws IOException {
             outputBuffer.flip();
@@ -299,4 +281,6 @@ public class ChatHackClient {
             updateInterestOps();
         }
     }
+
+     */
 }

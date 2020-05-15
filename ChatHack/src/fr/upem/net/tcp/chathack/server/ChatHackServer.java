@@ -1,6 +1,7 @@
 package fr.upem.net.tcp.chathack.server;
 
-import fr.upem.net.tcp.chathack.client.ChatHackClient;
+import fr.upem.net.tcp.chathack.utils.context.Context;
+import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
 import fr.upem.net.tcp.chathack.utils.frame.MessageFrame;
 
 import java.io.IOException;
@@ -9,128 +10,18 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ChatHackServer {
 
+    /*
     static private class Context {
 
-        final private SelectionKey key;
-        final private SocketChannel sc;
-        final private ByteBuffer inputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-        final private ByteBuffer outputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-        final private Queue<ByteBuffer> messageQueue = new LinkedList<>();
-        final private ChatHackServer server;
-        private boolean inputClosed = false;
-
-        private String login;
-        private String password;
-
-        private Context(ChatHackServer server, SelectionKey key){
-            this.key = key;
-            this.sc = (SocketChannel) key.channel();
-            this.server = server;
-        }
-
-        /**
-         * Process the content of bbin
-         *
-         * The convention is that bbin is in write-mode before the call
-         * to process and after the call
-         *
-         */
-        private void processIn() {
-            // TODO
-        }
-
-        /**
-         * Add a message to the message queue, tries to fill bbOut and updateInterestOps
-         *
-         * @param msg
-         */
-        private void queueMessage(ByteBuffer msg) {
-            // TODO
-        }
-
-        /**
-         * Try to fill bbout from the message queue
-         *
-         */
-        private void processOut() {
-            // TODO
-        }
-
-        /**
-         * Update the interestOps of the key looking
-         * only at values of the boolean closed and
-         * of both ByteBuffers.
-         *
-         * The convention is that both buffers are in write-mode before the call
-         * to updateInterestOps and after the call.
-         * Also it is assumed that process has been be called just
-         * before updateInterestOps.
-         */
-
-        private void updateInterestOps() {
-            int interestOps = 0;
-            if(!inputClosed && inputBuffer.hasRemaining()) {
-                interestOps = interestOps|SelectionKey.OP_READ;
-            }
-            if(outputBuffer.position() != 0) {
-                interestOps = interestOps|SelectionKey.OP_WRITE;
-            }
-            if(interestOps == 0) {
-                silentlyClose();
-                return;
-            }
-            key.interestOps(interestOps);
-        }
-
-        private void silentlyClose() {
-            try {
-                sc.close();
-            } catch (IOException e) {
-                // ignore exception
-            }
-        }
-
-        /**
-         * Performs the read action on sc
-         *
-         * The convention is that both buffers are in write-mode before the call
-         * to doRead and after the call
-         *
-         * @throws IOException
-         */
-        private void doRead() throws IOException {
-            if(sc.read(inputBuffer) == -1) {
-                logger.log(Level.INFO, "Client has closed the connection");
-                inputClosed = true;
-            }
-            processIn();
-            updateInterestOps();
-        }
-
-        /**
-         * Performs the write action on sc
-         *
-         * The convention is that both buffers are in write-mode before the call
-         * to doWrite and after the call
-         *
-         * @throws IOException
-         */
-        private void doWrite() throws IOException {
-            outputBuffer.flip();
-            sc.write(outputBuffer);
-            outputBuffer.compact();
-            processOut();
-            updateInterestOps();
-        }
     }
+
+     */
 
     static private final int BUFFER_SIZE = 10_000;
 
@@ -138,6 +29,8 @@ public class ChatHackServer {
     private final ServerSocketChannel serverSocketChannel;
 
     private final Selector selector;
+
+    private Context uniqueContextBDD;
 
     public ChatHackServer(int port) throws IOException {
         serverSocketChannel = ServerSocketChannel.open();
@@ -172,10 +65,10 @@ public class ChatHackServer {
         }
         try {
             if (key.isValid() && key.isWritable()) {
-                ((Context) key.attachment()).doWrite();
+                ((ServerToClientContext) key.attachment()).doWrite();
             }
             if (key.isValid() && key.isReadable()) {
-                ((Context) key.attachment()).doRead();
+                ((ServerToClientContext) key.attachment()).doRead();
             }
         } catch (IOException e) {
             logger.log(Level.INFO,"Connection closed with client due to IOException",e);
@@ -191,7 +84,7 @@ public class ChatHackServer {
         }
         client.configureBlocking(false);
         SelectionKey clientKey = client.register(selector, SelectionKey.OP_READ);
-        clientKey.attach(new Context(this, clientKey));
+        clientKey.attach(new ServerToClientContext(this, clientKey));
     }
 
     private void silentlyClose(SelectionKey key) {
@@ -216,7 +109,7 @@ public class ChatHackServer {
         for (SelectionKey key : selectionKeySet) {
             if(!(key.channel() instanceof ServerSocketChannel)) {
                 msg.asByteBuffer(tmp);
-                ((Context)key.attachment()).queueMessage(tmp);
+                ((ServerToClientContext)key.attachment()).queueMessage(tmp);
             }
         }
     }
