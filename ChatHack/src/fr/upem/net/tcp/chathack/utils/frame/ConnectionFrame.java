@@ -19,18 +19,23 @@ public class ConnectionFrame implements ChatHackFrame {
     private final static Charset ASCII = StandardCharsets.US_ASCII;
     public static final int MASK = 0xff;
 
-    public ConnectionFrame(int opcode, String login) {
+    private ConnectionFrame(int opcode, String login, ByteBuffer connectionFrame) {
         this.opcode = opcode;
         this.login = login;
+        this.connectionFrame = connectionFrame;
+    }
+
+    public ConnectionFrame createConnectionFrame(int opcode, String login) {
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
         ByteBuffer loginConnection = ASCII.encode(login);
         int sizeOfLogin = loginConnection.remaining();
-        connectionFrame = ByteBuffer.allocate(Byte.BYTES + Byte.BYTES + sizeOfLogin);
+        ByteBuffer connectionFrame = ByteBuffer.allocate(Byte.BYTES + Byte.BYTES + sizeOfLogin);
         connectionFrame.put(opCodeByte);
         connectionFrame.putInt(sizeOfLogin);
         connectionFrame.put(loginConnection);
         connectionFrame.flip();
 
+        return new ConnectionFrame(opcode, login, connectionFrame);
     }
 
     @Override
@@ -43,5 +48,10 @@ public class ConnectionFrame implements ChatHackFrame {
     @Override
     public void accept(FrameVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public int getOpcode() {
+        return this.opcode;
     }
 }

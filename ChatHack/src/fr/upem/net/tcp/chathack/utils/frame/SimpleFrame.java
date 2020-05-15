@@ -19,17 +19,23 @@ public class SimpleFrame implements ChatHackFrame {
     private final ByteBuffer simpleFrame;
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
-    public SimpleFrame(int opcode, String Message) {
+    private SimpleFrame(int opcode, String message, ByteBuffer buffer) {
         this.opcode = opcode;
-        this.Message = Message;
-        byte opCodeByte = Integer.valueOf(opcode).byteValue();
-        ByteBuffer errorMsg = UTF_8.encode(Message);
+        this.Message = message;
+        this.simpleFrame = buffer;
+    }
+
+    public static SimpleFrame createSimpleFrame(int opCode, String message) {
+        byte opCodeByte = Integer.valueOf(opCode).byteValue();
+        ByteBuffer errorMsg = UTF_8.encode(message);
         int sizeErrorMsg = errorMsg.remaining();
-        simpleFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeErrorMsg);
+        ByteBuffer simpleFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeErrorMsg);
         simpleFrame.put(opCodeByte);
         simpleFrame.putInt(sizeErrorMsg);
         simpleFrame.put(errorMsg);
         simpleFrame.flip();
+
+        return new SimpleFrame(opCode, message, simpleFrame);
     }
 
     @Override
@@ -42,5 +48,10 @@ public class SimpleFrame implements ChatHackFrame {
     @Override
     public void accept(FrameVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public int getOpcode() {
+        return this.opcode;
     }
 }

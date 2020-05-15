@@ -7,4 +7,5 @@ import java.nio.ByteBuffer;
 public interface ChatHackFrame {
     void asByteBuffer(ByteBuffer bbdst);
     void accept(FrameVisitor visitor);
+    int getOpcode();
 }
