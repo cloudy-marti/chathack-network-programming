@@ -6,13 +6,16 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class DataFrame implements ChatHackFrame {
+public class FilesFrame implements ChatHackFrame {
 
     /*
+opCode : 22
            byte        int          String       int       byte
         ----------------------------------------------------------
-        | Opcode | SizeOfFileName | FileName | SizeOfData | Data |
+        | Opcode | SizeOfFileName | FileName | SizeOfFile | File |
         ----------------------------------------------------------
+
+ENCODING : ASCII
      */
 
     private final int opCode;
@@ -20,16 +23,16 @@ public class DataFrame implements ChatHackFrame {
     private final ByteBuffer fileData;
     private final static Charset ASCII = StandardCharsets.US_ASCII;
 
-    private final ByteBuffer dataFrame;
+    private final ByteBuffer fileFrame;
 
-    private DataFrame(int opCode, String fileName, ByteBuffer fileData, ByteBuffer dataFrame) {
+    private FilesFrame(int opCode, String fileName, ByteBuffer fileData, ByteBuffer fileFrame) {
         this.opCode = opCode;
         this.fileName = fileName;
         this.fileData = fileData;
-        this.dataFrame = dataFrame;
+        this.fileFrame = fileFrame;
     }
 
-    public static DataFrame createDataFrame(int opCode, String fileName, ByteBuffer fileData) {
+    public static FilesFrame createFilesFrame(int opCode, String fileName, ByteBuffer fileData) {
         byte opCodeByte = Integer.valueOf(opCode).byteValue();
         ByteBuffer fileNamebb = ASCII.encode(fileName);
         int sizeOfFileName = fileNamebb.remaining();
@@ -42,14 +45,23 @@ public class DataFrame implements ChatHackFrame {
         dataFrame.put(fileData);
         dataFrame.flip();
 
-        return new DataFrame(opCode, fileName, fileData, dataFrame);
+        return new FilesFrame(opCode, fileName, fileData, dataFrame);
     }
 
     @Override
-    public void asByteBuffer(ByteBuffer bbdst) {
-        bbdst.put(dataFrame);
-        dataFrame.flip();
-        bbdst.flip();
+    public void fileByteBuffer(ByteBuffer bbdst) {
+        if(checkBufferSize(bbdst)){
+            bbdst.put(fileFrame);
+            fileFrame.flip();
+            bbdst.flip();
+        }
+       throw new IllegalArgumentException();
+    }
+
+    @Override
+    public boolean checkBufferSize(ByteBuffer buffer) {
+        //buffer in write mode
+        return (buffer.remaining() >= fileData.remaining());
     }
 
     @Override

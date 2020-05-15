@@ -1,6 +1,5 @@
 package fr.upem.net.tcp.chathack.utils.reader;
 
-import fr.upem.net.tcp.chathack.utils.frame.MessageFrame;
 import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
 
 import java.nio.ByteBuffer;

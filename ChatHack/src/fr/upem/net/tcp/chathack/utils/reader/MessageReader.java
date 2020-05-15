@@ -1,11 +1,10 @@
 package fr.upem.net.tcp.chathack.utils.reader;
 
-import fr.upem.net.tcp.chathack.utils.frame.MessageFrame;
-import fr.upem.net.tcp.chathack.utils.opcodes.OpCodeType;
+import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
 
 import java.nio.ByteBuffer;
 
-public class MessageReader implements Reader<MessageFrame> {
+public class MessageReader implements Reader<GlobalMessageFrame> {
     private enum State {DONE, WAITING_LOGIN, WAITING_MSG, ERROR};
 
     private State state = State.WAITING_LOGIN;
@@ -62,11 +61,11 @@ public class MessageReader implements Reader<MessageFrame> {
     }
 
     @Override
-    public MessageFrame get() {
+    public GlobalMessageFrame get() {
         if (state != State.DONE) {
             throw new IllegalStateException();
         }
-        return MessageFrame.createMessageFrame(opcode, login, message);
+        return GlobalMessageFrame.createGlobalMessageFrame(opcode, login, message);
     }
 
     @Override

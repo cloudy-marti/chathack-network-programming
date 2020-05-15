@@ -2,7 +2,7 @@ package fr.upem.net.tcp.chathack.server;
 
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
-import fr.upem.net.tcp.chathack.utils.frame.MessageFrame;
+import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -101,14 +101,14 @@ public class ChatHackServer {
      *
      * @param msg
      */
-    private void broadcast(MessageFrame msg) {
+    private void broadcast(GlobalMessageFrame msg) {
         // TODO
         ByteBuffer tmp = ByteBuffer.allocate(BUFFER_SIZE);
 
         Set<SelectionKey> selectionKeySet = selector.keys();
         for (SelectionKey key : selectionKeySet) {
             if(!(key.channel() instanceof ServerSocketChannel)) {
-                msg.asByteBuffer(tmp);
+                msg.fileByteBuffer(tmp);
                 ((ServerToClientContext)key.attachment()).queueMessage(tmp);
             }
         }

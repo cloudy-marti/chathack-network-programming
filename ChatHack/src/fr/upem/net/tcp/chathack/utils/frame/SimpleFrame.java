@@ -7,11 +7,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /*
+opCode : 10 11 12 13 14 15 21 30 31 32 33 34 35
+
                   byte     int   String
                 -----------------------
                 | Opcode | Size | Msg |
                 -----------------------
-                ErrorFrame/AckFrame/ConnectionFrame/ResponseFrame
+ENCODING : UTF 8
  */
 public class SimpleFrame implements ChatHackFrame {
     private final int opcode;
@@ -27,22 +29,33 @@ public class SimpleFrame implements ChatHackFrame {
 
     public static SimpleFrame createSimpleFrame(int opCode, String message) {
         byte opCodeByte = Integer.valueOf(opCode).byteValue();
-        ByteBuffer errorMsg = UTF_8.encode(message);
-        int sizeErrorMsg = errorMsg.remaining();
-        ByteBuffer simpleFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeErrorMsg);
+        ByteBuffer bbMsg = UTF_8.encode(message);
+        int sizeMsg = bbMsg.remaining();
+        ByteBuffer simpleFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeMsg);
         simpleFrame.put(opCodeByte);
-        simpleFrame.putInt(sizeErrorMsg);
-        simpleFrame.put(errorMsg);
+        simpleFrame.putInt(sizeMsg);
+        simpleFrame.put(bbMsg);
         simpleFrame.flip();
 
         return new SimpleFrame(opCode, message, simpleFrame);
     }
 
     @Override
-    public void asByteBuffer(ByteBuffer bbdst) {
-        bbdst.put(simpleFrame);
-        simpleFrame.flip();
-        bbdst.flip();
+    public void fileByteBuffer(ByteBuffer bbdst) {
+        if (checkBufferSize(bbdst)) {
+            bbdst.put(simpleFrame);
+            simpleFrame.flip();
+            bbdst.flip();
+        } else {
+            throw new IllegalArgumentException();
+        }
+
+    }
+
+    @Override
+    public boolean checkBufferSize(ByteBuffer buffer) {
+        //buffer in write mode
+        return (buffer.remaining() >= simpleFrame.remaining());
     }
 
     @Override

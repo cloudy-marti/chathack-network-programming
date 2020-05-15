@@ -10,12 +10,12 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
     }
 
     @Override
-    public void visit(DataFrame frame) {
+    public void visit(FilesFrame frame) {
 
     }
 
     @Override
-    public void visit(MessageFrame frame) {
+    public void visit(GlobalMessageFrame frame) {
         int opcode = frame.getOpcode();
         OpCodeType type = OpCodeType.getOpCodeType(opcode);
 

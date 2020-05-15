@@ -7,17 +7,21 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /*
-               byte       byte      String
+opCode : 00 03
+
+               byte       int      String
             --------------------------------
             | Opcode | SizeOfLogin | Login |
             --------------------------------
+
+ENCODING : ASCII
  */
 public class ConnectionFrame implements ChatHackFrame {
     private final int opcode;
     private final String login;
     private final ByteBuffer connectionFrame;
     private final static Charset ASCII = StandardCharsets.US_ASCII;
-    public static final int MASK = 0xff;
+    // public static final int MASK = 0xff;
 
     private ConnectionFrame(int opcode, String login, ByteBuffer connectionFrame) {
         this.opcode = opcode;
@@ -29,7 +33,7 @@ public class ConnectionFrame implements ChatHackFrame {
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
         ByteBuffer loginConnection = ASCII.encode(login);
         int sizeOfLogin = loginConnection.remaining();
-        ByteBuffer connectionFrame = ByteBuffer.allocate(Byte.BYTES + Byte.BYTES + sizeOfLogin);
+        ByteBuffer connectionFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeOfLogin);
         connectionFrame.put(opCodeByte);
         connectionFrame.putInt(sizeOfLogin);
         connectionFrame.put(loginConnection);
@@ -39,10 +43,21 @@ public class ConnectionFrame implements ChatHackFrame {
     }
 
     @Override
-    public void asByteBuffer(ByteBuffer bbdst) {
-        bbdst.put(connectionFrame);
-        connectionFrame.flip();
-        bbdst.flip();
+    public void fileByteBuffer(ByteBuffer bbdst) {
+        if (checkBufferSize(bbdst)) {
+            bbdst.put(connectionFrame);
+            connectionFrame.flip();
+            bbdst.flip();
+        } else {
+            throw new IllegalArgumentException();
+        }
+
+    }
+
+    @Override
+    public boolean checkBufferSize(ByteBuffer buffer) {
+        //buffer in write mode
+        return (buffer.remaining() >= connectionFrame.remaining());
     }
 
     @Override
