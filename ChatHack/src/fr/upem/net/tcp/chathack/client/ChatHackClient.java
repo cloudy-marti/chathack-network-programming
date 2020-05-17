@@ -195,6 +195,14 @@ public class ChatHackClient {
                 "Usage with password : ChatHackClient login password hostname port");
     }
 
+    public HashMap<String, Context> getContextPrivateConnection() {
+        return contextPrivateConnection;
+    }
+
+    public HashMap<String, ArrayBlockingQueue<String>> getWaitingMessage() {
+        return waitingMessage;
+    }
+
     public static void main(String[] args) throws NumberFormatException, IOException {
         if (args.length != 4 && args.length != 5) {
             usage();

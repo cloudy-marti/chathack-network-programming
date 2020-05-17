@@ -69,4 +69,8 @@ public class ConnectionFrame implements ChatHackFrame {
     public int getOpcode() {
         return this.opcode;
     }
+
+    public String getLogin() {
+        return login;
+    }
 }
