@@ -49,7 +49,7 @@ ENCODING : ASCII
     }
 
     @Override
-    public void fileByteBuffer(ByteBuffer bbdst) {
+    public void fillByteBuffer(ByteBuffer bbdst) {
         if(checkBufferSize(bbdst)){
             bbdst.put(fileFrame);
             fileFrame.flip();

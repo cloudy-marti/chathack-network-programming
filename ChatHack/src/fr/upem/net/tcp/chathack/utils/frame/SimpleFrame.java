@@ -41,7 +41,7 @@ public class SimpleFrame implements ChatHackFrame {
     }
 
     @Override
-    public void fileByteBuffer(ByteBuffer bbdst) {
+    public void fillByteBuffer(ByteBuffer bbdst) {
         if (checkBufferSize(bbdst)) {
             bbdst.put(simpleFrame);
             simpleFrame.flip();
@@ -49,7 +49,6 @@ public class SimpleFrame implements ChatHackFrame {
         } else {
             throw new IllegalArgumentException();
         }
-
     }
 
     @Override

@@ -108,7 +108,7 @@ public class ChatHackServer {
         Set<SelectionKey> selectionKeySet = selector.keys();
         for (SelectionKey key : selectionKeySet) {
             if(!(key.channel() instanceof ServerSocketChannel)) {
-                msg.fileByteBuffer(tmp);
+                msg.fillByteBuffer(tmp);
                 ((ServerToClientContext)key.attachment()).queueMessage(tmp);
             }
         }

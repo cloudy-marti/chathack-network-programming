@@ -26,6 +26,7 @@ public class GlobalMessageFrame implements ChatHackFrame {
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
     private GlobalMessageFrame(int opCode, String login, String msg, ByteBuffer globalMessageFrame) {
+        //faire les tests requirenonNull et opCode !=0
         this.opCode = opCode;
         this.login = login;
         this.msg = msg;
@@ -57,7 +58,7 @@ public class GlobalMessageFrame implements ChatHackFrame {
     }
 
     @Override
-    public void fileByteBuffer(ByteBuffer bbdst) {
+    public void fillByteBuffer(ByteBuffer bbdst) {
         if (checkBufferSize(bbdst)) {
             bbdst.put(globalMessageFrame);
             globalMessageFrame.flip();

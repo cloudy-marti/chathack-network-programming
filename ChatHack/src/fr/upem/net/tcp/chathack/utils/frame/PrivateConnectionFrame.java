@@ -32,7 +32,7 @@ public class PrivateConnectionFrame implements ChatHackFrame {
         this.privateConnectionbb = privateConnectionbb;
     }
 
-    public PrivateConnectionFrame createPrivateConnectionFrame(int opcode, String login, InetSocketAddress address) {
+    public static PrivateConnectionFrame createPrivateConnectionFrame(int opcode, String login, InetSocketAddress address) {
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
         ByteBuffer loginConnection = ASCII.encode(login);
         int sizeOfLogin = loginConnection.remaining();
@@ -51,7 +51,7 @@ public class PrivateConnectionFrame implements ChatHackFrame {
     }
 
     @Override
-    public void fileByteBuffer(ByteBuffer bbdst) {
+    public void fillByteBuffer(ByteBuffer bbdst) {
         if (checkBufferSize(bbdst)) {
             bbdst.put(privateConnectionbb);
             privateConnectionbb.flip();

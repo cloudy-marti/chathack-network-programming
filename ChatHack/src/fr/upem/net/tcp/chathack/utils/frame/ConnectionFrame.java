@@ -43,7 +43,7 @@ public class ConnectionFrame implements ChatHackFrame {
     }
 
     @Override
-    public void fileByteBuffer(ByteBuffer bbdst) {
+    public void fillByteBuffer(ByteBuffer bbdst) {
         if (checkBufferSize(bbdst)) {
             bbdst.put(connectionFrame);
             connectionFrame.flip();
