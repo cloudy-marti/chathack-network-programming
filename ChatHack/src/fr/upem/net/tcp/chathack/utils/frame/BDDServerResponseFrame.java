@@ -4,6 +4,7 @@ import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class BDDServerResponseFrame implements ChatHackFrame {
 
@@ -20,6 +21,9 @@ public class BDDServerResponseFrame implements ChatHackFrame {
     private final ByteBuffer bddBuffer;
 
     private BDDServerResponseFrame(long id, String login, String password, ByteBuffer bddBuffer) {
+        Objects.requireNonNull(login);
+        Objects.requireNonNull(password);
+        Objects.requireNonNull(bddBuffer);
         this.id = id;
         this.login = login;
         this.password = password;
@@ -27,6 +31,8 @@ public class BDDServerResponseFrame implements ChatHackFrame {
     }
 
     public static BDDServerResponseFrame createBDDServerResponseFrame(long id, String login, String password) {
+        Objects.requireNonNull(login);
+        Objects.requireNonNull(password);
         ByteBuffer tmpLogin = StandardCharsets.UTF_8.encode(login);
         ByteBuffer tmpPassword = StandardCharsets.UTF_8.encode(password);
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES +

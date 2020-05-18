@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /*
 opCode : 02
@@ -26,6 +27,11 @@ public class PrivateConnectionFrame implements ChatHackFrame {
     private final static Charset ASCII = StandardCharsets.US_ASCII;
 
     private PrivateConnectionFrame(int opcode, String login, InetSocketAddress address, ByteBuffer privateConnectionbb) {
+        if (opcode < 0) {
+            throw new IllegalArgumentException("OpCode can't be a negative value");
+        }
+        Objects.requireNonNull(login);
+        Objects.requireNonNull(privateConnectionbb);
         this.opcode = opcode;
         this.login = login;
         this.address = address;
@@ -33,6 +39,10 @@ public class PrivateConnectionFrame implements ChatHackFrame {
     }
 
     public static PrivateConnectionFrame createPrivateConnectionFrame(int opcode, String login, InetSocketAddress address) {
+        if (opcode < 0) {
+            throw new IllegalArgumentException("OpCode can't be a negative value");
+        }
+        Objects.requireNonNull(login);
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
         ByteBuffer loginConnection = ASCII.encode(login);
         int sizeOfLogin = loginConnection.remaining();

@@ -5,6 +5,7 @@ import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /*
 opCode : 01
@@ -26,6 +27,12 @@ public class LoginPasswordFrame implements ChatHackFrame {
     private final static Charset ASCII = StandardCharsets.US_ASCII;
 
     private LoginPasswordFrame(int opcode, String login, String password, ByteBuffer loginPasswordbb) {
+        if (opcode < 0) {
+            throw new IllegalArgumentException("OpCode can't be a negative value");
+        }
+        Objects.requireNonNull(login);
+        Objects.requireNonNull(password);
+        Objects.requireNonNull(loginPasswordbb);
         this.opcode = opcode;
         this.login = login;
         this.password = password;
@@ -33,6 +40,11 @@ public class LoginPasswordFrame implements ChatHackFrame {
     }
 
     public static LoginPasswordFrame createLoginPasswordFrame(int opcode, String login, String password) {
+        if (opcode < 0) {
+            throw new IllegalArgumentException("OpCode can't be a negative value");
+        }
+        Objects.requireNonNull(login);
+        Objects.requireNonNull(password);
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
         ByteBuffer loginConnection = ASCII.encode(login);
         int sizeOfLogin = loginConnection.remaining();

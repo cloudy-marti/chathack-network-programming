@@ -5,6 +5,7 @@ import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class FilesFrame implements ChatHackFrame {
 
@@ -26,6 +27,12 @@ ENCODING : ASCII
     private final ByteBuffer fileFrame;
 
     private FilesFrame(int opCode, String fileName, ByteBuffer fileData, ByteBuffer fileFrame) {
+        if (opCode < 0) {
+            throw new IllegalArgumentException("OpCode can't be a negative value");
+        }
+        Objects.requireNonNull(fileName);
+        Objects.requireNonNull(fileData);
+        Objects.requireNonNull(fileFrame);
         this.opCode = opCode;
         this.fileName = fileName;
         this.fileData = fileData;
@@ -33,6 +40,11 @@ ENCODING : ASCII
     }
 
     public static FilesFrame createFilesFrame(int opCode, String fileName, ByteBuffer fileData) {
+        if (opCode < 0) {
+            throw new IllegalArgumentException("OpCode can't be a negative value");
+        }
+        Objects.requireNonNull(fileName);
+        Objects.requireNonNull(fileData);
         byte opCodeByte = Integer.valueOf(opCode).byteValue();
         ByteBuffer fileNamebb = ASCII.encode(fileName);
         int sizeOfFileName = fileNamebb.remaining();
@@ -50,12 +62,12 @@ ENCODING : ASCII
 
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
-        if(checkBufferSize(bbdst)){
+        if (checkBufferSize(bbdst)) {
             bbdst.put(fileFrame);
             fileFrame.flip();
             bbdst.flip();
         }
-       throw new IllegalArgumentException();
+        throw new IllegalArgumentException();
     }
 
     @Override

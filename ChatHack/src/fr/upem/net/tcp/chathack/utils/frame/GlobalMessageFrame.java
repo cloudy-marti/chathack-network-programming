@@ -5,6 +5,7 @@ import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /*
 opCode : 20
@@ -26,7 +27,12 @@ public class GlobalMessageFrame implements ChatHackFrame {
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
     private GlobalMessageFrame(int opCode, String login, String msg, ByteBuffer globalMessageFrame) {
-        //faire les tests requirenonNull et opCode !=0
+        if (opCode < 0) {
+            throw new IllegalArgumentException("OpCode can't be a negative value");
+        }
+        Objects.requireNonNull(login);
+        Objects.requireNonNull(msg);
+        Objects.requireNonNull(globalMessageFrame);
         this.opCode = opCode;
         this.login = login;
         this.msg = msg;
@@ -34,12 +40,17 @@ public class GlobalMessageFrame implements ChatHackFrame {
     }
 
     /* Design Pattern Factory
-    * Enlève le code complexe du constructeur
-    * Peut cacher la classe
-    *
-    * Singleton : Garantie que dans toute la vm on n'a qu'une seule instance
-    * */
+     * Enlève le code complexe du constructeur
+     * Peut cacher la classe
+     *
+     * Singleton : Garantie que dans toute la vm on n'a qu'une seule instance
+     * */
     public static GlobalMessageFrame createGlobalMessageFrame(int opCode, String login, String msg) {
+        if (opCode < 0) {
+            throw new IllegalArgumentException("OpCode can't be a negative value");
+        }
+        Objects.requireNonNull(login);
+        Objects.requireNonNull(msg);
         byte opCodeByte = Integer.valueOf(opCode).byteValue();
         ByteBuffer loginConnection = ASCII.encode(login);
         int sizeOfLogin = loginConnection.remaining();
@@ -63,7 +74,7 @@ public class GlobalMessageFrame implements ChatHackFrame {
             bbdst.put(globalMessageFrame);
             globalMessageFrame.flip();
             bbdst.flip();
-        }else{
+        } else {
             throw new IllegalArgumentException();
         }
 

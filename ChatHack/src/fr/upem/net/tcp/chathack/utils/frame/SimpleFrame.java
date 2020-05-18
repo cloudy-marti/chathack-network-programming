@@ -5,6 +5,7 @@ import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /*
 opCode : 10 11 12 13 14 15 21 30 31 32 33 34 35
@@ -22,12 +23,21 @@ public class SimpleFrame implements ChatHackFrame {
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
     private SimpleFrame(int opcode, String message, ByteBuffer buffer) {
+        if (opcode < 0) {
+            throw new IllegalArgumentException("OpCode can't be a negative value");
+        }
+        Objects.requireNonNull(message);
+        Objects.requireNonNull(buffer);
         this.opcode = opcode;
         this.Message = message;
         this.simpleFrame = buffer;
     }
 
     public static SimpleFrame createSimpleFrame(int opCode, String message) {
+        if (opCode < 0) {
+            throw new IllegalArgumentException("OpCode can't be a negative value");
+        }
+        Objects.requireNonNull(message);
         byte opCodeByte = Integer.valueOf(opCode).byteValue();
         ByteBuffer bbMsg = UTF_8.encode(message);
         int sizeMsg = bbMsg.remaining();
