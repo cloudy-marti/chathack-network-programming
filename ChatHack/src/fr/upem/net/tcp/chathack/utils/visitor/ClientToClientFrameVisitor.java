@@ -1,9 +1,6 @@
 package fr.upem.net.tcp.chathack.utils.visitor;
 
-import fr.upem.net.tcp.chathack.utils.frame.ConnectionFrame;
-import fr.upem.net.tcp.chathack.utils.frame.FilesFrame;
-import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
-import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
+import fr.upem.net.tcp.chathack.utils.frame.*;
 
 public class ClientToClientFrameVisitor implements FrameVisitor {
     @Override
@@ -23,6 +20,26 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(SimpleFrame frame) {
+
+    }
+
+    @Override
+    public void visit(LoginPasswordFrame frame) {
+
+    }
+
+    @Override
+    public void visit(PrivateConnectionFrame frame) {
+
+    }
+
+    @Override
+    public void visit(BDDServerFrame frame) {
+
+    }
+
+    @Override
+    public void visit(BDDServerResponseFrame bddServerResponseFrame) {
 
     }
 }

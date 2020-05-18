@@ -7,4 +7,8 @@ public interface FrameVisitor {
     void visit(FilesFrame frame);
     void visit(GlobalMessageFrame frame);
     void visit(SimpleFrame frame);
+    void visit(LoginPasswordFrame frame);
+    void visit(PrivateConnectionFrame frame);
+    void visit(BDDServerFrame frame);
+    void visit(BDDServerResponseFrame bddServerResponseFrame);
 }

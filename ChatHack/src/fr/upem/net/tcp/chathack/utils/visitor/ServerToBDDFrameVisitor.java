@@ -35,4 +35,24 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
     public void visit(SimpleFrame frame) {
 
     }
+
+    @Override
+    public void visit(LoginPasswordFrame frame) {
+
+    }
+
+    @Override
+    public void visit(PrivateConnectionFrame frame) {
+
+    }
+
+    @Override
+    public void visit(BDDServerFrame frame) {
+
+    }
+
+    @Override
+    public void visit(BDDServerResponseFrame bddServerResponseFrame) {
+
+    }
 }
