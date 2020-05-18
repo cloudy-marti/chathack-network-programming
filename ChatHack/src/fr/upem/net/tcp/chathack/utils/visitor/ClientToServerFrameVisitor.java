@@ -30,7 +30,13 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(GlobalMessageFrame frame) {
-
+    switch (frame.getOpcode()){
+        case 20 :
+            System.out.println(frame);
+            break;
+        default:
+            throw new UnsupportedOperationException("this is not allowed on global chat.");
+    }
     }
 
     @Override

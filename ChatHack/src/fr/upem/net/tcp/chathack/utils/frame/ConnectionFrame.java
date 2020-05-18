@@ -67,10 +67,15 @@ public class ConnectionFrame implements ChatHackFrame {
 
     @Override
     public int getOpcode() {
-        return this.opcode;
+        return opcode;
     }
 
     public String getLogin() {
         return login;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

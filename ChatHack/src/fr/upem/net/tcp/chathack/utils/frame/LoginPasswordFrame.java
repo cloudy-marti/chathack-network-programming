@@ -74,6 +74,13 @@ public class LoginPasswordFrame implements ChatHackFrame {
 
     @Override
     public int getOpcode() {
-        return 0;
+        return opcode;
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
+
 }

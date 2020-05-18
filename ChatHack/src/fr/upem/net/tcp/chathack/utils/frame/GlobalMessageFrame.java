@@ -82,6 +82,11 @@ public class GlobalMessageFrame implements ChatHackFrame {
 
     @Override
     public int getOpcode() {
-        return this.opCode;
+        return opCode;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

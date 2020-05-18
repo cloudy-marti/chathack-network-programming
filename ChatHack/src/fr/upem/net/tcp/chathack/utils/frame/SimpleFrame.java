@@ -66,4 +66,9 @@ public class SimpleFrame implements ChatHackFrame {
     public int getOpcode() {
         return this.opcode;
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }
