@@ -58,4 +58,5 @@ public interface Context {
     void doWrite() throws IOException;
 
     void doConnect() throws IOException;
+
 }

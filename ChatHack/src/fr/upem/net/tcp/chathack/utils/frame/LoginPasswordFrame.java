@@ -32,7 +32,7 @@ public class LoginPasswordFrame implements ChatHackFrame {
         this.loginPasswordbb = loginPasswordbb;
     }
 
-    public LoginPasswordFrame createLoginPasswordFrame(int opcode, String login, String password) {
+    public static LoginPasswordFrame createLoginPasswordFrame(int opcode, String login, String password) {
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
         ByteBuffer loginConnection = ASCII.encode(login);
         int sizeOfLogin = loginConnection.remaining();

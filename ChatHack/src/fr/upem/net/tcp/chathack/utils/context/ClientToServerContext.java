@@ -27,20 +27,22 @@ public class ClientToServerContext implements Context {
     final private Queue<ByteBuffer> queue = new LinkedList<>(); // buffers read-mode
     final private FrameReader frameReader = new FrameReader();
     private boolean inputClosed = false;
+    private final ChatHackClient client;
 
     // private final ClientToServerFrameVisitor frameVisitor = new ClientToServerFrameVisitor(this);
 
-    public ClientToServerContext(SelectionKey key) {
+    public ClientToServerContext(SelectionKey key, ChatHackClient client) {
         this.key = key;
         this.sc = (SocketChannel) key.channel();
+        this.client = client;
     }
 
     @Override
     public void processIn() {
         FrameReader frameReader = new FrameReader();
-        for(;;){
+        for (; ; ) {
             Reader.ProcessStatus status = frameReader.process(inputBuffer);
-            switch (status){
+            switch (status) {
                 case ERROR:
                     silentlyClose();
                     return;
@@ -131,7 +133,7 @@ public class ClientToServerContext implements Context {
     }
 
     public void doConnect() throws IOException {
-        if(!sc.finishConnect()){
+        if (!sc.finishConnect()) {
             return;
         }
         updateInterestOps();

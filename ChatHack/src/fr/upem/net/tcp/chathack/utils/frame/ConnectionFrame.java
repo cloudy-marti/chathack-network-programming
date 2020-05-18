@@ -29,7 +29,7 @@ public class ConnectionFrame implements ChatHackFrame {
         this.connectionFrame = connectionFrame;
     }
 
-    public ConnectionFrame createConnectionFrame(int opcode, String login) {
+    public static ConnectionFrame createConnectionFrame(int opcode, String login) {
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
         ByteBuffer loginConnection = ASCII.encode(login);
         int sizeOfLogin = loginConnection.remaining();

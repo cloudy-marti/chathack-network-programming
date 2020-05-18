@@ -1,10 +1,13 @@
 package fr.upem.net.tcp.chathack.client;
 
+import fr.upem.net.tcp.chathack.utils.context.ClientToClientContext;
 import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
+import fr.upem.net.tcp.chathack.utils.frame.ConnectionFrame;
 import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
 import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionFrame;
 import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
+import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -14,7 +17,9 @@ import java.nio.channels.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ChatHackClient {
@@ -35,6 +40,7 @@ public class ChatHackClient {
     private Context clientToServerContext;
     private Context clientToClientContext;
     boolean isConnected = false;
+    boolean wantADisconnection = false;
     //Récupérer le context pour savoir avec qui je suis connecté
     private final HashMap<String, Context> contextPrivateConnection = new HashMap<>();
     private final HashMap<String, ArrayBlockingQueue<String>> waitingMessage = new HashMap<>();
@@ -110,7 +116,7 @@ public class ChatHackClient {
                         //Si on a une connexion privée déjà établie
                         if (contextPrivateConnection.containsKey(target)) {
                             var context = contextPrivateConnection.get(target);
-                            var privateMessage = SimpleFrame.createSimpleFrame(21, message);
+                            var privateMessage = SimpleFrame.createSimpleFrame(OpCode.PRIVATE_MESSAGE.getOpCode(), message);
                             privateMessage.fillByteBuffer(buffer);
                             context.queueMessage(buffer);
                         } else if (refusedConnection.contains(target)) {
@@ -122,7 +128,7 @@ public class ChatHackClient {
                             targetMessages.add(message);
                         } else {
                             // Pour la demande de connexion
-                            var requestConnectionFrame = PrivateConnectionFrame.createPrivateConnectionFrame(2, target, serverAddress);
+                            var requestConnectionFrame = PrivateConnectionFrame.createPrivateConnectionFrame(OpCode.PRIVATE_CONNECTION_REQUEST.getOpCode(), target, serverAddress);
                             requestConnectionFrame.fillByteBuffer(buffer);
                             clientToServerContext.queueMessage(buffer);
                             var queue = new ArrayBlockingQueue<String>(BLOCKING_QUEUE_SIZE);
@@ -131,12 +137,25 @@ public class ChatHackClient {
                             waitingMessage.put(target, queue);
                         }
                     } else {
-                        // /Bob file pour bob
+                        // /Bob = file pour bob
 
+                    }
+                } else if (commmand.startsWith("&")) {
+                    var deconnection = ConnectionFrame.createConnectionFrame(OpCode.DISCONNECTION_REQUEST.getOpCode(), login);
+                    deconnection.fillByteBuffer(buffer);
+                    clientToServerContext.queueMessage(buffer);
+                } else if (commmand.startsWith("$")) {
+                    var command2 = commmand.substring(1);
+                    if (command2.equals("accept")) {
+
+                    } else if (command2.equals("refuse")) {
+
+                    } else {
+                        System.out.println("This command is not recognized");
                     }
                 } else {
                     //Broadcast
-                    var broadcastMsg = GlobalMessageFrame.createGlobalMessageFrame(20, login, commmand);
+                    var broadcastMsg = GlobalMessageFrame.createGlobalMessageFrame(OpCode.GLOBAL_MESSAGE.getOpCode(), login, commmand);
                     broadcastMsg.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
                 }
@@ -147,13 +166,13 @@ public class ChatHackClient {
     public void launch() throws IOException {
         sc.configureBlocking(false);
         var key = sc.register(selector, SelectionKey.OP_CONNECT);
-        clientToServerContext = new ClientToServerContext(key);
+        clientToServerContext = new ClientToServerContext(key, this);
         key.attach(clientToServerContext);
         sc.connect(serverAddress);
         console.start();
         ssc.configureBlocking(false);
         ssc.bind(new InetSocketAddress(port));
-        while (!Thread.interrupted()) {
+        while (!Thread.interrupted() && !wantADisconnection) {
             try {
                 selector.select(this::treatKey);
                 processCommands();
@@ -163,23 +182,112 @@ public class ChatHackClient {
         }
     }
 
+    private void doAccept(SelectionKey key) throws IOException {
+        SocketChannel sc = ssc.accept();
+        if (sc == null) {
+            return;
+        }
+        sc.configureBlocking(false);
+        SelectionKey scKey = sc.register(selector, SelectionKey.OP_READ);
+        var clientContext = new ClientToClientContext(scKey, this);
+        scKey.attach(clientContext);
+    }
+
     private void treatKey(SelectionKey key) {
+        printSelectedKey(key); // for debug
         try {
-            if (key.isValid() && key.isConnectable()) {
-                clientToServerContext.doConnect();
-            }
-            if (key.isValid() && key.isWritable()) {
-                clientToServerContext.doWrite();
-            }
-            if (key.isValid() && key.isReadable()) {
-                clientToServerContext.doRead();
+            if (key.isValid() && key.isAcceptable()) {
+                doAccept(key);
             }
         } catch (IOException ioe) {
             // lambda call in select requires to tunnel IOException
             throw new UncheckedIOException(ioe);
         }
+        try {
+            if (key.isValid() && key.isConnectable()) {
+                ((Context) key.attachment()).doConnect();
+            }
+            if (key.isValid() && key.isWritable()) {
+                ((Context) key.attachment()).doWrite();
+            }
+            if (key.isValid() && key.isReadable()) {
+                ((Context) key.attachment()).doRead();
+            }
+        } catch (IOException e) {
+            logger.log(Level.INFO, "Connection closed with client due to IOException", e);
+            silentlyClose(key);
+        }
     }
 
+    /***
+     * Theses methods are here to help understanding the behavior of the selector
+     ***/
+
+    private String interestOpsToString(SelectionKey key) {
+        if (!key.isValid()) {
+            return "CANCELLED";
+        }
+        int interestOps = key.interestOps();
+        ArrayList<String> list = new ArrayList<>();
+        if ((interestOps & SelectionKey.OP_ACCEPT) != 0)
+            list.add("OP_ACCEPT");
+        if ((interestOps & SelectionKey.OP_READ) != 0)
+            list.add("OP_READ");
+        if ((interestOps & SelectionKey.OP_WRITE) != 0)
+            list.add("OP_WRITE");
+        return String.join("|", list);
+    }
+
+    public void printKeys() {
+        Set<SelectionKey> selectionKeySet = selector.keys();
+        if (selectionKeySet.isEmpty()) {
+            System.out.println("The selector contains no key : this should not happen!");
+            return;
+        }
+        System.out.println("The selector contains:");
+        for (SelectionKey key : selectionKeySet) {
+            SelectableChannel channel = key.channel();
+            if (channel instanceof ServerSocketChannel) {
+                System.out.println("\tKey for ServerSocketChannel : " + interestOpsToString(key));
+            } else {
+                SocketChannel sc = (SocketChannel) channel;
+                System.out.println("\tKey for Client " + remoteAddressToString(sc) + " : " + interestOpsToString(key));
+            }
+        }
+    }
+
+    public void printSelectedKey(SelectionKey key) {
+        SelectableChannel channel = key.channel();
+        if (channel instanceof ServerSocketChannel) {
+            System.out.println("\tServerSocketChannel can perform : " + possibleActionsToString(key));
+        } else {
+            SocketChannel sc = (SocketChannel) channel;
+            System.out.println(
+                    "\tClient " + remoteAddressToString(sc) + " can perform : " + possibleActionsToString(key));
+        }
+    }
+
+    private String possibleActionsToString(SelectionKey key) {
+        if (!key.isValid()) {
+            return "CANCELLED";
+        }
+        ArrayList<String> list = new ArrayList<>();
+        if (key.isAcceptable())
+            list.add("ACCEPT");
+        if (key.isReadable())
+            list.add("READ");
+        if (key.isWritable())
+            list.add("WRITE");
+        return String.join(" and ", list);
+    }
+
+    private String remoteAddressToString(SocketChannel sc) {
+        try {
+            return sc.getRemoteAddress().toString();
+        } catch (IOException e) {
+            return "???";
+        }
+    }
 
     private void silentlyClose(SelectionKey key) {
         Channel sc = key.channel();
