@@ -73,9 +73,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     files.
     
     Errors cause termination of the connection. An error is signaled by a 
-    frame with the OpCode between 30 and 39. The server is responsible of 
-    closing the connection if there are too many lost frames or exceeded 
-    timeouts coming from a client.
+    frame with the OpCode between 30 and 39.
     
     This protocol is very restrictive, in order to simplify implementation.
 
