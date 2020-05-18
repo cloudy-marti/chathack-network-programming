@@ -111,7 +111,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
 
     An initial connection is established when a client sends a request to the
     server with its username and/or a password. The server responds to the client
-    if the username and/or passwords are OK.
+    if the username and/or passwords are OK. 
     
     Users that have already given an alias and password should be known by the
     server so that their alias cannot be taken or used without its associated
@@ -165,7 +165,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
         refuses the server will return the negative response to Client A.
         
         4. If Client B accepts the private connection request it sends a
-        response to the server with its address and the Client A's login.
+        response to the server with its address, port and the Client A's login.
         
         5. The server redirects this frame to Client A and Client A sends to
         the server a frame with its address and Client B's login.
@@ -183,8 +183,8 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
             |                             | Can I connect to client B   |
             |                             |---------------------------->|
             |                             |                             |
-            |                          Ok / KO                          |
-            |<----------------------------------------------------------|
+            |                             |   Ok / KO                   |
+            |                             <-----------------------------|
             |                                                           |
             |                Connection establishment                   |
             |<----------------------------------------------------------|
@@ -424,10 +424,9 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     The return codes for the errors mean the following :
         30. Login Error
         31. Login with Password Error
-        32. Lost Frames
-        33. Invalid Address
-        34. Invalid Port
-        35. Disconnection KO
+        32. Invalid Address
+        33. Invalid Port
+        34. Disconnection KO
         
 Marti and Mechouk                                                   [Page 8]
 
@@ -466,7 +465,7 @@ Practical examples
         -----------------------------------
     If the nickname is unavailable it sends an error frame:
         ---------------------------------
-        | 31 | 17 | "Unavailable Login" |
+        | 30 | 17 | "Unavailable Login" |
         ---------------------------------
 
 1.2. Login with Password
@@ -494,7 +493,7 @@ Practical examples
     If the alias is found within the registered users but the password does not
     match, the server sends an error frame:
         ------------------------------
-        | 32 | 14 | "Wrong password" |
+        | 31 | 14 | "Wrong password" |
         ------------------------------
         
         
@@ -533,7 +532,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     If the address cannot be found or recognised by the client, the requesting
     user gets an error response from the server:
         ----------------------------------------
-        | 33 | 21 | "client address not valid" |
+        | 32 | 21 | "client address not valid" |
         ----------------------------------------
     
         
@@ -541,57 +540,29 @@ Marti and Mechouk                                                   [Page 10]
 
 RFC 9692                    PROTOCOL Revision 2                   April 2020
         
-2. Data transmission
+2. Disconnected Failed
 
-2.1. ChatHack global chat
-
-    Several users are connected to the ChatHack. The user "Alice" writes a
-    message to the server:
-        -----------------------------------------------------------
-        | 20 | 5 | "Alice" | 4 | "UTF8" | 16 | "Hello my friends" |
-        -----------------------------------------------------------
-    The server broadcasts, that is to say, sends the frame back to all connected
-    users, including "Alice" with the same format.
-    If the frame is lost, for example, the server will sends
-    an error message to the user and destroys the current data frame:
-        -------------------------
-        | 33 | 14 | "Data Lost" |
-        -------------------------
-    
-2.2. Private message exchange
-
-    Two clients, "Bob" and "Alice" are directly connected (see section
-    1.3) and want to exchange messages:
-        -------------------------------------------------------------
-        | 21 | 4 | "UTF8" | 32 | "Have you saved the princess yet?" |
-        -------------------------------------------------------------
-    Sender may get an error response if the frame is lost:
-        -------------------------
-        | 33 | 14 | "Data Lost" |
-        -------------------------
-
-2.3. Private file exchange
+2.1. Private file exchange
 
     Two clients, "Bob" and "Alice" are directly connected (see section
     1.3) and want to exchange a file:
         ------------------------------------------
         | 22 | 15 | "MajorasMask.jpg" | 32 | ... |
         ------------------------------------------
-    If the file name does not contain a valid extension, the receiving client
-    sends an error frame and the previous frame is automatically destroyed:
-        -------------------------------------
-        | 34 | 21 | "Cannot recognise file" |
-        -------------------------------------
+    Bob loses his connection and suddenly disconnects.
+        ---------------------------------------------------------
+        | 34 | 21 | "an error occurred, bob was disconnected. " |
+        ---------------------------------------------------------
+  
     
 Error Codes
 
     Value   Meaning
-    30.     Timeout
-    31.     Login Error
-    32.     Login with Password Error
-    33.     Lost Frame
-    34.     Invalid Address
-    35.     Disconneted KO
+    30. Login Error
+    31. Login with Password Error
+    32. Invalid Address
+    33. Invalid Port
+    34. Disconnection KO
 
 
 
