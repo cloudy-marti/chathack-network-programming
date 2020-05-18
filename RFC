@@ -407,8 +407,22 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
         21. Private Messages Transmission
         22. Files Transmission
         
+5.4. BDD Server Frames
+5.4.1 Server frames
 
-5.4. ChatHack Error Frames
+                        byte Long  String   String
+                        -----------------------------
+                        | 1 | id | Login | Password |
+                        -----------------------------
+                        
+5.4.2 Server Response Frame
+
+                        byte  Long
+                       ------------
+                       | 0/1 | id |
+                       ------------
+
+6.4. ChatHack Error Frames
 
                    byte         int          String
                 --------------------------------------
@@ -432,14 +446,14 @@ Marti and Mechouk                                                   [Page 8]
 
 RFC 9692                    PROTOCOL Revision 2                   April 2020
        
-6. Normal Termination
+7. Normal Termination
 
     A termination of the connection is done when a client makes a disconnection 
     request and this request is accepted without any errors. The server then 
     marks the user as disconnected. In the case of a non-registered user, the 
     nickname becomes available for further use.
 
-7. Premature Termination
+8. Premature Termination
 
     In the case of the client disconnecting promptly, the server will mark the
     user as disconnected and in the case of a non-registered user, the username
