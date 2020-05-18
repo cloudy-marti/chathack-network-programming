@@ -73,9 +73,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     files.
     
     Errors cause termination of the connection. An error is signaled by a 
-    frame with the OpCode between 30 and 39. The server is responsible of 
-    closing the connection if there are too many lost frames or exceeded 
-    timeouts coming from a client.
+    frame with the OpCode between 30 and 39.
     
     This protocol is very restrictive, in order to simplify implementation.
 
@@ -113,7 +111,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
 
     An initial connection is established when a client sends a request to the
     server with its username and/or a password. The server responds to the client
-    if the username and/or passwords are OK.
+    if the username and/or passwords are OK. 
     
     Users that have already given an alias and password should be known by the
     server so that their alias cannot be taken or used without its associated
@@ -167,7 +165,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
         refuses the server will return the negative response to Client A.
         
         4. If Client B accepts the private connection request it sends a
-        response to the server with its address and the Client A's login.
+        response to the server with its address, port and the Client A's login.
         
         5. The server redirects this frame to Client A and Client A sends to
         the server a frame with its address and Client B's login.
@@ -185,8 +183,8 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
             |                             | Can I connect to client B   |
             |                             |---------------------------->|
             |                             |                             |
-            |                             | Ok / KO                     |
-            |                             |<----------------------------|
+            |                             |   Ok / KO                   |
+            |                             <-----------------------------|
             |                                                           |
             |                Connection establishment                   |
             |<----------------------------------------------------------|
@@ -258,18 +256,19 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
 
 5.1.1. ChatHack Login Frames
     
-                       byte       byte      String  
+                       byte       int      String  
                     --------------------------------
                     | Opcode | SizeOfLogin | Login |
                     --------------------------------
                         Figure 5-1 : Login frame
                         
     Login frames have the format shown in Figure 5-1. The opcode associated to
-    this type of login frame is 00. The login, corresponding to the alias chosen
-    by the client, must be encoded in ASCII in order to allow only a limited set
-    of characters in the alias.
+    this type of login frame is 00, 03 and 04. The login, corresponding to the 
+    alias chosen by the client, must be encoded in ASCII in order to allow only 
+    a limited set of characters in the alias. The presentation frame 04 aims to
+    identify who we are talking to.
     
-              byte       byte       String        long        String
+              byte       int       String        int        String
            ------------------------------------------------------------
            | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
            ------------------------------------------------------------
@@ -283,7 +282,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     
 5.1.2. ChatHack Request for Private Connection Frame
                 
-          byte       byte       String      byte         byte      int
+          byte       int        String   byte(4 or 16)    byte      int
         -----------------------------------------------------------------
         | Opcode | SizeOfLogin | Login | SizeOfAddress | Address | Port |
         -----------------------------------------------------------------
@@ -309,6 +308,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
         01. Connection With Login And Password
         02. Private Connection Between Two Clients
         03. Disconnect Request
+        04. Presentation Frame
     
     
 Marti and Mechouk                                                   [Page 6]
@@ -319,7 +319,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
 
 5.2.1. Chat connection response frames
 
-                   byte       byte        String
+                   byte       int        String
                 ----------------------------------
                 | Opcode | SizeOfAckMsg | AckMsg |
                 ----------------------------------
@@ -331,7 +331,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
         
 5.2.2. Private connection response frames
 
-                       byte      byte    String
+                       byte      int    String
                     ----------------------------
                     | Opcode | SizeOfMsg | Msg |
                     ----------------------------
@@ -361,7 +361,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
 
 5.3.1. Global data transmission
  
-               byte       byte      String     byte      String
+               byte       int        String     int      String
             ----------------------------------------------------
             | Opcode | SizeOfLogin | Login | SizeOfData | Data |
             ----------------------------------------------------
@@ -381,17 +381,17 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     
 5.3.2. Private data transmission
 
-                       byte      byte      String
-                    ------------------------------
-                    | Opcode | SizeOfData | Data |
-                    ------------------------------
+                       byte        int          String
+                    ------------------------------------
+                    | Opcode | SizeOfMessage | Message |
+                    ------------------------------------
                     Figure 5-6 : Private message frame
                     
     Private messages are transferred in DATA frames as shown in the Figure 5-6.
     The opcode associated to this data frame is 21. Encoding messages must be
     encoded in UTF_8.
     
-            byte        byte         String      byte       byte
+            byte        int         String       int        byte
         ----------------------------------------------------------
         | Opcode | SizeOfFileName | FileName | SizeOfData | Data |
         ----------------------------------------------------------
@@ -407,10 +407,24 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
         21. Private Messages Transmission
         22. Files Transmission
         
+5.4. BDD Server Frames
+5.4.1 Server frames
 
-5.4. ChatHack Error Frames
+                        byte Long  String   String
+                        -----------------------------
+                        | 1 | id | Login | Password |
+                        -----------------------------
+                        
+5.4.2 Server Response Frame
 
-                   byte         byte          String
+                        byte  Long
+                       ------------
+                       | 0/1 | id |
+                       ------------
+
+6.4. ChatHack Error Frames
+
+                   byte         int          String
                 --------------------------------------
                 | Opcode | SizeOfErrorMsg | ErrorMsg |
                 --------------------------------------
@@ -424,23 +438,22 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     The return codes for the errors mean the following :
         30. Login Error
         31. Login with Password Error
-        32. Lost Frames
-        33. Invalid Address
-        34. Invalid Port
-        35. Disconnection KO
+        32. Invalid Address
+        33. Invalid Port
+        34. Disconnection KO
         
 Marti and Mechouk                                                   [Page 8]
 
 RFC 9692                    PROTOCOL Revision 2                   April 2020
        
-6. Normal Termination
+7. Normal Termination
 
     A termination of the connection is done when a client makes a disconnection 
     request and this request is accepted without any errors. The server then 
     marks the user as disconnected. In the case of a non-registered user, the 
     nickname becomes available for further use.
 
-7. Premature Termination
+8. Premature Termination
 
     In the case of the client disconnecting promptly, the server will mark the
     user as disconnected and in the case of a non-registered user, the username
@@ -466,7 +479,7 @@ Practical examples
         -----------------------------------
     If the nickname is unavailable it sends an error frame:
         ---------------------------------
-        | 31 | 17 | "Unavailable Login" |
+        | 30 | 17 | "Unavailable Login" |
         ---------------------------------
 
 1.2. Login with Password
@@ -494,7 +507,7 @@ Practical examples
     If the alias is found within the registered users but the password does not
     match, the server sends an error frame:
         ------------------------------
-        | 32 | 14 | "Wrong password" |
+        | 31 | 14 | "Wrong password" |
         ------------------------------
         
         
@@ -533,7 +546,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     If the address cannot be found or recognised by the client, the requesting
     user gets an error response from the server:
         ----------------------------------------
-        | 33 | 21 | "client address not valid" |
+        | 32 | 21 | "client address not valid" |
         ----------------------------------------
     
         
@@ -541,57 +554,29 @@ Marti and Mechouk                                                   [Page 10]
 
 RFC 9692                    PROTOCOL Revision 2                   April 2020
         
-2. Data transmission
+2. Disconnected Failed
 
-2.1. ChatHack global chat
-
-    Several users are connected to the ChatHack. The user "Alice" writes a
-    message to the server:
-        -----------------------------------------------------------
-        | 20 | 5 | "Alice" | 4 | "UTF8" | 16 | "Hello my friends" |
-        -----------------------------------------------------------
-    The server broadcasts, that is to say, sends the frame back to all connected
-    users, including "Alice" with the same format.
-    If the frame is lost, for example, the server will sends
-    an error message to the user and destroys the current data frame:
-        -------------------------
-        | 33 | 14 | "Data Lost" |
-        -------------------------
-    
-2.2. Private message exchange
-
-    Two clients, "Bob" and "Alice" are directly connected (see section
-    1.3) and want to exchange messages:
-        -------------------------------------------------------------
-        | 21 | 4 | "UTF8" | 32 | "Have you saved the princess yet?" |
-        -------------------------------------------------------------
-    Sender may get an error response if the frame is lost:
-        -------------------------
-        | 33 | 14 | "Data Lost" |
-        -------------------------
-
-2.3. Private file exchange
+2.1. Private file exchange
 
     Two clients, "Bob" and "Alice" are directly connected (see section
     1.3) and want to exchange a file:
         ------------------------------------------
         | 22 | 15 | "MajorasMask.jpg" | 32 | ... |
         ------------------------------------------
-    If the file name does not contain a valid extension, the receiving client
-    sends an error frame and the previous frame is automatically destroyed:
-        -------------------------------------
-        | 34 | 21 | "Cannot recognise file" |
-        -------------------------------------
+    Bob loses his connection and suddenly disconnects.
+        ---------------------------------------------------------
+        | 34 | 21 | "an error occurred, bob was disconnected. " |
+        ---------------------------------------------------------
+  
     
 Error Codes
 
     Value   Meaning
-    30.     Timeout
-    31.     Login Error
-    32.     Login with Password Error
-    33.     Lost Frame
-    34.     Invalid Address
-    35.     Disconneted KO
+    30. Login Error
+    31. Login with Password Error
+    32. Invalid Address
+    33. Invalid Port
+    34. Disconnection KO
 
 
 
