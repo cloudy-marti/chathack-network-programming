@@ -3,6 +3,7 @@ package fr.upem.net.tcp.chathack.utils.visitor;
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
+import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
 import java.nio.ByteBuffer;
 
@@ -19,24 +20,7 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(ConnectionFrame frame) {
-        switch (frame.getOpcode()) {
-            //Un client qui se connecte
-            case 04:
-                client.getContextPrivateConnection().put(frame.getLogin(), context);
-                var queue = client.getWaitingMessage().get(frame.getLogin());
-                while (!queue.isEmpty()) {
-                    ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-                    var privateMessage = SimpleFrame.createSimpleFrame(21, queue.poll());
-                    privateMessage.fillByteBuffer(buffer);
-                    context.queueMessage(buffer);
-                }
-                break;
-            case 00:
-            case 03:
-            default:
-                throw new UnsupportedOperationException("The client can't receive this");
-
-        }
+        throw new UnsupportedOperationException("Connections are not allowed on global chat.");
     }
 
     @Override

@@ -4,7 +4,7 @@ import fr.upem.net.tcp.chathack.client.ChatHackClient;
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
 import fr.upem.net.tcp.chathack.utils.reader.FrameReader;
 import fr.upem.net.tcp.chathack.utils.reader.Reader;
-import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
+import fr.upem.net.tcp.chathack.utils.visitor.ClientToClientFrameVisitor;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -26,12 +26,13 @@ public class ClientToClientContext implements Context {
     private boolean inputClosed = false;
     private final ChatHackClient client;
 
-    // private final ClientToServerFrameVisitor frameVisitor = new ClientToServerFrameVisitor(this);
+    private final ClientToClientFrameVisitor frameVisitor;
 
     public ClientToClientContext(SelectionKey key, ChatHackClient client) {
         this.key = key;
         this.sc = (SocketChannel) key.channel();
         this.client = client;
+        this.frameVisitor = new ClientToClientFrameVisitor(this, client);
     }
 
     @Override

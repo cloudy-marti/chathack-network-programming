@@ -29,12 +29,13 @@ public class ClientToServerContext implements Context {
     private boolean inputClosed = false;
     private final ChatHackClient client;
 
-    // private final ClientToServerFrameVisitor frameVisitor = new ClientToServerFrameVisitor(this);
+    private final ClientToServerFrameVisitor frameVisitor;
 
     public ClientToServerContext(SelectionKey key, ChatHackClient client) {
         this.key = key;
         this.sc = (SocketChannel) key.channel();
         this.client = client;
+        this.frameVisitor = new ClientToServerFrameVisitor(this, client);
     }
 
     @Override
