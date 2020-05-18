@@ -18,10 +18,9 @@ public enum OpCode {
     PRIVATE_FILE (22),
     LOGIN_ERROR(30),
     LOGIN_WITH_PASSWORD_ERROR(31),
-    LOST_FRAME(32),
-    INVALID_ADDRESS(33),
-    INVALID_PORT(34),
-    DISCONNECTION_KO(35);
+    INVALID_ADDRESS(32),
+    INVALID_PORT(33),
+    DISCONNECTION_KO(34);
 
     private final int opCode;
 
