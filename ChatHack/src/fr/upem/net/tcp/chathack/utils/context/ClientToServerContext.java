@@ -28,7 +28,7 @@ public class ClientToServerContext implements Context {
     final private FrameReader frameReader = new FrameReader();
     private boolean inputClosed = false;
 
-    private final ClientToServerFrameVisitor frameVisitor = new ClientToServerFrameVisitor(this);
+    // private final ClientToServerFrameVisitor frameVisitor = new ClientToServerFrameVisitor(this);
 
     public ClientToServerContext(SelectionKey key) {
         this.key = key;
@@ -57,7 +57,7 @@ public class ClientToServerContext implements Context {
 
     @Override
     public void treatFrame(ChatHackFrame frame) {
-        frame.accept(frameVisitor);
+        //frame.accept(frameVisitor);
     }
 
     @Override
