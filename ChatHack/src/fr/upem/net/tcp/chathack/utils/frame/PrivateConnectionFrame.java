@@ -88,6 +88,10 @@ public class PrivateConnectionFrame implements ChatHackFrame {
         return opcode;
     }
 
+    public String getLogin() {
+        return login;
+    }
+
     @Override
     public String toString() {
         return super.toString();

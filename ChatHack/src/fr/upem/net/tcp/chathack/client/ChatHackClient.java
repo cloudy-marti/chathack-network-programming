@@ -9,6 +9,7 @@ import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionFrame;
 import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
 import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
@@ -45,6 +46,7 @@ public class ChatHackClient {
     private final HashMap<String, Context> contextPrivateConnection = new HashMap<>();
     private final HashMap<String, ArrayBlockingQueue<String>> waitingMessage = new HashMap<>();
     private final ArrayList<String> refusedConnection = new ArrayList<>();
+    private final ArrayBlockingQueue<PrivateConnectionFrame> connectionRequest = new ArrayBlockingQueue<>(BLOCKING_QUEUE_SIZE);
 
 
     public ChatHackClient(String login, InetSocketAddress serverAddress, int port) throws IOException {
@@ -139,18 +141,28 @@ public class ChatHackClient {
                     } else {
                         // /Bob = file pour bob
 
-                    }
+                    }//Deconnection
                 } else if (commmand.startsWith("&")) {
                     var deconnection = ConnectionFrame.createConnectionFrame(OpCode.DISCONNECTION_REQUEST.getOpCode(), login);
                     deconnection.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
+                    //Accept or refuse connection client to client
                 } else if (commmand.startsWith("$")) {
                     var command2 = commmand.substring(1);
-                    if (command2.equals("accept")) {
-
-                    } else if (command2.equals("refuse")) {
-
-                    } else {
+                    if (command2.equals("accept") || command2.equals("refuse")) {
+                        if(!connectionRequest.isEmpty()) {
+                            PrivateConnectionFrame frame = connectionRequest.poll();
+                            int opCode;
+                            if (command2.equals("accept")) {
+                                opCode = OpCode.PRIVATE_CONNECTION_OK.getOpCode();
+                            } else {
+                                opCode = OpCode.PRIVATE_CONNECTION_KO.getOpCode();
+                            }
+                            SimpleFrame newFrame = SimpleFrame.createSimpleFrame(opCode, frame.getLogin());
+                            newFrame.fillByteBuffer(buffer);
+                            clientToServerContext.queueMessage(buffer);
+                        }
+                    }  else {
                         System.out.println("This command is not recognized");
                     }
                 } else {
@@ -180,6 +192,10 @@ public class ChatHackClient {
                 throw tunneled.getCause();
             }
         }
+    }
+
+    public ArrayBlockingQueue<PrivateConnectionFrame> getConnectionRequest() {
+        return connectionRequest;
     }
 
     private void doAccept(SelectionKey key) throws IOException {
