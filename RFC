@@ -185,8 +185,8 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
             |                             | Can I connect to client B   |
             |                             |---------------------------->|
             |                             |                             |
-            |                             | Ok / KO                     |
-            |                             |<----------------------------|
+            |                          Ok / KO                          |
+            |<----------------------------------------------------------|
             |                                                           |
             |                Connection establishment                   |
             |<----------------------------------------------------------|
@@ -258,18 +258,19 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
 
 5.1.1. ChatHack Login Frames
     
-                       byte       byte      String  
+                       byte       int      String  
                     --------------------------------
                     | Opcode | SizeOfLogin | Login |
                     --------------------------------
                         Figure 5-1 : Login frame
                         
     Login frames have the format shown in Figure 5-1. The opcode associated to
-    this type of login frame is 00. The login, corresponding to the alias chosen
-    by the client, must be encoded in ASCII in order to allow only a limited set
-    of characters in the alias.
+    this type of login frame is 00, 03 and 04. The login, corresponding to the 
+    alias chosen by the client, must be encoded in ASCII in order to allow only 
+    a limited set of characters in the alias. The presentation frame 04 aims to
+    identify who we are talking to.
     
-              byte       byte       String        long        String
+              byte       int       String        int        String
            ------------------------------------------------------------
            | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
            ------------------------------------------------------------
@@ -283,7 +284,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     
 5.1.2. ChatHack Request for Private Connection Frame
                 
-          byte       byte       String      byte         byte      int
+          byte       int        String   byte(4 or 16)    byte      int
         -----------------------------------------------------------------
         | Opcode | SizeOfLogin | Login | SizeOfAddress | Address | Port |
         -----------------------------------------------------------------
@@ -309,6 +310,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
         01. Connection With Login And Password
         02. Private Connection Between Two Clients
         03. Disconnect Request
+        04. Presentation Frame
     
     
 Marti and Mechouk                                                   [Page 6]
@@ -319,7 +321,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
 
 5.2.1. Chat connection response frames
 
-                   byte       byte        String
+                   byte       int        String
                 ----------------------------------
                 | Opcode | SizeOfAckMsg | AckMsg |
                 ----------------------------------
@@ -331,7 +333,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
         
 5.2.2. Private connection response frames
 
-                       byte      byte    String
+                       byte      int    String
                     ----------------------------
                     | Opcode | SizeOfMsg | Msg |
                     ----------------------------
@@ -361,7 +363,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
 
 5.3.1. Global data transmission
  
-               byte       byte      String     byte      String
+               byte       int        String     int      String
             ----------------------------------------------------
             | Opcode | SizeOfLogin | Login | SizeOfData | Data |
             ----------------------------------------------------
@@ -381,17 +383,17 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     
 5.3.2. Private data transmission
 
-                       byte      byte      String
-                    ------------------------------
-                    | Opcode | SizeOfData | Data |
-                    ------------------------------
+                       byte        int          String
+                    ------------------------------------
+                    | Opcode | SizeOfMessage | Message |
+                    ------------------------------------
                     Figure 5-6 : Private message frame
                     
     Private messages are transferred in DATA frames as shown in the Figure 5-6.
     The opcode associated to this data frame is 21. Encoding messages must be
     encoded in UTF_8.
     
-            byte        byte         String      byte       byte
+            byte        int         String       int        byte
         ----------------------------------------------------------
         | Opcode | SizeOfFileName | FileName | SizeOfData | Data |
         ----------------------------------------------------------
@@ -410,7 +412,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
 
 5.4. ChatHack Error Frames
 
-                   byte         byte          String
+                   byte         int          String
                 --------------------------------------
                 | Opcode | SizeOfErrorMsg | ErrorMsg |
                 --------------------------------------
