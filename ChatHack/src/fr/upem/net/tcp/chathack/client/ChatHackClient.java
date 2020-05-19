@@ -71,7 +71,6 @@ public class ChatHackClient {
         this.console = new Thread(this::consoleRun);
         this.port = port;
         this.ssc = ServerSocketChannel.open();
-        //this.clientToServerContext = new ClientToServerContext()
     }
 
 
@@ -203,10 +202,11 @@ public class ChatHackClient {
 
     public void launch() throws IOException {
         sc.configureBlocking(false);
+        sc.connect(serverAddress);
         var key = sc.register(selector, SelectionKey.OP_CONNECT);
         clientToServerContext = new ClientToServerContext(key, this);
         key.attach(clientToServerContext);
-        sc.connect(serverAddress);
+
 
         console.start();
         ssc.configureBlocking(false);
@@ -237,7 +237,7 @@ public class ChatHackClient {
             return;
         }
         sc.configureBlocking(false);
-        SelectionKey scKey = sc.register(selector, SelectionKey.OP_READ);
+        SelectionKey scKey = sc.register(selector, SelectionKey.OP_CONNECT);
         var clientContext = new ClientToClientContext(scKey, this);
         scKey.attach(clientContext);
     }
