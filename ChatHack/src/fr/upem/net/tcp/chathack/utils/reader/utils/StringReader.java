@@ -1,4 +1,4 @@
-package fr.upem.net.tcp.chathack.utils.reader;
+package fr.upem.net.tcp.chathack.utils.reader.utils;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -78,6 +78,11 @@ public class StringReader implements Reader<String> {
             throw new IllegalStateException();
         }
         return value;
+    }
+
+    @Override
+    public String get(int opcode) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

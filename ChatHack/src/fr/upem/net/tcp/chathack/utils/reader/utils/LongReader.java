@@ -2,13 +2,13 @@ package fr.upem.net.tcp.chathack.utils.reader.utils;
 
 import java.nio.ByteBuffer;
 
-public class IntReader implements Reader<Integer> {
+public class LongReader implements Reader<Long> {
 
     private enum State {DONE,WAITING,ERROR};
 
     private State state = State.WAITING;
-    private final ByteBuffer internalbb = ByteBuffer.allocate(Integer.BYTES); // write-mode
-    private int value;
+    private final ByteBuffer internalbb = ByteBuffer.allocate(Long.BYTES); // write-mode
+    private long value;
 
     @Override
     public ProcessStatus process(ByteBuffer bb) {
@@ -33,12 +33,12 @@ public class IntReader implements Reader<Integer> {
         }
         state = State.DONE;
         internalbb.flip();
-        value = internalbb.getInt();
+        value = internalbb.getLong();
         return ProcessStatus.DONE;
     }
 
     @Override
-    public Integer get() {
+    public Long get() {
         if (state != State.DONE) {
             throw new IllegalStateException();
         }
@@ -46,7 +46,7 @@ public class IntReader implements Reader<Integer> {
     }
 
     @Override
-    public Integer get(int opcode) {
+    public Long get(int opcode) {
         throw new UnsupportedOperationException();
     }
 

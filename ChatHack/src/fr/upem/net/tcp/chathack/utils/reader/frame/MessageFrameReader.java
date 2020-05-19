@@ -1,10 +1,12 @@
-package fr.upem.net.tcp.chathack.utils.reader;
+package fr.upem.net.tcp.chathack.utils.reader.frame;
 
 import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
+import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
+import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
 
 import java.nio.ByteBuffer;
 
-public class TwoStringsReader implements Reader<GlobalMessageFrame> {
+public class MessageFrameReader implements Reader<GlobalMessageFrame> {
     private enum State {DONE, WAITING_LOGIN, WAITING_MSG, ERROR};
 
     private State state = State.WAITING_LOGIN;
@@ -13,7 +15,6 @@ public class TwoStringsReader implements Reader<GlobalMessageFrame> {
 
     private String login;
     private String message;
-    private int opcode;
 
     // opcodes 01, 20 and 21
     /* Format
@@ -27,8 +28,6 @@ public class TwoStringsReader implements Reader<GlobalMessageFrame> {
         if (state == State.DONE || state == State.ERROR) {
             throw new IllegalStateException();
         }
-
-        //opcode = buffer.get() & 0xFF;
 
         StringReader stringReader = new StringReader();
         if(state == State.WAITING_LOGIN) {
@@ -62,6 +61,11 @@ public class TwoStringsReader implements Reader<GlobalMessageFrame> {
 
     @Override
     public GlobalMessageFrame get() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GlobalMessageFrame get(int opcode) {
         if (state != State.DONE) {
             throw new IllegalStateException();
         }

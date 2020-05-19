@@ -1,6 +1,8 @@
-package fr.upem.net.tcp.chathack.utils.reader;
+package fr.upem.net.tcp.chathack.utils.reader.frame;
 
 import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
+import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
+import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
 
 import java.nio.ByteBuffer;
 
@@ -22,15 +24,12 @@ public class SimpleFrameReader implements Reader<SimpleFrame> {
     private final ByteBuffer internalBuffer = ByteBuffer.allocate(BUFFER_SIZE); // write-mode
 
     private String message;
-    //private int opcode;
 
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
         if (state == State.DONE || state == State.ERROR) {
             throw new IllegalStateException();
         }
-
-        //opcode = buffer.get() & 0xFF;
 
         StringReader stringReader = new StringReader();
         if(state == State.WAITING) {
@@ -51,6 +50,11 @@ public class SimpleFrameReader implements Reader<SimpleFrame> {
 
     @Override
     public SimpleFrame get() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SimpleFrame get(int opcode) {
         if (state != State.DONE) {
             throw new IllegalStateException();
         }
