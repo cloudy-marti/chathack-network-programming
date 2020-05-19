@@ -145,6 +145,20 @@ public class ChatHackClient {
                     var deconnection = ConnectionFrame.createConnectionFrame(OpCode.DISCONNECTION_REQUEST.getOpCode(), login);
                     deconnection.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
+                    for (SelectionKey key : selector.keys()) {
+                        Context ctx = (Context) key.attachment();
+                        if (ctx == null) {
+                            continue;
+                        }
+                        if (ctx instanceof ClientToServerContext) {
+                            ClientToServerContext ctxServer = (ClientToServerContext) ctx;
+                            ctxServer.setInputClosed();
+
+                        } else {
+                            ctx.silentlyClose();
+                        }
+
+                    }
                     //Accept or refuse connection client to client
                 } else if (command.startsWith("$")) {
                     var command2 = command.substring(1);
@@ -183,7 +197,7 @@ public class ChatHackClient {
 
         ssc.configureBlocking(false);
         ssc.bind(null);
-        while (!Thread.interrupted() && !wantADisconnection) {
+        while (!Thread.interrupted() && !selector.keys().isEmpty()) {
             try {
                 selector.select(this::treatKey);
                 processCommands();
