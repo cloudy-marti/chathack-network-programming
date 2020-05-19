@@ -328,14 +328,14 @@ public class ChatHackClient {
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {
-        if (args.length != 4 && args.length != 5) {
+        if (args.length != 3 && args.length != 4) {
             usage();
             return;
         }
         if (args.length == 3) {
-            new ChatHackClient(args[0], new InetSocketAddress(args[1], Integer.parseInt(args[2])), Integer.parseInt(args[3])).launch();
+            new ChatHackClient(args[0], new InetSocketAddress(args[1], Integer.parseInt(args[2])), Integer.parseInt(args[2])).launch();
         } else {
-            new ChatHackClient(args[0], args[1], new InetSocketAddress(args[2], Integer.parseInt(args[3])), Integer.parseInt(args[4])).launch();
+            new ChatHackClient(args[0], args[1], new InetSocketAddress(args[2], Integer.parseInt(args[3])), Integer.parseInt(args[3])).launch();
         }
     }
 }
