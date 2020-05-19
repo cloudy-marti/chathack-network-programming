@@ -264,9 +264,8 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
                         
     Login frames have the format shown in Figure 5-1. The opcode associated to
     this type of login frame is 00, 03 and 04. The login, corresponding to the 
-    alias chosen by the client, must be encoded in ASCII in order to allow only 
-    a limited set of characters in the alias. The presentation frame 04 aims to
-    identify who we are talking to.
+    alias chosen by the client, must be encoded in UTF_8. The presentation frame
+    04 aims to identify who we are talking to.
     
               byte       int       String        int        String
            ------------------------------------------------------------
@@ -276,7 +275,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     
     Login with password frames have the format shown in Figure 5-2. The opcode
     associated to this type of login is 01. The login and password are encoded
-    in ASCII in order to allow a limited set of characters in them.
+    in UTF_8.
     
     The Login frames are used as Request for Connection to the server.
     
@@ -368,8 +367,8 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
                    Figure 5-5 : Global chat message frame
                             
     Global chat messages are transferred in DATA frames as shown in the Figure
-    5-5. The opcode associated to this data frame is 20. Encoding and login
-    fields are encoded in ASCII, and chat messages are encoded in UTF_8. 
+    5-5. The opcode associated to this data frame is 20. Login and messages are
+    encoded in UTF_8. 
     Login field corresponds to the sender's alias.
     
     Broadcast of the message by the server is done with the same frame.
@@ -398,7 +397,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
                     Figure 5-7 : Private file data frame
                     
     Files are transferred in DATA frames as shown in the Figure 5-7. The opcode
-    associated to this data frame is 22. File name must be encoded in ASCII.
+    associated to this data frame is 22. File name must be encoded in UTF_8.
     The encoding of the data is given by a sequence of bytes.
     
      The return codes of the Data Frames mean:
@@ -433,7 +432,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
     An ERROR frame (OpCodes [30-39]) has the form described in Figure 5-8. An
     ERROR frame can be the aknowledgment of any other type of frame. The 
     opcode is an integer indicating the nature of the error. The error message 
-    is used for human understanding and should be in ASCII.
+    is used for human understanding and should be in UTF_8.
     
     The return codes for the errors mean the following :
         30. Login Error
