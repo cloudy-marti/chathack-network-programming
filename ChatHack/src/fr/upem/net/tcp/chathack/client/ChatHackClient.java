@@ -99,12 +99,12 @@ public class ChatHackClient {
     private void processCommands() {
         while (!commandQueue.isEmpty()) {
             synchronized (commandQueue) {
-                var commmand = commandQueue.poll();
+                var command = commandQueue.poll();
                 ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
                 //private msg + file
-                if (commmand.startsWith("/") || commmand.startsWith("@")) {
+                if (command.startsWith("/") || command.startsWith("@")) {
                     //Extraction du Login
-                    var splitTab = commmand.split(" ", 2);
+                    var splitTab = command.split(" ", 2);
                     if (splitTab[0].length() < 1) {
                         //Login incorrect car inferieur à 1
                         break;
@@ -112,7 +112,7 @@ public class ChatHackClient {
                     //Start with 1 for the first letter of the Login
                     var target = splitTab[0].substring(1);
                     //@Bob = message privé pour bob
-                    if (commmand.startsWith("@")) {
+                    if (command.startsWith("@")) {
                         //La suite de mon tab donc mon msg
                         var message = splitTab[1];
                         //Si on a une connexion privée déjà établie
@@ -142,13 +142,13 @@ public class ChatHackClient {
                         // /Bob = file pour bob
 
                     }//Deconnection
-                } else if (commmand.startsWith("&")) {
+                } else if (command.startsWith("&")) {
                     var deconnection = ConnectionFrame.createConnectionFrame(OpCode.DISCONNECTION_REQUEST.getOpCode(), login);
                     deconnection.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
                     //Accept or refuse connection client to client
-                } else if (commmand.startsWith("$")) {
-                    var command2 = commmand.substring(1);
+                } else if (command.startsWith("$")) {
+                    var command2 = command.substring(1);
                     if (command2.equals("accept") || command2.equals("refuse")) {
                         if(!connectionRequest.isEmpty()) {
                             PrivateConnectionFrame frame = connectionRequest.poll();
@@ -167,7 +167,7 @@ public class ChatHackClient {
                     }
                 } else {
                     //Broadcast
-                    var broadcastMsg = GlobalMessageFrame.createGlobalMessageFrame(OpCode.GLOBAL_MESSAGE.getOpCode(), login, commmand);
+                    var broadcastMsg = GlobalMessageFrame.createGlobalMessageFrame(OpCode.GLOBAL_MESSAGE.getOpCode(), login, command);
                     broadcastMsg.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
                 }
