@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -49,7 +50,15 @@ public class ChatHackClient {
 
 
     public ChatHackClient(String login, InetSocketAddress serverAddress, int port) throws IOException {
-        this(login, "", serverAddress, port);
+        //this(login, "", serverAddress, port);
+        this.serverAddress = serverAddress;
+        this.login = login;
+        this.password = "";
+        this.sc = SocketChannel.open();
+        this.selector = Selector.open();
+        this.console = new Thread(this::consoleRun);
+        this.port = port;
+        this.ssc = ServerSocketChannel.open();
     }
 
     // constructor with login and password
@@ -62,6 +71,7 @@ public class ChatHackClient {
         this.console = new Thread(this::consoleRun);
         this.port = port;
         this.ssc = ServerSocketChannel.open();
+        //this.clientToServerContext = new ClientToServerContext()
     }
 
 
@@ -166,6 +176,7 @@ public class ChatHackClient {
                     }
                 } else {
                     //Broadcast
+                    LOGGER.log(Level.INFO, "broadcast message !!!");
                     var broadcastMsg = GlobalMessageFrame.createGlobalMessageFrame(OpCode.GLOBAL_MESSAGE.getOpCode(), login, command);
                     broadcastMsg.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
@@ -174,6 +185,8 @@ public class ChatHackClient {
         }
     }
 
+    private static final Logger LOGGER = Logger.getLogger(ChatHackClient.class.getName());
+
     public void launch() throws IOException {
         sc.configureBlocking(false);
         var key = sc.register(selector, SelectionKey.OP_CONNECT);
@@ -181,9 +194,11 @@ public class ChatHackClient {
         key.attach(clientToServerContext);
         sc.connect(serverAddress);
 
+        console.start();
         ssc.configureBlocking(false);
         ssc.bind(null);
         while (!Thread.interrupted() && !wantADisconnection) {
+            printKeys();
             try {
                 selector.select(this::treatKey);
                 processCommands();
@@ -220,12 +235,15 @@ public class ChatHackClient {
         }
         try {
             if (key.isValid() && key.isConnectable()) {
+                LOGGER.log(Level.INFO, "key is connectable");
                 ((Context) key.attachment()).doConnect();
             }
             if (key.isValid() && key.isWritable()) {
+                LOGGER.log(Level.INFO, "key is writable");
                 ((Context) key.attachment()).doWrite();
             }
             if (key.isValid() && key.isReadable()) {
+                LOGGER.log(Level.INFO, "key is readable");
                 ((Context) key.attachment()).doRead();
             }
         } catch (IOException e) {

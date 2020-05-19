@@ -2,10 +2,6 @@ package fr.upem.net.tcp.chathack.utils.context;
 
 import fr.upem.net.tcp.chathack.server.ChatHackServer;
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
-import fr.upem.net.tcp.chathack.utils.frame.ConnectionFrame;
-import fr.upem.net.tcp.chathack.utils.frame.LoginPasswordFrame;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
 import fr.upem.net.tcp.chathack.utils.reader.frame.FrameReader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.visitor.ServerToClientFrameVisitor;
@@ -53,12 +49,15 @@ public class ServerToClientContext implements Context {
             Reader.ProcessStatus status = frameReader.process(inputBuffer);
             switch (status) {
                 case ERROR:
+                    System.out.println("Frame Reader error");
                     silentlyClose();
                     return;
                 case REFILL:
+                    System.out.println( "Refill");
                     return;
                 case DONE:
                     ChatHackFrame frame = frameReader.get();
+                    System.out.println( "ok frame : " + frame.getClass().getName());
                     frameReader.reset();
                     treatFrame(frame);
                     break;
@@ -83,6 +82,8 @@ public class ServerToClientContext implements Context {
             if(tmp.remaining() <= outputBuffer.remaining()) {
                 messageQueue.remove();
                 outputBuffer.put(tmp);
+            } else {
+                return;
             }
         }
     }
@@ -115,6 +116,7 @@ public class ServerToClientContext implements Context {
             LOGGER.log(Level.INFO, "Client has closed the connection");
             inputClosed = true;
         }
+        LOGGER.log(Level.INFO, "READING KJSQHDKJSQ");
         processIn();
         updateInterestOps();
     }

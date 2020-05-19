@@ -81,7 +81,7 @@ public class GlobalMessageFrame implements ChatHackFrame {
     @Override
     public boolean checkBufferSize(ByteBuffer buffer) {
         //buffer in write mode
-        return (buffer.remaining() >= globalMessageFrame.remaining());
+        return buffer.remaining() >= globalMessageFrame.remaining();
     }
 
     @Override

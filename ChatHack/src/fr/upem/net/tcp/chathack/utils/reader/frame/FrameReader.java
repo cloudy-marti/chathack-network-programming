@@ -59,7 +59,7 @@ public class FrameReader implements Reader<ChatHackFrame> {
                     case ChatHackFrame.PRESENTATION_LOGIN: // ??
                     case ChatHackFrame.CONNECTION_WITH_LOGIN_OK:
                     case ChatHackFrame.CONNECTION_WITH_LOGIN_AND_PASSWORD_OK:
-                    case ChatHackFrame.CONNECTION_WITH_REGISTER_OK:
+                    case ChatHackFrame.CONNECTION_KO:
                     case ChatHackFrame.PRIVATE_CONNECTION_OK:
                     case ChatHackFrame.PRIVATE_CONNECTION_KO:
                     case ChatHackFrame.DISCONNECTION_OK:

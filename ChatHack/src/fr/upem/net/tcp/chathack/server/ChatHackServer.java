@@ -1,6 +1,7 @@
 package fr.upem.net.tcp.chathack.server;
 
 import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
+import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.context.ServerToBDDContext;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
 import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
@@ -31,6 +32,7 @@ public class ChatHackServer {
     private final InetSocketAddress bddServerAddress;
     private ServerToBDDContext uniqueContextBDD;
 
+
     private long id = 0;
     private final HashMap<Long, ServerToClientContext> clients = new HashMap<>();
 
@@ -38,6 +40,7 @@ public class ChatHackServer {
         this.serverSocketChannel = ServerSocketChannel.open();
         this.serverSocketChannel.bind(new InetSocketAddress(port));
         this.selector = Selector.open();
+
 
         this.bddServerAddress = bddServerAddress;
         this.socketChannel = SocketChannel.open();
@@ -78,11 +81,17 @@ public class ChatHackServer {
             throw new UncheckedIOException(ioe);
         }
         try {
+            if (key.isValid() && key.isConnectable()) {
+                LOGGER.log(Level.INFO, "Key is connectable :" + ((Context)key.attachment()).getClass().getName());
+                ((Context) key.attachment()).doConnect();
+            }
             if (key.isValid() && key.isWritable()) {
-                ((ServerToClientContext) key.attachment()).doWrite();
+                LOGGER.log(Level.INFO, "Key is writable :" + ((Context)key.attachment()).getClass().getName());
+                ((Context) key.attachment()).doWrite();
             }
             if (key.isValid() && key.isReadable()) {
-                ((ServerToClientContext) key.attachment()).doRead();
+                LOGGER.log(Level.INFO, "Key is readable :" + ((Context)key.attachment()).getClass().getName());
+                ((Context) key.attachment()).doRead();
             }
         } catch (IOException e) {
             LOGGER.log(Level.INFO,"Connection closed with client due to IOException",e);
@@ -100,6 +109,7 @@ public class ChatHackServer {
         SelectionKey clientKey = client.register(selector, SelectionKey.OP_READ);
         ServerToClientContext context = new ServerToClientContext(this, clientKey, id);
         clientKey.attach(context);
+
         clients.put(id, context);
         id++;
     }
@@ -123,13 +133,14 @@ public class ChatHackServer {
         for (SelectionKey key : selectionKeySet) {
             if(!(key.channel() instanceof ServerSocketChannel)) {
                 msg.fillByteBuffer(tmp);
-                ((ServerToClientContext)key.attachment()).queueMessage(tmp);
+                ((Context)key.attachment()).queueMessage(tmp);
             }
         }
     }
 
+
     public void sendRequestToBDD(ByteBuffer buffer) {
-        uniqueContextBDD.queueMessage(buffer);
+        //uniqueContextBDD.queueMessage(buffer);
     }
 
     public void privateConnectionFrame(PrivateConnectionFrame frame) {

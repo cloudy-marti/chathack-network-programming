@@ -82,6 +82,8 @@ public class ServerToBDDContext implements Context {
             if(tmp.remaining() <= bbout.remaining()) {
                 messageQueue.remove();
                 bbout.put(tmp);
+            } else {
+                return;
             }
         }
     }
@@ -122,6 +124,7 @@ public class ServerToBDDContext implements Context {
             LOGGER.log(Level.INFO, "closed before reading");
             inputClosed = true;
         }
+        LOGGER.log(Level.INFO, "non monsieur :(");
         processIn();
         updateInterestOps();
     }

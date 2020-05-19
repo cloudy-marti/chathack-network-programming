@@ -13,6 +13,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ClientToServerContext implements Context {
 
@@ -81,6 +83,7 @@ public class ClientToServerContext implements Context {
         }
     }
 
+    private final static Logger LOGGER = Logger.getLogger(ClientToServerContext.class.getName());
     @Override
     public void updateInterestOps() {
         var interestOps = 0;
@@ -98,7 +101,7 @@ public class ClientToServerContext implements Context {
         try {
             key.interestOps(interestOps);
         } catch (CancelledKeyException kE) {
-            //logger.log(Level.INFO, "connection has been shut down by the server");
+            LOGGER.log(Level.INFO, "connection has been shut down by the server");
             silentlyClose();
         }
     }
