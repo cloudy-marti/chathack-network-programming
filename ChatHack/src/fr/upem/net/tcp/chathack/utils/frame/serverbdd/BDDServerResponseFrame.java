@@ -16,30 +16,21 @@ public class BDDServerResponseFrame implements ChatHackFrame {
             ------------
  */
 
+    private final byte isValid;
     private final long id;
-    private final String login;
-    private final String password;
     private final ByteBuffer bddBuffer;
 
-    private BDDServerResponseFrame(long id, String login, String password, ByteBuffer bddBuffer) {
-        Objects.requireNonNull(login);
-        Objects.requireNonNull(password);
+    private BDDServerResponseFrame(byte isValid, long id, ByteBuffer bddBuffer) {
         Objects.requireNonNull(bddBuffer);
+        this.isValid = isValid;
         this.id = id;
-        this.login = login;
-        this.password = password;
         this.bddBuffer = bddBuffer;
     }
 
-    public static BDDServerResponseFrame createBDDServerResponseFrame(long id, String login, String password) {
-        Objects.requireNonNull(login);
-        Objects.requireNonNull(password);
-        ByteBuffer tmpLogin = StandardCharsets.UTF_8.encode(login);
-        ByteBuffer tmpPassword = StandardCharsets.UTF_8.encode(password);
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES +
-                tmpLogin.remaining() + tmpPassword.remaining());
-        buffer.putLong(id).put(tmpLogin).put(tmpPassword).flip();
-        return new BDDServerResponseFrame(id, login, password, buffer);
+    public static BDDServerResponseFrame createBDDServerResponseFrame(byte isValid, long id) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES + 1);
+        buffer.put(isValid).putLong(id).flip();
+        return new BDDServerResponseFrame(isValid, id, buffer);
     }
 
     @Override
@@ -66,5 +57,13 @@ public class BDDServerResponseFrame implements ChatHackFrame {
     @Override // unused
     public int getOpcode() {
         throw new UnsupportedOperationException("shouldn't be calling getOpcode on a frame without opcode");
+    }
+
+    public boolean isValid() {
+        return (isValid & 0xFF) == 1;
+    }
+
+    public long getId() {
+        return this.id;
     }
 }
