@@ -88,6 +88,7 @@ public class FrameReader implements Reader<ChatHackFrame> {
                 }
             case DONE:
                 frame = currentReader.get(opCode);
+                state = State.DONE;
                 break;
             case ERROR:
                 return ProcessStatus.ERROR;

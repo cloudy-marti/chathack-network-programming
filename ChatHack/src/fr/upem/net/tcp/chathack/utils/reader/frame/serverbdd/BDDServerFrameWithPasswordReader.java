@@ -1,4 +1,4 @@
-package fr.upem.net.tcp.chathack.utils.reader.frame.bdd;
+package fr.upem.net.tcp.chathack.utils.reader.frame.serverbdd;
 
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
@@ -18,7 +18,7 @@ public class BDDServerFrameWithPasswordReader implements Reader<BDDServerFrameWi
 
     @Override
     public BDDServerFrameWithPassword get(int opcode) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

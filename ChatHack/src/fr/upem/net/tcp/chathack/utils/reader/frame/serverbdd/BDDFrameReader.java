@@ -1,4 +1,4 @@
-package fr.upem.net.tcp.chathack.utils.reader.frame.bdd;
+package fr.upem.net.tcp.chathack.utils.reader.frame.serverbdd;
 
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
@@ -50,7 +50,7 @@ public class BDDFrameReader implements Reader<ChatHackFrame> {
 
     @Override
     public ChatHackFrame get(int opcode) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

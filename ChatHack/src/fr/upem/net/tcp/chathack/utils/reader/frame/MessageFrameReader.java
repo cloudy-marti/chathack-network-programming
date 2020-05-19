@@ -18,9 +18,9 @@ public class MessageFrameReader implements Reader<GlobalMessageFrame> {
 
     // opcodes 01, 20 and 21
     /* Format
-     * +-------------------+------------+-----------------+-----------+
-     * | Login size (BYTE) | Login ASCII| Text size (INT) | Text UTF8 |
-     * +-------------------+------------+-----------------+-----------+
+     * +-------------------+-------+-----------------+------+
+     * | Login size (BYTE) | Login | Text size (INT) | Text |
+     * +-------------------+-------+-----------------+------+
      */
 
     @Override
