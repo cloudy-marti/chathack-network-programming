@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public class BDDServerFrame implements ChatHackFrame {
+public class BDDServerFrameWithPassword implements ChatHackFrame {
 
     /*
             byte Long  String   String
@@ -21,7 +21,7 @@ public class BDDServerFrame implements ChatHackFrame {
     private final String password;
     private final ByteBuffer bddBuffer;
 
-    private BDDServerFrame(long id, String login, String password, ByteBuffer bddBuffer) {
+    private BDDServerFrameWithPassword(long id, String login, String password, ByteBuffer bddBuffer) {
         Objects.requireNonNull(login);
         Objects.requireNonNull(password);
         Objects.requireNonNull(bddBuffer);
@@ -31,7 +31,7 @@ public class BDDServerFrame implements ChatHackFrame {
         this.bddBuffer = bddBuffer;
     }
 
-    public static BDDServerFrame createBDDServerFrame(long id, String login, String password) {
+    public static BDDServerFrameWithPassword createBDDServerFrameWithPassword(long id, String login, String password) {
         Objects.requireNonNull(login);
         Objects.requireNonNull(password);
         ByteBuffer tmpLogin = StandardCharsets.UTF_8.encode(login);
@@ -39,7 +39,7 @@ public class BDDServerFrame implements ChatHackFrame {
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES +
                 tmpLogin.remaining() + tmpPassword.remaining());
         buffer.putLong(id).put(tmpLogin).put(tmpPassword).flip();
-        return new BDDServerFrame(id, login, password, buffer);
+        return new BDDServerFrameWithPassword(id, login, password, buffer);
     }
 
     @Override

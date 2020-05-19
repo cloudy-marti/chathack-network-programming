@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public class FilesFrame implements ChatHackFrame {
+public class FileFrame implements ChatHackFrame {
 
     /*
 opCode : 22
@@ -26,7 +26,7 @@ ENCODING : ASCII
 
     private final ByteBuffer fileFrame;
 
-    private FilesFrame(int opCode, String fileName, ByteBuffer fileData, ByteBuffer fileFrame) {
+    private FileFrame(int opCode, String fileName, ByteBuffer fileData, ByteBuffer fileFrame) {
         if (opCode < 0) {
             throw new IllegalArgumentException("OpCode can't be a negative value");
         }
@@ -39,7 +39,7 @@ ENCODING : ASCII
         this.fileFrame = fileFrame;
     }
 
-    public static FilesFrame createFilesFrame(int opCode, String fileName, ByteBuffer fileData) {
+    public static FileFrame createFilesFrame(int opCode, String fileName, ByteBuffer fileData) {
         if (opCode < 0) {
             throw new IllegalArgumentException("OpCode can't be a negative value");
         }
@@ -57,7 +57,7 @@ ENCODING : ASCII
         dataFrame.put(fileData);
         dataFrame.flip();
 
-        return new FilesFrame(opCode, fileName, fileData, dataFrame);
+        return new FileFrame(opCode, fileName, fileData, dataFrame);
     }
 
     @Override

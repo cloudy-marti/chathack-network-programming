@@ -7,39 +7,34 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public class BDDServerResponseFrame implements ChatHackFrame {
+public class BDDServerFrame implements ChatHackFrame {
 
     /*
-             byte  Long
-            ------------
-            | 0/1 | id |
-            ------------
+            byte Long  String   String
+            -----------------------------
+            | 1 | id | Login | Password |
+            -----------------------------
  */
 
     private final long id;
     private final String login;
-    private final String password;
     private final ByteBuffer bddBuffer;
 
-    private BDDServerResponseFrame(long id, String login, String password, ByteBuffer bddBuffer) {
+    private BDDServerFrame(long id, String login, ByteBuffer bddBuffer) {
         Objects.requireNonNull(login);
-        Objects.requireNonNull(password);
         Objects.requireNonNull(bddBuffer);
         this.id = id;
         this.login = login;
-        this.password = password;
         this.bddBuffer = bddBuffer;
     }
 
-    public static BDDServerResponseFrame createBDDServerResponseFrame(long id, String login, String password) {
+    public static BDDServerFrame createBDDServerFrame(long id, String login) {
         Objects.requireNonNull(login);
-        Objects.requireNonNull(password);
         ByteBuffer tmpLogin = StandardCharsets.UTF_8.encode(login);
-        ByteBuffer tmpPassword = StandardCharsets.UTF_8.encode(password);
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES +
-                tmpLogin.remaining() + tmpPassword.remaining());
-        buffer.putLong(id).put(tmpLogin).put(tmpPassword).flip();
-        return new BDDServerResponseFrame(id, login, password, buffer);
+                tmpLogin.remaining());
+        buffer.putLong(id).put(tmpLogin).flip();
+        return new BDDServerFrame(id, login, buffer);
     }
 
     @Override
