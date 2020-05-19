@@ -3,9 +3,9 @@ package fr.upem.net.tcp.chathack.utils.visitor;
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
-import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
-
-import java.nio.ByteBuffer;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
 
 public class ClientToServerFrameVisitor implements FrameVisitor {
 
@@ -24,7 +24,7 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
     }
 
     @Override
-    public void visit(FilesFrame frame) {
+    public void visit(FileFrame frame) {
         throw new UnsupportedOperationException("Files are not allowed on global chat.");
     }
 
@@ -61,6 +61,11 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(BDDServerFrame frame) {
+        throw new UnsupportedOperationException("client does not interact with BDD server");
+    }
+
+    @Override
+    public void visit(BDDServerFrameWithPassword frame) {
         throw new UnsupportedOperationException("client does not interact with BDD server");
     }
 

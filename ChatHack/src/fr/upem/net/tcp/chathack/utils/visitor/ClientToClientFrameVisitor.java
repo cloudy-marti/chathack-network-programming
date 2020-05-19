@@ -3,6 +3,9 @@ package fr.upem.net.tcp.chathack.utils.visitor;
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
 import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
 import java.nio.ByteBuffer;
@@ -37,7 +40,7 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
     }
 
     @Override
-    public void visit(FilesFrame frame) {
+    public void visit(FileFrame frame) {
 
     }
 
@@ -69,11 +72,16 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(BDDServerFrame frame) {
-        throw new UnsupportedOperationException("Connection frames between clients are not allowed.");
+        throw new UnsupportedOperationException("BDD frames between clients are not allowed");
+    }
+
+    @Override
+    public void visit(BDDServerFrameWithPassword frame) {
+        throw new UnsupportedOperationException("BDD frames between clients are not allowed");
     }
 
     @Override
     public void visit(BDDServerResponseFrame bddServerResponseFrame) {
-        throw new UnsupportedOperationException("Connection frames between clients are not allowed.");
+        throw new UnsupportedOperationException("BDD frames between clients are not allowed");
     }
 }
