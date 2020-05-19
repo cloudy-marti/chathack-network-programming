@@ -1,5 +1,6 @@
-package fr.upem.net.tcp.chathack.utils.frame;
+package fr.upem.net.tcp.chathack.utils.frame.clientserver;
 
+import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
 import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 
 import java.nio.ByteBuffer;
@@ -23,20 +24,20 @@ public class LoginPasswordFrame implements ChatHackFrame {
     private final int opcode;
     private final String login;
     private final String password;
-    private final ByteBuffer loginPasswordbb;
+    private final ByteBuffer loginPasswordBuffer;
     private final static Charset ASCII = StandardCharsets.US_ASCII;
 
-    private LoginPasswordFrame(int opcode, String login, String password, ByteBuffer loginPasswordbb) {
+    private LoginPasswordFrame(int opcode, String login, String password, ByteBuffer loginPasswordBuffer) {
         if (opcode < 0) {
             throw new IllegalArgumentException("OpCode can't be a negative value");
         }
         Objects.requireNonNull(login);
         Objects.requireNonNull(password);
-        Objects.requireNonNull(loginPasswordbb);
+        Objects.requireNonNull(loginPasswordBuffer);
         this.opcode = opcode;
         this.login = login;
         this.password = password;
-        this.loginPasswordbb = loginPasswordbb;
+        this.loginPasswordBuffer = loginPasswordBuffer;
     }
 
     public static LoginPasswordFrame createLoginPasswordFrame(int opcode, String login, String password) {
@@ -65,8 +66,8 @@ public class LoginPasswordFrame implements ChatHackFrame {
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
         if (checkBufferSize(bbdst)) {
-            bbdst.put(loginPasswordbb);
-            loginPasswordbb.flip();
+            bbdst.put(loginPasswordBuffer);
+            loginPasswordBuffer.flip();
             bbdst.flip();
         } else {
             throw new IllegalArgumentException();
@@ -76,12 +77,12 @@ public class LoginPasswordFrame implements ChatHackFrame {
     @Override
     public boolean checkBufferSize(ByteBuffer buffer) {
         //buffer in write mode
-        return (buffer.remaining() >= loginPasswordbb.remaining());
+        return (buffer.remaining() >= loginPasswordBuffer.remaining());
     }
 
     @Override
     public void accept(FrameVisitor visitor) {
-
+        visitor.visit(this);
     }
 
     @Override

@@ -22,7 +22,7 @@ public class SimpleFrameReader implements Reader<SimpleFrame> {
     private final ByteBuffer internalBuffer = ByteBuffer.allocate(BUFFER_SIZE); // write-mode
 
     private String message;
-    private int opcode;
+    //private int opcode;
 
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
@@ -30,7 +30,7 @@ public class SimpleFrameReader implements Reader<SimpleFrame> {
             throw new IllegalStateException();
         }
 
-        opcode = buffer.get() & 0xFF;
+        //opcode = buffer.get() & 0xFF;
 
         StringReader stringReader = new StringReader();
         if(state == State.WAITING) {
