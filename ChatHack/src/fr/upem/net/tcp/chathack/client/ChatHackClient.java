@@ -150,7 +150,7 @@ public class ChatHackClient {
                 } else if (command.startsWith("$")) {
                     var command2 = command.substring(1);
                     if (command2.equals("accept") || command2.equals("refuse")) {
-                        if(!connectionRequest.isEmpty()) {
+                        if (!connectionRequest.isEmpty()) {
                             PrivateConnectionFrame frame = connectionRequest.poll();
                             int opCode;
                             if (command2.equals("accept")) {
@@ -162,7 +162,7 @@ public class ChatHackClient {
                             newFrame.fillByteBuffer(buffer);
                             clientToServerContext.queueMessage(buffer);
                         }
-                    }  else {
+                    } else {
                         System.out.println("This command is not recognized");
                     }
                 } else {
@@ -181,7 +181,7 @@ public class ChatHackClient {
         clientToServerContext = new ClientToServerContext(key, this);
         key.attach(clientToServerContext);
         sc.connect(serverAddress);
-        console.start();
+
         ssc.configureBlocking(false);
         ssc.bind(new InetSocketAddress(port));
         while (!Thread.interrupted() && !wantADisconnection) {
@@ -231,7 +231,7 @@ public class ChatHackClient {
             }
         } catch (IOException e) {
             logger.log(Level.INFO, "Connection closed with client due to IOException", e);
-            silentlyClose(key);
+            ((Context) key.attachment()).silentlyClose();
         }
     }
 
@@ -305,10 +305,9 @@ public class ChatHackClient {
         }
     }
 
-    private void silentlyClose(SelectionKey key) {
-        Channel sc = key.channel();
+    private void silentlyClose() {
         try {
-            sc.close();
+            ssc.close();
         } catch (IOException e) {
             // ignore exception
         }
@@ -325,6 +324,27 @@ public class ChatHackClient {
 
     public HashMap<String, ArrayBlockingQueue<String>> getWaitingMessage() {
         return waitingMessage;
+    }
+
+    public boolean connected() {
+        return isConnected;
+    }
+
+    public void setConnected() {
+        console.start();
+        isConnected = true;
+    }
+
+    public void stop() {
+        console.interrupt();
+        for (SelectionKey key : selector.keys()) {
+            Context ctx = (Context) key.attachment();
+            if (ctx == null) {
+                continue;
+            }
+            ctx.silentlyClose();
+        }
+        silentlyClose();
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {

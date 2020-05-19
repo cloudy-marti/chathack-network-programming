@@ -6,6 +6,7 @@ import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
+import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
 public class ClientToServerFrameVisitor implements FrameVisitor {
 
@@ -41,7 +42,20 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(SimpleFrame frame) {
-
+        switch (frame.getOpcode()) {
+            case 10:
+            case 11:
+                if (client.connected()) {
+                    throw new UnsupportedOperationException("The client is already connected.");
+                }
+                client.setConnected();
+                break;
+            case 12:
+                client.stop();
+                break;
+            default:
+                throw new UnsupportedOperationException("this is not allowed on global chat.");
+        }
     }
 
     @Override
