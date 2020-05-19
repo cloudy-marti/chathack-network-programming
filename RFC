@@ -351,7 +351,7 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
                 
         10. Connection with Log in OK
         11. Connection with Log in and password OK
-        12. Connection with Register OK
+        12. Connection KO
         13. Private connection request OK
         14. Private connection request KO
         15. Disconnection OK
@@ -504,27 +504,12 @@ Practical examples
         ------------------------------------
         | 01 | 3 | "Bob" | 9 | "gAn0nD0Rf" |
         ------------------------------------
-    If the nickname and the password match, the server sends an acceptation
+    If the nickname and the password don't match, the server sends an error
     response:
-        -----------------------------------
-        | 11 | 19 | "Welcome to ChatHack" |
-        -----------------------------------
-    If the nickname is available and is not found within already registered
-    users, the server registers the user and sends an acceptation response:
-        -----------------------------------
-        | 12 | 19 | "Welcome to ChatHack" |
-        -----------------------------------
-    The server checks if "Bob" is already taken by a connected or registered
-    user. If the nickname is unavailable it sends an error frame:
-        ---------------------------------
-        | 31 | 17 | "Unavailable Login" |
-        ---------------------------------
-    If the alias is found within the registered users but the password does not
-    match, the server sends an error frame:
-        ------------------------------
-        | 31 | 14 | "Wrong password" |
-        ------------------------------
-        
+        -----------------------------------------------
+        | 12 | 19 | "The connection is not permitted" |
+        -----------------------------------------------
+
         
 Marti and Mechouk                                                   [Page 9]
 
