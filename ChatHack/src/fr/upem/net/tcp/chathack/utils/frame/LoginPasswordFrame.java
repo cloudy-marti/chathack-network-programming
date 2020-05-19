@@ -94,5 +94,11 @@ public class LoginPasswordFrame implements ChatHackFrame {
         return super.toString();
     }
 
+    public String getLogin() {
+        return this.login;
+    }
 
+    public String getPassword() {
+        return this.password;
+    }
 }

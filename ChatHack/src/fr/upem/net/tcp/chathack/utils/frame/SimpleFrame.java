@@ -18,7 +18,7 @@ ENCODING : UTF 8
  */
 public class SimpleFrame implements ChatHackFrame {
     private final int opcode;
-    private final String Message;
+    private final String message;
     private final ByteBuffer simpleFrame;
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
@@ -29,7 +29,7 @@ public class SimpleFrame implements ChatHackFrame {
         Objects.requireNonNull(message);
         Objects.requireNonNull(buffer);
         this.opcode = opcode;
-        this.Message = message;
+        this.message = message;
         this.simpleFrame = buffer;
     }
 

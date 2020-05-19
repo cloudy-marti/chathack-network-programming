@@ -16,8 +16,6 @@ opCode : 02
             -----------------------------------------------------------------
             | Opcode | SizeOfLogin | Login | SizeOfAddress | Address | Port |
             -----------------------------------------------------------------
-
-ENCODING : ASCII
  */
 public class PrivateConnectionFrame implements ChatHackFrame {
     private final int opcode;
