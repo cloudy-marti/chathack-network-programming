@@ -1,8 +1,12 @@
 package fr.upem.net.tcp.chathack.server;
 
 import fr.upem.net.tcp.chathack.utils.context.Context;
+import fr.upem.net.tcp.chathack.utils.context.ServerToBDDContext;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
+import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
+import fr.upem.net.tcp.chathack.utils.frame.ConnectionFrame;
 import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
+import fr.upem.net.tcp.chathack.utils.frame.LoginPasswordFrame;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -16,29 +20,35 @@ import java.util.logging.Logger;
 
 public class ChatHackServer {
 
-    /*
-    static private class Context {
-
-    }
-
-     */
-
     static private final int BUFFER_SIZE = 10_000;
+    static private final Logger LOGGER = Logger.getLogger(ChatHackServer.class.getName());
 
-    static private final Logger logger = Logger.getLogger(ChatHackServer.class.getName());
     private final ServerSocketChannel serverSocketChannel;
-
     private final Selector selector;
 
-    private Context uniqueContextBDD;
+    // ChatHack context as a client to the BDD server
+    private final SocketChannel socketChannel;
+    private final InetSocketAddress bddServerAddress;
+    private ServerToBDDContext uniqueContextBDD;
 
-    public ChatHackServer(int port) throws IOException {
-        serverSocketChannel = ServerSocketChannel.open();
-        serverSocketChannel.bind(new InetSocketAddress(port));
-        selector = Selector.open();
+    public ChatHackServer(int port, InetSocketAddress bddServerAddress) throws IOException {
+        this.serverSocketChannel = ServerSocketChannel.open();
+        this.serverSocketChannel.bind(new InetSocketAddress(port));
+        this.selector = Selector.open();
+
+        this.bddServerAddress = bddServerAddress;
+        this.socketChannel = SocketChannel.open();
     }
 
     public void launch() throws IOException {
+        // connect to bdd server as a client
+        socketChannel.configureBlocking(false);
+        SelectionKey key = socketChannel.register(selector, SelectionKey.OP_CONNECT);
+        uniqueContextBDD = new ServerToBDDContext(key);
+        key.attach(uniqueContextBDD);
+        socketChannel.connect(bddServerAddress);
+
+        // open server connection
         serverSocketChannel.configureBlocking(false);
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
         while(!Thread.interrupted()) {
@@ -71,7 +81,7 @@ public class ChatHackServer {
                 ((ServerToClientContext) key.attachment()).doRead();
             }
         } catch (IOException e) {
-            logger.log(Level.INFO,"Connection closed with client due to IOException",e);
+            LOGGER.log(Level.INFO,"Connection closed with client due to IOException",e);
             silentlyClose(key);
         }
     }
@@ -97,14 +107,11 @@ public class ChatHackServer {
     }
 
     /**
-     * Add a message to all connected clients queue
-     *
-     * @param msg
+     * Add message to the global queue
+     * @param msg frame to be sent to all clients (opcode 20)
      */
-    private void broadcast(GlobalMessageFrame msg) {
-        // TODO
+    public void broadcast(GlobalMessageFrame msg) {
         ByteBuffer tmp = ByteBuffer.allocate(BUFFER_SIZE);
-
         Set<SelectionKey> selectionKeySet = selector.keys();
         for (SelectionKey key : selectionKeySet) {
             if(!(key.channel() instanceof ServerSocketChannel)) {
@@ -114,16 +121,28 @@ public class ChatHackServer {
         }
     }
 
+    public void sendRequestToBDD(ConnectionFrame frame) {
+        //uniqueContextBDD.queueMessage(tmp);
+    }
+
+    public void sendRequestWithPasswordToBDD(LoginPasswordFrame frame) {
+        //ByteBuffer tmp = ByteBuffer.allocate(1_024);
+
+        // uniqueContextBDD.queueMessage();
+
+    }
+
     public static void main(String[] args) throws NumberFormatException, IOException {
-        if (args.length!=1){
+        if (args.length!=3){
             usage();
             return;
         }
-        new ChatHackServer(Integer.parseInt(args[0])).launch();
+        new ChatHackServer(Integer.parseInt(args[0]), new InetSocketAddress(args[1], Integer.parseInt(args[2])))
+                .launch();
     }
 
     private static void usage(){
-        System.out.println("Usage : ServerSumBetter port");
+        System.out.println("Usage : ChatHackServer port bddServerAddress bddServerPort");
     }
 
     /***
