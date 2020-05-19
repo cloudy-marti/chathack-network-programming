@@ -26,7 +26,7 @@ public class ServerToBDDContext implements Context {
 
     private boolean inputClosed = false;
 
-    private final ServerToBDDFrameVisitor frameVisitor = new ServerToBDDFrameVisitor();
+    private final ServerToBDDFrameVisitor frameVisitor = new ServerToBDDFrameVisitor(this);
 
     public ServerToBDDContext(SelectionKey key) {
         this.key = key;

@@ -2,8 +2,8 @@ package fr.upem.net.tcp.chathack.utils.context;
 
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
-import fr.upem.net.tcp.chathack.utils.reader.FrameReader;
-import fr.upem.net.tcp.chathack.utils.reader.Reader;
+import fr.upem.net.tcp.chathack.utils.reader.frame.FrameReader;
+import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.visitor.ClientToServerFrameVisitor;
 
 import java.io.IOException;
@@ -13,8 +13,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClientToServerContext implements Context {
 
@@ -60,7 +58,7 @@ public class ClientToServerContext implements Context {
 
     @Override
     public void treatFrame(ChatHackFrame frame) {
-        //frame.accept(frameVisitor);
+        frame.accept(frameVisitor);
     }
 
     @Override

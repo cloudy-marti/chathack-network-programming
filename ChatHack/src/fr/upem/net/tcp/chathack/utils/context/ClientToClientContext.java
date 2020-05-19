@@ -2,8 +2,8 @@ package fr.upem.net.tcp.chathack.utils.context;
 
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
-import fr.upem.net.tcp.chathack.utils.reader.FrameReader;
-import fr.upem.net.tcp.chathack.utils.reader.Reader;
+import fr.upem.net.tcp.chathack.utils.reader.frame.FrameReader;
+import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.visitor.ClientToClientFrameVisitor;
 
 import java.io.IOException;

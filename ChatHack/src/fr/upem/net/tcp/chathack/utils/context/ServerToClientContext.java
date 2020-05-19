@@ -2,8 +2,8 @@ package fr.upem.net.tcp.chathack.utils.context;
 
 import fr.upem.net.tcp.chathack.server.ChatHackServer;
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
-import fr.upem.net.tcp.chathack.utils.reader.FrameReader;
-import fr.upem.net.tcp.chathack.utils.reader.Reader;
+import fr.upem.net.tcp.chathack.utils.reader.frame.FrameReader;
+import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.visitor.ServerToClientFrameVisitor;
 
 import java.io.IOException;
@@ -14,18 +14,24 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class ServerToClientContext implements Context {
+
     final private SelectionKey key;
     final private SocketChannel sc;
+
     final private ByteBuffer inputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
     final private ByteBuffer outputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-    final private Queue<ByteBuffer> messageQueue = new LinkedList<>();
+
+    // broadcast messages
+    final private Queue<ByteBuffer> globalMessageQueue = new LinkedList<>();
+    // ack or error messages from server
+    final private Queue<ByteBuffer> serverMessageToClientQueue = new LinkedList<>();
+
     final private ChatHackServer server;
+
     private boolean inputClosed = false;
+    private boolean accepted = false;
 
     private final ServerToClientFrameVisitor frameVisitor;
-
-    private String login;
-    private String password;
 
     public ServerToClientContext(ChatHackServer server, SelectionKey key){
         this.key = key;
@@ -57,6 +63,7 @@ public class ServerToClientContext implements Context {
         frame.accept(frameVisitor);
     }
 
+    @Override
     public void queueMessage(ByteBuffer msg) {
         // TODO
     }

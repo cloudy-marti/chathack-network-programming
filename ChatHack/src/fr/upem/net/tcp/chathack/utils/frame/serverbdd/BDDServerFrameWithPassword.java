@@ -1,5 +1,6 @@
-package fr.upem.net.tcp.chathack.utils.frame;
+package fr.upem.net.tcp.chathack.utils.frame.serverbdd;
 
+import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
 import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 
 import java.nio.ByteBuffer;
