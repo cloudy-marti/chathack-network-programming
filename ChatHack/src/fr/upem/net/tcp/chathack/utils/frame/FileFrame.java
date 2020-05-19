@@ -22,7 +22,7 @@ ENCODING : ASCII
     private final int opCode;
     private final String fileName;
     private final ByteBuffer fileData;
-    private final static Charset ASCII = StandardCharsets.US_ASCII;
+    private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
     private final ByteBuffer fileFrame;
 
@@ -39,14 +39,14 @@ ENCODING : ASCII
         this.fileFrame = fileFrame;
     }
 
-    public static FileFrame createFilesFrame(int opCode, String fileName, ByteBuffer fileData) {
+    public static FileFrame createFileFrame(int opCode, String fileName, ByteBuffer fileData) {
         if (opCode < 0) {
             throw new IllegalArgumentException("OpCode can't be a negative value");
         }
         Objects.requireNonNull(fileName);
         Objects.requireNonNull(fileData);
         byte opCodeByte = Integer.valueOf(opCode).byteValue();
-        ByteBuffer fileNamebb = ASCII.encode(fileName);
+        ByteBuffer fileNamebb = UTF_8.encode(fileName);
         int sizeOfFileName = fileNamebb.remaining();
         int sizeOfData = fileData.remaining();
         ByteBuffer dataFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeOfFileName + Integer.BYTES + sizeOfData);

@@ -22,8 +22,6 @@ public class GlobalMessageFrame implements ChatHackFrame {
     private final String login;
     private final String msg;
     private final ByteBuffer globalMessageFrame;
-    private final static Charset ASCII = StandardCharsets.US_ASCII;
-    //UTF8 for the message
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
     private GlobalMessageFrame(int opCode, String login, String msg, ByteBuffer globalMessageFrame) {
@@ -52,7 +50,7 @@ public class GlobalMessageFrame implements ChatHackFrame {
         Objects.requireNonNull(login);
         Objects.requireNonNull(msg);
         byte opCodeByte = Integer.valueOf(opCode).byteValue();
-        ByteBuffer loginConnection = ASCII.encode(login);
+        ByteBuffer loginConnection = UTF_8.encode(login);
         int sizeOfLogin = loginConnection.remaining();
         ByteBuffer databb = UTF_8.encode(msg);
         int sizeOfData = databb.remaining();

@@ -24,7 +24,7 @@ public class LoginPasswordFrame implements ChatHackFrame {
     private final String login;
     private final String password;
     private final ByteBuffer loginPasswordBuffer;
-    private final static Charset ASCII = StandardCharsets.US_ASCII;
+    private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
     private LoginPasswordFrame(int opcode, String login, String password, ByteBuffer loginPasswordBuffer) {
         if (opcode < 0) {
@@ -46,9 +46,9 @@ public class LoginPasswordFrame implements ChatHackFrame {
         Objects.requireNonNull(login);
         Objects.requireNonNull(password);
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
-        ByteBuffer loginConnection = ASCII.encode(login);
+        ByteBuffer loginConnection = UTF_8.encode(login);
         int sizeOfLogin = loginConnection.remaining();
-        ByteBuffer passwordConnection = ASCII.encode(password);
+        ByteBuffer passwordConnection = UTF_8.encode(password);
         int sizeOfPassword = passwordConnection.remaining();
         ByteBuffer loginPasswordbb = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeOfLogin + Integer.BYTES + sizeOfPassword);
         loginPasswordbb.put(opCodeByte);

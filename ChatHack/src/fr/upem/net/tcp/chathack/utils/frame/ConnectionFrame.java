@@ -21,7 +21,7 @@ public class ConnectionFrame implements ChatHackFrame {
     private final int opcode;
     private final String login;
     private final ByteBuffer connectionFrame;
-    private final static Charset ASCII = StandardCharsets.US_ASCII;
+    private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
     private ConnectionFrame(int opcode, String login, ByteBuffer connectionFrame) {
         if (opcode < 0) {
@@ -40,7 +40,7 @@ public class ConnectionFrame implements ChatHackFrame {
         }
         Objects.requireNonNull(login);
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
-        ByteBuffer loginConnection = ASCII.encode(login);
+        ByteBuffer loginConnection = UTF_8.encode(login);
         int sizeOfLogin = loginConnection.remaining();
         ByteBuffer connectionFrame = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + sizeOfLogin);
         connectionFrame.put(opCodeByte);

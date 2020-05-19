@@ -24,7 +24,7 @@ public class PrivateConnectionFrame implements ChatHackFrame {
     private final String login;
     private final InetSocketAddress address;
     private final ByteBuffer privateConnectionbb;
-    private final static Charset ASCII = StandardCharsets.US_ASCII;
+    private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
     private PrivateConnectionFrame(int opcode, String login, InetSocketAddress address, ByteBuffer privateConnectionbb) {
         if (opcode < 0) {
@@ -44,7 +44,7 @@ public class PrivateConnectionFrame implements ChatHackFrame {
         }
         Objects.requireNonNull(login);
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
-        ByteBuffer loginConnection = ASCII.encode(login);
+        ByteBuffer loginConnection = UTF_8.encode(login);
         int sizeOfLogin = loginConnection.remaining();
         byte[] byteAddress = address.getAddress().getAddress();
         byte sizeAddress = (byte) byteAddress.length;
