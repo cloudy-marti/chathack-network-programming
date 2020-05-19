@@ -25,7 +25,6 @@ public class StringReader implements Reader<String> {
         }
 
         if(state == State.WAITING_SIZE) {
-            //internalBuffer.limit(Integer.BYTES);
             IntReader sizeReader = new IntReader();
             ProcessStatus status = sizeReader.process(buffer);
             switch (status) {
@@ -41,7 +40,6 @@ public class StringReader implements Reader<String> {
                 case REFILL:
                     return ProcessStatus.REFILL;
                 case ERROR:
-                    //return ProcessStatus.ERROR;
                     throw new AssertionError();
             }
         }

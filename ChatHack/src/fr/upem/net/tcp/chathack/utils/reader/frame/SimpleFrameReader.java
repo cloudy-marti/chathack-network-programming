@@ -7,10 +7,10 @@ import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
 import java.nio.ByteBuffer;
 
 /*
-                  byte     int   String
-                -----------------------
-                | Opcode | Size | Msg |
-                -----------------------
+                  int   String
+                --------------
+                | Size | Msg |
+                --------------
 
                 ErrorFrame/AckFrame/ConnectionFrame/ResponseFrame
  */
