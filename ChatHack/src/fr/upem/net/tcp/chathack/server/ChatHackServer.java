@@ -1,13 +1,10 @@
 package fr.upem.net.tcp.chathack.server;
 
+import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.ServerToBDDContext;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
-import fr.upem.net.tcp.chathack.utils.frame.ConnectionFrame;
 import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
-import fr.upem.net.tcp.chathack.utils.frame.LoginPasswordFrame;
 import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionFrame;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -50,7 +47,7 @@ public class ChatHackServer {
         // connect to bdd server as a client
         socketChannel.configureBlocking(false);
         SelectionKey key = socketChannel.register(selector, SelectionKey.OP_CONNECT);
-        uniqueContextBDD = new ServerToBDDContext(key);
+        uniqueContextBDD = new ServerToBDDContext(key, this);
         key.attach(uniqueContextBDD);
         socketChannel.connect(bddServerAddress);
 
@@ -137,6 +134,10 @@ public class ChatHackServer {
 
     public void privateConnectionFrame(PrivateConnectionFrame frame) {
         // TODO
+    }
+
+    public ServerToClientContext getClientById(long id) {
+        return clients.get(id);
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {
