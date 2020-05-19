@@ -1,12 +1,13 @@
 package fr.upem.net.tcp.chathack.server;
 
-import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.context.ServerToBDDContext;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
-import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
 import fr.upem.net.tcp.chathack.utils.frame.ConnectionFrame;
 import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
 import fr.upem.net.tcp.chathack.utils.frame.LoginPasswordFrame;
+import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionFrame;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -14,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +23,7 @@ import java.util.logging.Logger;
 public class ChatHackServer {
 
     static private final int BUFFER_SIZE = 10_000;
+    static private final int BDD_BUFFER_SIZE = 1_024;
     static private final Logger LOGGER = Logger.getLogger(ChatHackServer.class.getName());
 
     private final ServerSocketChannel serverSocketChannel;
@@ -30,6 +33,9 @@ public class ChatHackServer {
     private final SocketChannel socketChannel;
     private final InetSocketAddress bddServerAddress;
     private ServerToBDDContext uniqueContextBDD;
+
+    private long id = 0;
+    private final HashMap<Long, ServerToClientContext> clients = new HashMap<>();
 
     public ChatHackServer(int port, InetSocketAddress bddServerAddress) throws IOException {
         this.serverSocketChannel = ServerSocketChannel.open();
@@ -51,6 +57,7 @@ public class ChatHackServer {
         // open server connection
         serverSocketChannel.configureBlocking(false);
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+
         while(!Thread.interrupted()) {
             printKeys(); // for debug
             System.out.println("Starting select");
@@ -94,7 +101,10 @@ public class ChatHackServer {
         }
         client.configureBlocking(false);
         SelectionKey clientKey = client.register(selector, SelectionKey.OP_READ);
-        clientKey.attach(new ServerToClientContext(this, clientKey));
+        ServerToClientContext context = new ServerToClientContext(this, clientKey, id);
+        clientKey.attach(context);
+        clients.put(id, context);
+        id++;
     }
 
     private void silentlyClose(SelectionKey key) {
@@ -121,19 +131,16 @@ public class ChatHackServer {
         }
     }
 
-    public void sendRequestToBDD(ConnectionFrame frame) {
-        //uniqueContextBDD.queueMessage(tmp);
+    public void sendRequestToBDD(ByteBuffer buffer) {
+        uniqueContextBDD.queueMessage(buffer);
     }
 
-    public void sendRequestWithPasswordToBDD(LoginPasswordFrame frame) {
-        //ByteBuffer tmp = ByteBuffer.allocate(1_024);
-
-        // uniqueContextBDD.queueMessage();
-
+    public void privateConnectionFrame(PrivateConnectionFrame frame) {
+        // TODO
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {
-        if (args.length!=3){
+        if (args.length != 3) {
             usage();
             return;
         }

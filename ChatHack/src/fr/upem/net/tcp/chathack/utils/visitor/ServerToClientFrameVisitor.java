@@ -1,30 +1,41 @@
 package fr.upem.net.tcp.chathack.utils.visitor;
 
 import fr.upem.net.tcp.chathack.server.ChatHackServer;
-import fr.upem.net.tcp.chathack.utils.context.Context;
+import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
 import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
 
+import java.nio.ByteBuffer;
+
 public class ServerToClientFrameVisitor implements FrameVisitor {
 
-    private final Context context;
+    private static final int BDD_BUFFER_SIZE = 1_024;
+
+    private final ServerToClientContext context;
     private final ChatHackServer server;
 
-    public ServerToClientFrameVisitor(Context context, ChatHackServer server) {
+    public ServerToClientFrameVisitor(ServerToClientContext context, ChatHackServer server) {
         this.context = context;
         this.server = server;
     }
 
     @Override
     public void visit(ConnectionFrame frame) {
-        server.sendRequestToBDD(frame);
+        BDDServerFrame bddFrame = BDDServerFrame.createBDDServerFrame(context.getId(), frame.getLogin());
+        ByteBuffer tmp = ByteBuffer.allocate(BDD_BUFFER_SIZE);
+        bddFrame.fillByteBuffer(tmp);
+        server.sendRequestToBDD(tmp);
     }
 
     @Override
-    public void visit(FileFrame frame) {
-        throw new UnsupportedOperationException("Files are not allowed on global chat.");
+    public void visit(LoginPasswordFrame frame) {
+        BDDServerFrameWithPassword bddFrame = BDDServerFrameWithPassword
+                .createBDDServerFrameWithPassword(context.getId(), frame.getLogin(), frame.getPassword());
+        ByteBuffer tmp = ByteBuffer.allocate(BDD_BUFFER_SIZE);
+        bddFrame.fillByteBuffer(tmp);
+        server.sendRequestToBDD(tmp);
     }
 
     @Override
@@ -33,17 +44,20 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
     }
 
     @Override
-    public void visit(SimpleFrame frame) {
-    }
-
-    @Override
-    public void visit(LoginPasswordFrame frame) {
-        server.sendRequestWithPasswordToBDD(frame);
-    }
-
-    @Override
     public void visit(PrivateConnectionFrame frame) {
+        // TODO
+        // to ask
+        //server.privateConnectionFrame(frame);
+    }
 
+    @Override
+    public void visit(FileFrame frame) {
+        throw new UnsupportedOperationException("Files are not allowed on global chat.");
+    }
+
+    @Override
+    public void visit(SimpleFrame frame) {
+        throw new UnsupportedOperationException("client does not send these kind of frames");
     }
 
     @Override

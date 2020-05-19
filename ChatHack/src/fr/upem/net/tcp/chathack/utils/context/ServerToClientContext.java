@@ -2,6 +2,10 @@ package fr.upem.net.tcp.chathack.utils.context;
 
 import fr.upem.net.tcp.chathack.server.ChatHackServer;
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
+import fr.upem.net.tcp.chathack.utils.frame.ConnectionFrame;
+import fr.upem.net.tcp.chathack.utils.frame.LoginPasswordFrame;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
 import fr.upem.net.tcp.chathack.utils.reader.frame.FrameReader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.visitor.ServerToClientFrameVisitor;
@@ -12,19 +16,21 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ServerToClientContext implements Context {
 
+    private static final Logger LOGGER = Logger.getLogger(ServerToClientContext.class.getName());
+
     final private SelectionKey key;
     final private SocketChannel sc;
+    final private long id;
 
     final private ByteBuffer inputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
     final private ByteBuffer outputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 
-    // broadcast messages
-    final private Queue<ByteBuffer> globalMessageQueue = new LinkedList<>();
-    // ack or error messages from server
-    final private Queue<ByteBuffer> serverMessageToClientQueue = new LinkedList<>();
+    final private Queue<ByteBuffer> messageQueue = new LinkedList<>();
 
     final private ChatHackServer server;
 
@@ -33,18 +39,19 @@ public class ServerToClientContext implements Context {
 
     private final ServerToClientFrameVisitor frameVisitor;
 
-    public ServerToClientContext(ChatHackServer server, SelectionKey key){
+    public ServerToClientContext(ChatHackServer server, SelectionKey key, long id){
         this.key = key;
         this.sc = (SocketChannel) key.channel();
         this.server = server;
         this.frameVisitor = new ServerToClientFrameVisitor(this, server);
+        this.id = id;
     }
 
     public void processIn() {
         FrameReader frameReader = new FrameReader();
-        for(;;){
+        for(;;) {
             Reader.ProcessStatus status = frameReader.process(inputBuffer);
-            switch (status){
+            switch (status) {
                 case ERROR:
                     silentlyClose();
                     return;
@@ -65,11 +72,19 @@ public class ServerToClientContext implements Context {
 
     @Override
     public void queueMessage(ByteBuffer msg) {
-        // TODO
+        messageQueue.add(msg);
+        processOut();
+        updateInterestOps();
     }
 
     public void processOut() {
-        // TODO
+        while (!messageQueue.isEmpty()) {
+            ByteBuffer tmp = messageQueue.peek();
+            if(tmp.remaining() <= outputBuffer.remaining()) {
+                messageQueue.remove();
+                outputBuffer.put(tmp);
+            }
+        }
     }
 
     public void updateInterestOps() {
@@ -97,7 +112,7 @@ public class ServerToClientContext implements Context {
 
     public void doRead() throws IOException {
         if(sc.read(inputBuffer) == -1) {
-            //logger.log(Level.INFO, "Client has closed the connection");
+            LOGGER.log(Level.INFO, "Client has closed the connection");
             inputClosed = true;
         }
         processIn();
@@ -115,6 +130,10 @@ public class ServerToClientContext implements Context {
 
     @Override
     public void doConnect() {
+        throw new UnsupportedOperationException();
+    }
 
+    public long getId() {
+        return this.id;
     }
 }
