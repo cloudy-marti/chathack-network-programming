@@ -413,6 +413,19 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
                         -----------------------------
                         | 1 | id | Login | Password |
                         -----------------------------
+    
+    This is the frame to be sent to the BDD server in order to validate a pair of
+    login and password requested by a newly connected client. The field id is the
+    ID of the client known by the ChatHack server.
+    
+                         byte Long  String 
+                        ------------------
+                        | 1 | id | Login | 
+                        ------------------
+                        
+    This is the frame to be sent to the BDD server in order to validate a login
+    requested by a newly connected client. The field id is the ID of the client 
+    known by the ChatHack server.
                         
 5.4.2 Server Response Frame
 
@@ -420,6 +433,9 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
                        ------------
                        | 0/1 | id |
                        ------------
+    The BDD server sends back a response with the client's ID and a byte 0 or 1
+    that tells the server if the pair of login/password is correct (or the login
+    was available to use).
 
 6.4. ChatHack Error Frames
 
