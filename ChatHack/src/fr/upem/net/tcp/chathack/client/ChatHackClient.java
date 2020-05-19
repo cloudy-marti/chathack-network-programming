@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ChatHackClient {
-
+/*PUSH TEST J EFFACE APRES*/
     static private final int BUFFER_SIZE = 10_000;
     static private final int BLOCKING_QUEUE_SIZE = 100;
     static private final Logger logger = Logger.getLogger(ChatHackClient.class.getName());
