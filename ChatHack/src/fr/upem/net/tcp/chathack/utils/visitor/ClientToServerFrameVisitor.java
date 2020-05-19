@@ -50,6 +50,7 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
                 }
                 client.setConnected();
                 break;
+            case 15:
             case 12:
                 client.stop();
                 break;
