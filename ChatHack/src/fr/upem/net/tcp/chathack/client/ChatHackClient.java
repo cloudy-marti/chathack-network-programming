@@ -207,11 +207,21 @@ public class ChatHackClient {
         clientToServerContext = new ClientToServerContext(key, this);
         key.attach(clientToServerContext);
 
-        //console.start();
+        SimpleFrame acceptConnection = SimpleFrame.createSimpleFrame(10, "Connection ok");
+        ByteBuffer bb = ByteBuffer.allocate(BUFFER_SIZE);
+        acceptConnection.fillByteBuffer(bb);
+        clientToServerContext.queueMessage(bb);
+
+        console.start();
         ssc.configureBlocking(false);
         ssc.bind(null);
         while (!Thread.interrupted() && !wantADisconnection) {
             printKeys();
+/*=======
+        while (!Thread.interrupted() && !selector.keys().isEmpty()) {
+>>>>>>> 684d1f784a2d91049f282753fac42db87dbb3f40
+
+ */
             try {
                 selector.select(this::treatKey);
                 processCommands();
