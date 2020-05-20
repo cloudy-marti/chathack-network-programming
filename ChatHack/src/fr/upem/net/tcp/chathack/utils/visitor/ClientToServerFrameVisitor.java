@@ -1,6 +1,7 @@
 package fr.upem.net.tcp.chathack.utils.visitor;
 
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
+import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
@@ -8,7 +9,12 @@ import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
 import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class ClientToServerFrameVisitor implements FrameVisitor {
+
+    private static final Logger LOGGER = Logger.getLogger(ClientToServerFrameVisitor.class.getName());
 
     private final Context context;
     private final ChatHackClient client;
@@ -46,8 +52,9 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
             case 10:
             case 11:
                 if (client.connected()) {
-                    throw new UnsupportedOperationException("The client is already connected.");
+                    throw new IllegalStateException("The client is already connected.");
                 }
+                LOGGER.log(Level.INFO, "Response frame OK, server accepted the connection");
                 client.setConnected();
                 break;
             case 15:

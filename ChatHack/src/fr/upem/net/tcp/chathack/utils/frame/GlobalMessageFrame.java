@@ -73,7 +73,8 @@ public class GlobalMessageFrame implements ChatHackFrame {
         if (checkBufferSize(bbdst)) {
             bbdst.put(globalMessageFrame);
             globalMessageFrame.flip();
-            bbdst.compact();
+            //bbdst.compact();
+            bbdst.flip();
         } else {
             throw new IllegalArgumentException();
         }

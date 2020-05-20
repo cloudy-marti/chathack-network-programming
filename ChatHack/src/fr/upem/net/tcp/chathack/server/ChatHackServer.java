@@ -1,10 +1,8 @@
 package fr.upem.net.tcp.chathack.server;
 
-import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.context.ServerToBDDContext;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
-import fr.upem.net.tcp.chathack.utils.frame.ConnectionFrame;
 import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
 import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionFrame;
 import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
@@ -36,13 +34,13 @@ public class ChatHackServer {
 
 
     private long id = 0;
-    private final HashMap<Long, ServerToClientContext> clients = new HashMap<>();
+    private final HashMap<Long, ServerToClientContext> clientsByID = new HashMap<>();
+    private final HashMap<String, ServerToClientContext> clientsByLogin = new HashMap<>();
 
     public ChatHackServer(int port, InetSocketAddress bddServerAddress) throws IOException {
         this.serverSocketChannel = ServerSocketChannel.open();
         this.serverSocketChannel.bind(new InetSocketAddress(port));
         this.selector = Selector.open();
-
 
         this.bddServerAddress = bddServerAddress;
         this.socketChannel = SocketChannel.open();
@@ -112,13 +110,15 @@ public class ChatHackServer {
         ServerToClientContext context = new ServerToClientContext(this, clientKey, id);
         clientKey.attach(context);
 
+//        clientKey.cancel();
+        // on re-register
         // DEBUG
         SimpleFrame acceptConnect = SimpleFrame.createSimpleFrame(10, "ok");
         ByteBuffer tmp = ByteBuffer.allocate(1_024);
         acceptConnect.fillByteBuffer(tmp);
         context.queueMessage(tmp);
 
-        clients.put(id, context);
+        clientsByID.put(id, context);
         id++;
     }
 
@@ -150,7 +150,7 @@ public class ChatHackServer {
 
 
     public void sendRequestToBDD(ByteBuffer buffer) {
-        //uniqueContextBDD.queueMessage(buffer);
+        uniqueContextBDD.queueMessage(buffer);
     }
 
     public void privateConnectionFrame(PrivateConnectionFrame frame) {
@@ -158,7 +158,7 @@ public class ChatHackServer {
     }
 
     public ServerToClientContext getClientById(long id) {
-        return clients.get(id);
+        return clientsByID.get(id);
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {

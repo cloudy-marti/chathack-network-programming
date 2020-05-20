@@ -57,6 +57,7 @@ public class ConnectionFrame implements ChatHackFrame {
             bbdst.put(connectionFrame);
             connectionFrame.flip();
             bbdst.flip();
+            //bbdst.compact();
         } else {
             throw new IllegalArgumentException();
         }

@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -77,6 +78,7 @@ public class ClientToServerContext implements Context {
             if (bb.remaining() <= outputBuffer.remaining()) {
                 queue.remove();
                 outputBuffer.put(bb);
+                bb.flip();
             } else {
                 return;
             }
@@ -138,6 +140,12 @@ public class ClientToServerContext implements Context {
         if (!sc.finishConnect()) {
             return;
         }
+
+        ChatHackFrame frameLogin = client.getFrameLogin();
+        ByteBuffer bb = ByteBuffer.allocate(1_024);
+        frameLogin.fillByteBuffer(bb);
+        queueMessage(bb); //<- c ici que ça plante définitivement
+
         updateInterestOps();
     }
     public void setInputClosed() {

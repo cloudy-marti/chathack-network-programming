@@ -12,6 +12,7 @@ import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +58,8 @@ public class ChatHackClient {
         this.console = new Thread(this::consoleRun);
         this.port = port;
         this.ssc = ServerSocketChannel.open();
+
+        LOGGER.log(Level.INFO, "creating login frame");
         this.frameLogin = ConnectionFrame.createConnectionFrame(0, login);
     }
 
@@ -70,9 +73,14 @@ public class ChatHackClient {
         this.console = new Thread(this::consoleRun);
         this.port = port;
         this.ssc = ServerSocketChannel.open();
-        this.frameLogin = LoginPasswordFrame.createLoginPasswordFrame(01, login, password);
+
+        LOGGER.log(Level.INFO, "creating login with password frame");
+        this.frameLogin = LoginPasswordFrame.createLoginPasswordFrame(1, login, password);
     }
 
+    public ChatHackFrame getFrameLogin() {
+        return this.frameLogin;
+    }
 
     private void consoleRun() {
         try {
@@ -207,21 +215,11 @@ public class ChatHackClient {
         clientToServerContext = new ClientToServerContext(key, this);
         key.attach(clientToServerContext);
 
-
-        ByteBuffer bb = ByteBuffer.allocate(BUFFER_SIZE);
-        frameLogin.fillByteBuffer(bb);
-        clientToServerContext.queueMessage(bb);
-
-        console.start();
+        //console.start();
         ssc.configureBlocking(false);
         ssc.bind(null);
         while (!Thread.interrupted() && !wantADisconnection) {
             printKeys();
-/*=======
-        while (!Thread.interrupted() && !selector.keys().isEmpty()) {
->>>>>>> 684d1f784a2d91049f282753fac42db87dbb3f40
-
- */
             try {
                 selector.select(this::treatKey);
                 processCommands();
