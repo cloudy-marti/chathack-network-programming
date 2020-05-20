@@ -3,10 +3,7 @@ package fr.upem.net.tcp.chathack.client;
 import fr.upem.net.tcp.chathack.utils.context.ClientToClientContext;
 import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
-import fr.upem.net.tcp.chathack.utils.frame.ConnectionFrame;
-import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
-import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionFrame;
-import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
+import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
 import java.awt.*;
@@ -47,6 +44,7 @@ public class ChatHackClient {
     private final HashMap<String, ArrayBlockingQueue<String>> waitingMessage = new HashMap<>();
     private final ArrayList<String> refusedConnection = new ArrayList<>();
     private final ArrayBlockingQueue<PrivateConnectionFrame> connectionRequest = new ArrayBlockingQueue<>(BLOCKING_QUEUE_SIZE);
+    private final ChatHackFrame frameLogin;
 
 
     public ChatHackClient(String login, InetSocketAddress serverAddress, int port) throws IOException {
@@ -59,6 +57,7 @@ public class ChatHackClient {
         this.console = new Thread(this::consoleRun);
         this.port = port;
         this.ssc = ServerSocketChannel.open();
+        this.frameLogin = ConnectionFrame.createConnectionFrame(0, login);
     }
 
     // constructor with login and password
@@ -71,6 +70,7 @@ public class ChatHackClient {
         this.console = new Thread(this::consoleRun);
         this.port = port;
         this.ssc = ServerSocketChannel.open();
+        this.frameLogin = LoginPasswordFrame.createLoginPasswordFrame(01, login, password);
     }
 
 
@@ -207,9 +207,9 @@ public class ChatHackClient {
         clientToServerContext = new ClientToServerContext(key, this);
         key.attach(clientToServerContext);
 
-        SimpleFrame acceptConnection = SimpleFrame.createSimpleFrame(10, "Connection ok");
+
         ByteBuffer bb = ByteBuffer.allocate(BUFFER_SIZE);
-        acceptConnection.fillByteBuffer(bb);
+        frameLogin.fillByteBuffer(bb);
         clientToServerContext.queueMessage(bb);
 
         console.start();
