@@ -5,12 +5,16 @@ import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ConnectionFrameReader implements Reader<ConnectionFrame> {
 
     private enum State {
         DONE, WAITING, ERROR
     }
+
+    private static final Logger LOGGGER = Logger.getLogger(ConnectionFrame.class.getName());
 
     private State state = State.WAITING;
     private static final int BUFFER_SIZE = 1_024;
@@ -21,6 +25,7 @@ public class ConnectionFrameReader implements Reader<ConnectionFrame> {
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
         if (state == State.DONE || state == State.ERROR) {
+            LOGGGER.log(Level.INFO, state.toString());
             throw new IllegalStateException();
         }
 

@@ -49,18 +49,18 @@ public class ServerToClientContext implements Context {
             Reader.ProcessStatus status = frameReader.process(inputBuffer);
             switch (status) {
                 case ERROR:
-                    System.out.println("Frame Reader error");
+                    LOGGER.log(Level.INFO, "Frame Reader error");
                     silentlyClose();
                     return;
                 case REFILL:
-                    System.out.println( "Refill");
+                    LOGGER.log(Level.INFO, "Refill");
                     return;
                 case DONE:
                     ChatHackFrame frame = frameReader.get();
-                    System.out.println( "ok frame : " + frame.getClass().getName());
+                    LOGGER.log(Level.INFO, "Frame Accepted : " + frame.getClass().getName());
                     frameReader.reset();
                     treatFrame(frame);
-                    break;
+                    return;
             }
         }
     }

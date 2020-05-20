@@ -4,8 +4,12 @@ import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FrameReader implements Reader<ChatHackFrame> {
+
+    private final static Logger LOGGER = Logger.getLogger(FrameReader.class.getName());
 
     private enum State {DONE,WAITING_FOR_OPCODE,WAITING_FOR_FRAME,ERROR};
 
@@ -30,6 +34,7 @@ public class FrameReader implements Reader<ChatHackFrame> {
                 bb.flip();
                 try {
                     if(!bb.hasRemaining()) {
+                        LOGGER.log(Level.INFO, "waiting for Opcode, need REFILL");
                         return ProcessStatus.REFILL;
                     }
                     opCode = bb.get() & 0xFF;
@@ -79,6 +84,7 @@ public class FrameReader implements Reader<ChatHackFrame> {
                 ProcessStatus status = currentReader.process(bb);
                 switch (status) {
                     case REFILL:
+                        LOGGER.log(Level.INFO, "Refill while waiting for frame");
                         return ProcessStatus.REFILL;
                     case ERROR:
                         return ProcessStatus.ERROR;
@@ -112,6 +118,12 @@ public class FrameReader implements Reader<ChatHackFrame> {
 
     @Override
     public void reset() {
+        connectionFrameReader.reset();
+        privateConnectionFrameReader.reset();
+        messageFrameReader.reset();
+        simpleFrameReader.reset();
+        fileFrameReader.reset();
+
         state = State.WAITING_FOR_OPCODE;
         internalBuffer.clear();
     }

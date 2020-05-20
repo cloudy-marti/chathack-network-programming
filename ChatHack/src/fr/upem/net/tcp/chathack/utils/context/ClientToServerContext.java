@@ -53,7 +53,7 @@ public class ClientToServerContext implements Context {
                     ChatHackFrame frame = frameReader.get();
                     frameReader.reset();
                     treatFrame(frame);
-                    break;
+                    return;
             }
         }
     }

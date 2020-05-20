@@ -4,8 +4,10 @@ import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.context.ServerToBDDContext;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
+import fr.upem.net.tcp.chathack.utils.frame.ConnectionFrame;
 import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
 import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionFrame;
+import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -110,6 +112,12 @@ public class ChatHackServer {
         ServerToClientContext context = new ServerToClientContext(this, clientKey, id);
         clientKey.attach(context);
 
+        // DEBUG
+        SimpleFrame acceptConnect = SimpleFrame.createSimpleFrame(10, "ok");
+        ByteBuffer tmp = ByteBuffer.allocate(1_024);
+        acceptConnect.fillByteBuffer(tmp);
+        context.queueMessage(tmp);
+
         clients.put(id, context);
         id++;
     }
@@ -128,12 +136,14 @@ public class ChatHackServer {
      * @param msg frame to be sent to all clients (opcode 20)
      */
     public void broadcast(GlobalMessageFrame msg) {
-        ByteBuffer tmp = ByteBuffer.allocate(BUFFER_SIZE);
         Set<SelectionKey> selectionKeySet = selector.keys();
+        ByteBuffer tmp = ByteBuffer.allocate(BUFFER_SIZE);
+        msg.fillByteBuffer(tmp);
         for (SelectionKey key : selectionKeySet) {
             if(!(key.channel() instanceof ServerSocketChannel)) {
-                msg.fillByteBuffer(tmp);
-                ((Context)key.attachment()).queueMessage(tmp);
+                if(key.attachment() instanceof ServerToClientContext) {
+                    ((Context)key.attachment()).queueMessage(tmp);
+                }
             }
         }
     }
