@@ -1,6 +1,7 @@
 package fr.upem.net.tcp.chathack.utils.reader.frame;
 
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
+import fr.upem.net.tcp.chathack.utils.frame.LoginPasswordFrame;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 
 import java.nio.ByteBuffer;
@@ -22,6 +23,7 @@ public class FrameReader implements Reader<ChatHackFrame> {
     private Reader<? extends ChatHackFrame> currentReader;
 
     private final ConnectionFrameReader connectionFrameReader = new ConnectionFrameReader();
+    private final LoginPasswordFrameReader loginPasswordFrameReader = new LoginPasswordFrameReader();
     private final PrivateConnectionFrameReader privateConnectionFrameReader = new PrivateConnectionFrameReader();
     private final MessageFrameReader messageFrameReader = new MessageFrameReader();
     private final SimpleFrameReader simpleFrameReader = new SimpleFrameReader();
@@ -37,7 +39,8 @@ public class FrameReader implements Reader<ChatHackFrame> {
                         LOGGER.log(Level.INFO, "waiting for Opcode, need REFILL");
                         return ProcessStatus.REFILL;
                     }
-                    opCode = bb.get() & 0xFF;
+                    opCode = bb.get();
+                    LOGGER.log(Level.INFO, "opcode : " + opCode);
                 } finally {
                     bb.compact();
                 }
@@ -47,6 +50,9 @@ public class FrameReader implements Reader<ChatHackFrame> {
                         state = State.WAITING_FOR_FRAME;
                         break;
                     case ChatHackFrame.CONNECTION_WITH_LOGIN_AND_PASSWORD:
+                        currentReader = loginPasswordFrameReader;
+                        state = State.WAITING_FOR_FRAME;
+                        break;
                     case ChatHackFrame.GLOBAL_MESSAGE:
                         currentReader = messageFrameReader;
                         state = State.WAITING_FOR_FRAME;
