@@ -58,9 +58,10 @@ public class BDDServerFrameWithPassword implements ChatHackFrame {
         return (buffer.remaining() >= bddBuffer.remaining());
     }
 
-    @Override
+    @Override // unused
     public void accept(FrameVisitor visitor) {
-        visitor.visit(this);
+        throw new UnsupportedOperationException("write-only frame does not support visitor");
+        //visitor.visit(this);
     }
 
     @Override // unused
