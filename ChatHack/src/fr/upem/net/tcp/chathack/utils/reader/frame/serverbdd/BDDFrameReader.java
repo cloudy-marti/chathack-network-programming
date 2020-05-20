@@ -1,51 +1,66 @@
 package fr.upem.net.tcp.chathack.utils.reader.frame.serverbdd;
 
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
+import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
+import fr.upem.net.tcp.chathack.utils.reader.utils.LongReader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BDDFrameReader implements Reader<ChatHackFrame> {
 
-    private enum State {DONE,WAITING_FOR_OPCODE,WAITING_FOR_FRAME,ERROR};
+    private static Logger LOGGER = Logger.getLogger(BDDFrameReader.class.getName());
 
-    private State state = State.WAITING_FOR_OPCODE;
+    private enum State {DONE, WAITING_FOR_RESPONSE_CODE,WAITING_FOR_ID,ERROR};
+
+    private State state = State.WAITING_FOR_RESPONSE_CODE;
     private final ByteBuffer internalBuffer = ByteBuffer.allocate(Integer.BYTES); // write-mode
 
-    private ChatHackFrame frame;
-
-    private Reader<? extends ChatHackFrame> currentReader;
-
-    private final BDDServerFrameReader bddServerFrameReader = new BDDServerFrameReader();
-    private final BDDServerFrameWithPasswordReader bddServerFrameWithPasswordReader = new BDDServerFrameWithPasswordReader();
-    private final BDDServerResponseFrameReader bddServerResponseFrameReader = new BDDServerResponseFrameReader();
+    private long id;
+    private byte response;
 
     @Override
     public ProcessStatus process(ByteBuffer bb) {
-        int opCode;
-        switch (state) {
-            case WAITING_FOR_OPCODE:
-                bb.flip();
-                try {
-                    if(!bb.hasRemaining()) {
-                        return ProcessStatus.REFILL;
-                    }
-                    opCode = bb.get() & 0xFF;
+        if(state == State.WAITING_FOR_RESPONSE_CODE) {
+            bb.flip();
+            try {
+                if(!bb.hasRemaining()) {
+                    LOGGER.log(Level.INFO, "waiting for Opcode, need REFILL");
+                    return ProcessStatus.REFILL;
                 }
-                finally {
-                    bb.compact();
-                }
-            case WAITING_FOR_FRAME:
-                ProcessStatus status = currentReader.process(bb);
-            case DONE:
-            case ERROR:
+                response = bb.get();
+                state = State.WAITING_FOR_ID;
+            } finally {
+                bb.compact();
+            }
         }
-        return null;
+
+        LongReader longReader = new LongReader();
+        if(state == State.WAITING_FOR_ID) {
+            ProcessStatus status = longReader.process(bb);
+            switch (status) {
+                case DONE:
+                    id = longReader.get();
+                    state = State.DONE;
+                    break;
+                case REFILL:
+                    return ProcessStatus.REFILL;
+                case ERROR:
+                    return ProcessStatus.ERROR;
+            }
+        }
+
+        return ProcessStatus.DONE;
     }
 
     @Override
     public ChatHackFrame get() {
-        return null;
+        if (state != State.DONE) {
+            throw new IllegalStateException();
+        }
+        return BDDServerResponseFrame.createBDDServerResponseFrame(response, id);
     }
 
     @Override
@@ -55,6 +70,7 @@ public class BDDFrameReader implements Reader<ChatHackFrame> {
 
     @Override
     public void reset() {
-
+        internalBuffer.clear();
+        state = State.WAITING_FOR_RESPONSE_CODE;
     }
 }
