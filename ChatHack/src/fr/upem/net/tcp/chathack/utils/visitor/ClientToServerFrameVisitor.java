@@ -1,13 +1,9 @@
 package fr.upem.net.tcp.chathack.utils.visitor;
 
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
-import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
-import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,16 +75,6 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
         } catch (InterruptedException e) {
             return;
         }
-    }
-
-    @Override
-    public void visit(BDDServerFrame frame) {
-        throw new UnsupportedOperationException("server does not send bdd frames to client");
-    }
-
-    @Override
-    public void visit(BDDServerFrameWithPassword frame) {
-        throw new UnsupportedOperationException("server does not send bdd frames to client");
     }
 
     @Override

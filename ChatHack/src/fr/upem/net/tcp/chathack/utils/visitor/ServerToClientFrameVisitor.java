@@ -61,16 +61,6 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
     }
 
     @Override
-    public void visit(BDDServerFrame frame) {
-        throw new UnsupportedOperationException("server does not send bdd frames to client");
-    }
-
-    @Override
-    public void visit(BDDServerFrameWithPassword frame) {
-        throw new UnsupportedOperationException("server does not send bdd frames to client");
-    }
-
-    @Override
     public void visit(BDDServerResponseFrame bddServerResponseFrame) {
         throw new UnsupportedOperationException("server does not send bdd frames to client");
     }
