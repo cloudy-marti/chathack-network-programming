@@ -8,6 +8,7 @@ import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
 import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionFrame;
 import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
@@ -126,9 +127,11 @@ public class ChatHackServer {
      * @param msg frame to be sent to all clients (opcode 20)
      */
     public void broadcast(GlobalMessageFrame msg) {
-        Set<SelectionKey> selectionKeySet = selector.keys();
         ByteBuffer tmp = ByteBuffer.allocate(BUFFER_SIZE);
         msg.fillByteBuffer(tmp);
+        clientsByID.forEach((id, client) -> client.queueMessage(tmp));
+        /*
+        Set<SelectionKey> selectionKeySet = selector.keys();
         for (SelectionKey key : selectionKeySet) {
             if(!(key.channel() instanceof ServerSocketChannel)) {
                 if(key.attachment() instanceof ServerToClientContext) {
@@ -138,6 +141,8 @@ public class ChatHackServer {
                 }
             }
         }
+
+         */
     }
 
 
@@ -145,12 +150,12 @@ public class ChatHackServer {
         uniqueContextBDD.queueMessage(buffer);
     }
 
-    public void privateConnectionFrame(PrivateConnectionFrame frame) {
-        // TODO
-    }
-
-    public void registerConnectedClient(ClientToServerContext client, String login, Long id) {
-
+    public void registerClientMDP(String login, String password) {
+        try(FileWriter fileWriter = new FileWriter("resources/save.txt", true)) {
+            fileWriter.append(login).append("$").append(password);
+        } catch (IOException ioE) {
+            LOGGER.log(Level.SEVERE, "save.txt cannot be opened due to IOException");
+        }
     }
 
     public ServerToClientContext getClientById(long id) {
@@ -163,6 +168,12 @@ public class ChatHackServer {
 
     public void saveClientLogin(long id, String login) {
         this.clientsByLogin.put(login, clientsByID.get(id));
+    }
+
+    public void removeClient(long id) {
+        ServerToClientContext client = clientsByID.get(id);
+        clientsByLogin.remove(client.getLogin(), client);
+        clientsByID.remove(id, client);
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {

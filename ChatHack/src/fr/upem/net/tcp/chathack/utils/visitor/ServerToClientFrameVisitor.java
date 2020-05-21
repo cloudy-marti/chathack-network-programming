@@ -30,7 +30,6 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
         LOGGER.log(Level.INFO, "Visiting ConnectionFrame from Client Id : " + context.getId());
         server.saveClientLogin(context.getId(), frame.getLogin());
         context.setLoginAndPassword(frame.getLogin(), "");
-
         BDDServerFrame bddFrame = BDDServerFrame.createBDDServerFrame(context.getId(), frame.getLogin());
         ByteBuffer tmp = ByteBuffer.allocate(BDD_BUFFER_SIZE);
         bddFrame.fillByteBuffer(tmp);
@@ -40,9 +39,17 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
     @Override
     public void visit(LoginPasswordFrame frame) {
         LOGGER.log(Level.INFO, "Visiting LoginPasswordFrame from Client Id : " + context.getId());
+        if(server.getClientByLogin(frame.getLogin()) != null) {
+            SimpleFrame responseConnect = SimpleFrame.createSimpleFrame(12,
+                    "Registered user already connected");
+            ByteBuffer tmp = ByteBuffer.allocate(1_024);
+            responseConnect.fillByteBuffer(tmp);
+            context.queueMessage(tmp);
+            server.removeClient(context.getId());
+            return;
+        }
         server.saveClientLogin(context.getId(), frame.getLogin());
         context.setLoginAndPassword(frame.getLogin(), frame.getPassword());
-
         BDDServerFrameWithPassword bddFrame = BDDServerFrameWithPassword
                 .createBDDServerFrameWithPassword(context.getId(), frame.getLogin(), frame.getPassword());
         ByteBuffer tmp = ByteBuffer.allocate(BDD_BUFFER_SIZE);
@@ -59,19 +66,37 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
     @Override
     public void visit(PrivateConnectionFrame frame) {
         LOGGER.log(Level.INFO, "Visiting PrivateConnectionFrame coming from client Id : " + context.getId());
-        // TODO
-        // to ask
-        //server.privateConnectionFrame(frame);
+        String dest = frame.getLogin();
+        ServerToClientContext destClient = server.getClientByLogin(dest);
+        ByteBuffer tmp = ByteBuffer.allocate(1_024);
+        if(destClient == null) {
+            SimpleFrame response = SimpleFrame.createSimpleFrame(30, "dest login not recognised");
+            response.fillByteBuffer(tmp);
+            context.queueMessage(tmp);
+            return;
+        }
+        frame.fillByteBuffer(tmp);
+        destClient.queueMessage(tmp);
+    }
+
+    @Override
+    public void visit(SimpleFrame frame) {
+        int opcode = frame.getOpcode();
+        if(opcode == 3) { // disconnection request
+            ByteBuffer tmp = ByteBuffer.allocate(1_024);
+            SimpleFrame responseDisconnect = SimpleFrame.createSimpleFrame(15, "Disconnection OK");
+            responseDisconnect.fillByteBuffer(tmp);
+            context.queueMessage(tmp);
+            server.removeClient(context.getId());
+            context.silentlyClose();
+        } else {
+            throw new UnsupportedOperationException("client does not send these kind of frames");
+        }
     }
 
     @Override
     public void visit(FileFrame frame) {
         throw new UnsupportedOperationException("Files are not allowed on global chat.");
-    }
-
-    @Override
-    public void visit(SimpleFrame frame) {
-        throw new UnsupportedOperationException("client does not send these kind of frames");
     }
 
     @Override

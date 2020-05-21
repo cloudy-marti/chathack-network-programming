@@ -30,6 +30,7 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
         if(bddServerResponseFrame.isPresentOnBDD()) {
             if(server.getClientById(id).getPassword().isEmpty()) {
                 LOGGER.log(Level.INFO, "Login already in use, cannot be taken");
+                //server.removeClient(id);
                 responseConnect = SimpleFrame.createSimpleFrame(12,
                         "Login already in use, cannot be taken");
             } else {
