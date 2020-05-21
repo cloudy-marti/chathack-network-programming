@@ -68,12 +68,9 @@ public class GlobalMessageFrame implements ChatHackFrame {
 
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
-        System.out.println("Global Message Frame = " + globalMessageFrame.remaining() +
-                "\tBBdest = " + bbdst.remaining());
         if (checkBufferSize(bbdst)) {
             bbdst.put(globalMessageFrame);
             globalMessageFrame.flip();
-            //bbdst.compact();
             bbdst.flip();
         } else {
             throw new IllegalArgumentException();
@@ -83,7 +80,6 @@ public class GlobalMessageFrame implements ChatHackFrame {
 
     @Override
     public boolean checkBufferSize(ByteBuffer buffer) {
-
         //buffer in write mode
         return buffer.remaining() >= globalMessageFrame.remaining();
     }

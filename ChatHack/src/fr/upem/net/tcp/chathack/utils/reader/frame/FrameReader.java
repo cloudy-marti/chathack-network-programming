@@ -36,11 +36,9 @@ public class FrameReader implements Reader<ChatHackFrame> {
                 bb.flip();
                 try {
                     if(!bb.hasRemaining()) {
-                        LOGGER.log(Level.INFO, "waiting for Opcode, need REFILL");
                         return ProcessStatus.REFILL;
                     }
                     opCode = bb.get();
-                    LOGGER.log(Level.INFO, "opcode : " + opCode);
                 } finally {
                     bb.compact();
                 }
@@ -90,7 +88,6 @@ public class FrameReader implements Reader<ChatHackFrame> {
                 ProcessStatus status = currentReader.process(bb);
                 switch (status) {
                     case REFILL:
-                        LOGGER.log(Level.INFO, "Refill while waiting for frame");
                         return ProcessStatus.REFILL;
                     case ERROR:
                         return ProcessStatus.ERROR;
