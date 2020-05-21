@@ -197,7 +197,6 @@ public class ChatHackClient {
                     }
                 } else {
                     //Broadcast
-                    LOGGER.log(Level.INFO, "broadcast message !!!");
                     var broadcastMsg = GlobalMessageFrame.createGlobalMessageFrame(OpCode.GLOBAL_MESSAGE.getOpCode(), login, command);
                     broadcastMsg.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
@@ -219,7 +218,6 @@ public class ChatHackClient {
         ssc.configureBlocking(false);
         ssc.bind(null);
         while (!Thread.interrupted() && !wantADisconnection) {
-            printKeys();
             try {
                 selector.select(this::treatKey);
                 processCommands();
@@ -245,7 +243,7 @@ public class ChatHackClient {
     }
 
     private void treatKey(SelectionKey key) {
-        printSelectedKey(key); // for debug
+        //printSelectedKey(key); // for debug
         try {
             if (key.isValid() && key.isAcceptable()) {
                 doAccept(key);
@@ -256,15 +254,15 @@ public class ChatHackClient {
         }
         try {
             if (key.isValid() && key.isConnectable()) {
-                LOGGER.log(Level.INFO, "key is connectable");
+                //LOGGER.log(Level.INFO, "key is connectable");
                 ((Context) key.attachment()).doConnect();
             }
             if (key.isValid() && key.isWritable()) {
-                LOGGER.log(Level.INFO, "key is writable");
+                //LOGGER.log(Level.INFO, "key is writable");
                 ((Context) key.attachment()).doWrite();
             }
             if (key.isValid() && key.isReadable()) {
-                LOGGER.log(Level.INFO, "key is readable");
+                //LOGGER.log(Level.INFO, "key is readable");
                 ((Context) key.attachment()).doRead();
             }
         } catch (IOException e) {
