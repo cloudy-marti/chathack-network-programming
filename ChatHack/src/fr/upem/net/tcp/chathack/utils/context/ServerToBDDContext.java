@@ -124,7 +124,6 @@ public class ServerToBDDContext implements Context {
             LOGGER.log(Level.INFO, "closed before reading");
             inputClosed = true;
         }
-        LOGGER.log(Level.INFO, "non monsieur :(");
         processIn();
         updateInterestOps();
     }

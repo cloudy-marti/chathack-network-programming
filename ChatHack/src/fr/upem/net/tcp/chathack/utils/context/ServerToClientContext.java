@@ -21,7 +21,10 @@ public class ServerToClientContext implements Context {
 
     final private SelectionKey key;
     final private SocketChannel sc;
+
     final private long id;
+    private String login;
+    private String password = "";
 
     final private ByteBuffer inputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
     final private ByteBuffer outputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
@@ -49,18 +52,15 @@ public class ServerToClientContext implements Context {
             Reader.ProcessStatus status = frameReader.process(inputBuffer);
             switch (status) {
                 case ERROR:
-                    LOGGER.log(Level.INFO, "Frame Reader error");
                     silentlyClose();
                     return;
                 case REFILL:
-                    LOGGER.log(Level.INFO, "Refill");
                     return;
                 case DONE:
                     ChatHackFrame frame = frameReader.get();
-                    LOGGER.log(Level.INFO, "Frame Accepted : " + frame.getClass().getName());
                     frameReader.reset();
                     treatFrame(frame);
-                    return;
+                    break;
             }
         }
     }
@@ -82,6 +82,7 @@ public class ServerToClientContext implements Context {
             if(tmp.remaining() <= outputBuffer.remaining()) {
                 messageQueue.remove();
                 outputBuffer.put(tmp);
+                tmp.flip();
             } else {
                 return;
             }
@@ -116,7 +117,6 @@ public class ServerToClientContext implements Context {
             LOGGER.log(Level.INFO, "Client has closed the connection");
             inputClosed = true;
         }
-        LOGGER.log(Level.INFO, "READING KJSQHDKJSQ");
         processIn();
         updateInterestOps();
     }
@@ -137,5 +137,18 @@ public class ServerToClientContext implements Context {
 
     public long getId() {
         return this.id;
+    }
+
+    public String getLogin() {
+        return this.login;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public void setLoginAndPassword(String login, String password) {
+        this.login = login;
+        this.password = password;
     }
 }

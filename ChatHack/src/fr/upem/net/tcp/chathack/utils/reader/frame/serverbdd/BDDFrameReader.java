@@ -6,12 +6,8 @@ import fr.upem.net.tcp.chathack.utils.reader.utils.LongReader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class BDDFrameReader implements Reader<ChatHackFrame> {
-
-    private static Logger LOGGER = Logger.getLogger(BDDFrameReader.class.getName());
 
     private enum State {DONE, WAITING_FOR_RESPONSE_CODE,WAITING_FOR_ID,ERROR};
 
@@ -27,7 +23,6 @@ public class BDDFrameReader implements Reader<ChatHackFrame> {
             bb.flip();
             try {
                 if(!bb.hasRemaining()) {
-                    LOGGER.log(Level.INFO, "waiting for Opcode, need REFILL");
                     return ProcessStatus.REFILL;
                 }
                 response = bb.get();

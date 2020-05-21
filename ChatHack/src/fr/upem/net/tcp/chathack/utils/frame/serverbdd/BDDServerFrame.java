@@ -31,9 +31,10 @@ public class BDDServerFrame implements ChatHackFrame {
     public static BDDServerFrame createBDDServerFrame(long id, String login) {
         Objects.requireNonNull(login);
         ByteBuffer tmpLogin = StandardCharsets.UTF_8.encode(login);
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES +
-                tmpLogin.remaining());
-        buffer.putLong(id).put(tmpLogin).flip();
+        int loginSize = tmpLogin.remaining();
+        ByteBuffer buffer = ByteBuffer.allocate(1 + Long.BYTES + Integer.BYTES + loginSize);
+        byte opcode = 2;
+        buffer.put(opcode).putLong(id).putInt(loginSize).put(tmpLogin).flip();
         return new BDDServerFrame(id, login, buffer);
     }
 
@@ -56,7 +57,6 @@ public class BDDServerFrame implements ChatHackFrame {
     @Override // unused
     public void accept(FrameVisitor visitor) {
         throw new UnsupportedOperationException("write-only frame does not support visitor");
-        // visitor.visit(this);
     }
 
     @Override // unused

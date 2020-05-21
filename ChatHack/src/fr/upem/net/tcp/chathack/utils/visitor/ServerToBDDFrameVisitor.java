@@ -7,8 +7,12 @@ import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ServerToBDDFrameVisitor implements FrameVisitor {
+
+    private final static Logger LOGGER = Logger.getLogger(ServerToBDDFrameVisitor.class.getName());
 
     private final ServerToBDDContext context;
     private final ChatHackServer server;
@@ -23,10 +27,25 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
         long id = bddServerResponseFrame.getId();
         ServerToClientContext client = server.getClientById(id);
         SimpleFrame responseConnect;
-        if(bddServerResponseFrame.isValid()) {
-            responseConnect = SimpleFrame.createSimpleFrame(10, "ok");
+        if(bddServerResponseFrame.isPresentOnBDD()) {
+            if(server.getClientById(id).getPassword().isEmpty()) {
+                LOGGER.log(Level.INFO, "Login already in use, cannot be taken");
+                responseConnect = SimpleFrame.createSimpleFrame(12,
+                        "Login already in use, cannot be taken");
+            } else {
+                LOGGER.log(Level.INFO, "Connection with login and password accepted, welcome to ChatHack");
+                responseConnect = SimpleFrame.createSimpleFrame(11,
+                        "Connection with login and password accepted, welcome to ChatHack");
+            }
         } else {
-            responseConnect = SimpleFrame.createSimpleFrame(12, "login or password invalid");
+            if(server.getClientById(id).getPassword().isEmpty()) {
+                LOGGER.log(Level.INFO, "Login available, welcome to ChatHack");
+                responseConnect = SimpleFrame.createSimpleFrame(10,
+                        "Login available, welcome to ChatHack");
+            } else {
+                LOGGER.log(Level.INFO, "Login and password not accepted");
+                responseConnect = SimpleFrame.createSimpleFrame(12, "Login and password not accepted");
+            }
         }
         ByteBuffer tmp = ByteBuffer.allocate(1_024);
         responseConnect.fillByteBuffer(tmp);

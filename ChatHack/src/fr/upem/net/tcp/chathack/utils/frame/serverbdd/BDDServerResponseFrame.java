@@ -59,7 +59,7 @@ public class BDDServerResponseFrame implements ChatHackFrame {
         throw new UnsupportedOperationException("shouldn't be calling getOpcode on a frame without opcode");
     }
 
-    public boolean isValid() {
+    public boolean isPresentOnBDD() {
         return (isValid & 0xFF) == 1;
     }
 

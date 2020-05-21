@@ -1,5 +1,6 @@
 package fr.upem.net.tcp.chathack.server;
 
+import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.context.ServerToBDDContext;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
@@ -82,15 +83,12 @@ public class ChatHackServer {
         }
         try {
             if (key.isValid() && key.isConnectable()) {
-                LOGGER.log(Level.INFO, "Key is connectable :" + ((Context)key.attachment()).getClass().getName());
                 ((Context) key.attachment()).doConnect();
             }
             if (key.isValid() && key.isWritable()) {
-                LOGGER.log(Level.INFO, "Key is writable :" + ((Context)key.attachment()).getClass().getName());
                 ((Context) key.attachment()).doWrite();
             }
             if (key.isValid() && key.isReadable()) {
-                LOGGER.log(Level.INFO, "Key is readable :" + ((Context)key.attachment()).getClass().getName());
                 ((Context) key.attachment()).doRead();
             }
         } catch (IOException e) {
@@ -109,14 +107,6 @@ public class ChatHackServer {
         SelectionKey clientKey = client.register(selector, SelectionKey.OP_READ);
         ServerToClientContext context = new ServerToClientContext(this, clientKey, id);
         clientKey.attach(context);
-
-//        clientKey.cancel();
-        // on re-register
-        // DEBUG
-        SimpleFrame acceptConnect = SimpleFrame.createSimpleFrame(10, "ok");
-        ByteBuffer tmp = ByteBuffer.allocate(1_024);
-        acceptConnect.fillByteBuffer(tmp);
-        context.queueMessage(tmp);
 
         clientsByID.put(id, context);
         id++;
@@ -142,6 +132,8 @@ public class ChatHackServer {
         for (SelectionKey key : selectionKeySet) {
             if(!(key.channel() instanceof ServerSocketChannel)) {
                 if(key.attachment() instanceof ServerToClientContext) {
+                    System.out.print("broadcasting to : ");
+                    printSelectedKey(key);
                     ((Context)key.attachment()).queueMessage(tmp);
                 }
             }
@@ -157,8 +149,20 @@ public class ChatHackServer {
         // TODO
     }
 
+    public void registerConnectedClient(ClientToServerContext client, String login, Long id) {
+
+    }
+
     public ServerToClientContext getClientById(long id) {
         return clientsByID.get(id);
+    }
+
+    public ServerToClientContext getClientByLogin(String login) {
+        return clientsByLogin.get(login);
+    }
+
+    public void saveClientLogin(long id, String login) {
+        this.clientsByLogin.put(login, clientsByID.get(id));
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {

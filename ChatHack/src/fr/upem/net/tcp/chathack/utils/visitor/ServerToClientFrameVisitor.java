@@ -8,8 +8,12 @@ import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ServerToClientFrameVisitor implements FrameVisitor {
+
+    private final static Logger LOGGER = Logger.getLogger(ServerToClientFrameVisitor.class.getName());
 
     private static final int BDD_BUFFER_SIZE = 1_024;
 
@@ -23,6 +27,10 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(ConnectionFrame frame) {
+        LOGGER.log(Level.INFO, "Visiting ConnectionFrame from Client Id : " + context.getId());
+        server.saveClientLogin(context.getId(), frame.getLogin());
+        context.setLoginAndPassword(frame.getLogin(), "");
+
         BDDServerFrame bddFrame = BDDServerFrame.createBDDServerFrame(context.getId(), frame.getLogin());
         ByteBuffer tmp = ByteBuffer.allocate(BDD_BUFFER_SIZE);
         bddFrame.fillByteBuffer(tmp);
@@ -31,6 +39,10 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(LoginPasswordFrame frame) {
+        LOGGER.log(Level.INFO, "Visiting LoginPasswordFrame from Client Id : " + context.getId());
+        server.saveClientLogin(context.getId(), frame.getLogin());
+        context.setLoginAndPassword(frame.getLogin(), frame.getPassword());
+
         BDDServerFrameWithPassword bddFrame = BDDServerFrameWithPassword
                 .createBDDServerFrameWithPassword(context.getId(), frame.getLogin(), frame.getPassword());
         ByteBuffer tmp = ByteBuffer.allocate(BDD_BUFFER_SIZE);
@@ -40,11 +52,13 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(GlobalMessageFrame frame) {
+        LOGGER.log(Level.INFO, "Visiting GlobalMessageFrame");
         server.broadcast(frame);
     }
 
     @Override
     public void visit(PrivateConnectionFrame frame) {
+        LOGGER.log(Level.INFO, "Visiting PrivateConnectionFrame coming from client Id : " + context.getId());
         // TODO
         // to ask
         //server.privateConnectionFrame(frame);
