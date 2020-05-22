@@ -98,4 +98,12 @@ public class GlobalMessageFrame implements ChatHackFrame {
     public String toString() {
         return super.toString();
     }
+
+    public String getLogin() {
+        return this.login;
+    }
+
+    public String getMsg() {
+        return this.msg;
+    }
 }

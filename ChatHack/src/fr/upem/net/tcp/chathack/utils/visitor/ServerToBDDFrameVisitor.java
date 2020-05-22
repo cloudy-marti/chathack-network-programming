@@ -27,6 +27,7 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
         long id = bddServerResponseFrame.getId();
         ServerToClientContext client = server.getClientById(id);
         SimpleFrame responseConnect;
+        GlobalMessageFrame welcomeMessage;
         if(bddServerResponseFrame.isPresentOnBDD()) {
             if(server.getClientById(id).getPassword().isEmpty()) {
                 LOGGER.log(Level.INFO, "Login already in use, cannot be taken");
@@ -37,12 +38,18 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
                 LOGGER.log(Level.INFO, "Connection with login and password accepted, welcome to ChatHack");
                 responseConnect = SimpleFrame.createSimpleFrame(11,
                         "Connection with login and password accepted, welcome to ChatHack");
+                welcomeMessage = GlobalMessageFrame.createGlobalMessageFrame(20, "",
+                        client.getLogin() + " has entered the chat");
+                server.broadcast(welcomeMessage);
             }
         } else {
             if(server.getClientById(id).getPassword().isEmpty()) {
                 LOGGER.log(Level.INFO, "Login available, welcome to ChatHack");
                 responseConnect = SimpleFrame.createSimpleFrame(10,
                         "Login available, welcome to ChatHack");
+                welcomeMessage = GlobalMessageFrame.createGlobalMessageFrame(20, "",
+                        client.getLogin() + " has entered the chat");
+                server.broadcast(welcomeMessage);
             } else {
                 LOGGER.log(Level.INFO, "Login and password not accepted");
                 responseConnect = SimpleFrame.createSimpleFrame(12, "Login and password not accepted");

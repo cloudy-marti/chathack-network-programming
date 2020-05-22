@@ -35,7 +35,12 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
     public void visit(GlobalMessageFrame frame) {
         switch (frame.getOpcode()) {
             case 20:
-                System.out.println(frame);
+                //System.out.println(frame);
+                if(frame.getLogin().isEmpty()) {
+                    System.out.println(frame.getMsg());
+                } else {
+                    System.out.println(frame.getLogin() + ": " + frame.getMsg());
+                }
                 break;
             default:
                 throw new UnsupportedOperationException("this is not allowed on global chat.");
