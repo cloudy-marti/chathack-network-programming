@@ -1,6 +1,7 @@
 package fr.upem.net.tcp.chathack.utils.visitor;
 
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
+import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
@@ -16,34 +17,22 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
     private final ChatHackClient client;
     private static final int BUFFER_SIZE = 10_000;
 
-    public ClientToServerFrameVisitor(Context context, ChatHackClient client) {
+    public ClientToServerFrameVisitor(ClientToServerContext context, ChatHackClient client) {
         this.context = context;
         this.client = client;
     }
 
     @Override
-    public void visit(ConnectionFrame frame) {
-        throw new UnsupportedOperationException("Connections are not allowed on global chat.");
-    }
-
-    @Override
-    public void visit(FileFrame frame) {
-        throw new UnsupportedOperationException("Files are not allowed on global chat.");
-    }
-
-    @Override
     public void visit(GlobalMessageFrame frame) {
-        switch (frame.getOpcode()) {
-            case 20:
-                //System.out.println(frame);
-                if(frame.getLogin().isEmpty()) {
-                    System.out.println(frame.getMsg());
-                } else {
-                    System.out.println(frame.getLogin() + ": " + frame.getMsg());
-                }
-                break;
-            default:
-                throw new UnsupportedOperationException("this is not allowed on global chat.");
+        if (frame.getOpcode() == 20) {
+            //System.out.println(frame);
+            if (frame.getLogin().isEmpty()) { // message from the server
+                System.out.println(frame.getMsg());
+            } else {
+                System.out.println(frame.getLogin() + ": " + frame.getMsg());
+            }
+        } else {
+            throw new UnsupportedOperationException("this is not allowed on global chat.");
         }
     }
 
@@ -68,18 +57,28 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
     }
 
     @Override
-    public void visit(LoginPasswordFrame frame) {
-
-    }
-
-    @Override
     public void visit(PrivateConnectionFrame frame) {
         try {
             client.getConnectionRequest().put(frame);
-            System.out.println(frame);
-        } catch (InterruptedException e) {
-            return;
+            System.out.println("$" + frame.getLogin() + " wants to send private messages to you. Do you accept ? Y/N");
+            //System.out.println(frame);
+        } catch (InterruptedException ignored) {
         }
+    }
+
+    @Override
+    public void visit(ConnectionFrame frame) {
+        throw new UnsupportedOperationException("Connections are not allowed on global chat.");
+    }
+
+    @Override
+    public void visit(LoginPasswordFrame frame) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void visit(FileFrame frame) {
+        throw new UnsupportedOperationException("Files are not allowed on global chat.");
     }
 
     @Override

@@ -214,7 +214,6 @@ public class ChatHackClient {
         clientToServerContext = new ClientToServerContext(key, this);
         key.attach(clientToServerContext);
 
-        //console.start();
         ssc.configureBlocking(false);
         ssc.bind(null);
         while (!Thread.interrupted() && !wantADisconnection) {

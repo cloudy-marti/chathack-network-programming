@@ -67,7 +67,6 @@ public class PrivateConnectionFrame implements ChatHackFrame {
         } else {
             throw new IllegalArgumentException();
         }
-
     }
 
     @Override
@@ -78,7 +77,7 @@ public class PrivateConnectionFrame implements ChatHackFrame {
 
     @Override
     public void accept(FrameVisitor visitor) {
-
+        visitor.visit(this);
     }
 
     @Override

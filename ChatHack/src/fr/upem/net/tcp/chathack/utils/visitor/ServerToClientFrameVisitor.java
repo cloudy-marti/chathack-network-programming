@@ -89,6 +89,8 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
             context.queueMessage(tmp);
             server.removeClient(context.getId());
             context.silentlyClose();
+        } else if(opcode == 13 || opcode == 14) { // private connection response
+            LOGGER.log(Level.INFO, "client has responded to private connection request");
         } else {
             throw new UnsupportedOperationException("client does not send these kind of frames");
         }

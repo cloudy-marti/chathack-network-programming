@@ -11,6 +11,8 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFrame> {
 
@@ -86,13 +88,15 @@ public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFra
         throw new UnsupportedOperationException();
     }
 
+    private final static Logger LOGGER = Logger.getLogger(PrivateConnectionFrameReader.class.getName());
+
     @Override
     public PrivateConnectionFrame get(int opcode) {
         if (state != State.DONE) {
             throw new IllegalStateException();
         }
         try {
-            System.out.println("requesting to : " + login +
+            LOGGER.log(Level.INFO, "requesting to : " + login +
                     " with address : " + Arrays.toString(address.array()));
             return PrivateConnectionFrame.createPrivateConnectionFrame(opcode, login,
                     new InetSocketAddress(InetAddress.getByAddress(address.array()), port));

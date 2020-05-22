@@ -66,6 +66,7 @@ public class ServerToClientContext implements Context {
     }
 
     public void treatFrame(ChatHackFrame frame) {
+        LOGGER.log(Level.INFO, "Accepting frame with opcode " + frame.getOpcode());
         frame.accept(frameVisitor);
     }
 

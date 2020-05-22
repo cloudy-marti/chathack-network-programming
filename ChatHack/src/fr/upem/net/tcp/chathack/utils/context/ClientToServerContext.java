@@ -148,6 +148,7 @@ public class ClientToServerContext implements Context {
 
         updateInterestOps();
     }
+
     public void setInputClosed() {
         this.inputClosed = true;
     }
