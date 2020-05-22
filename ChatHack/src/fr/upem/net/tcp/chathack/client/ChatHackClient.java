@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,8 @@ public class ChatHackClient {
     private final ArrayList<String> refusedConnection = new ArrayList<>();
     private final ArrayBlockingQueue<PrivateConnectionFrame> connectionRequest = new ArrayBlockingQueue<>(BLOCKING_QUEUE_SIZE);
     private final ChatHackFrame frameLogin;
+    private final HashMap<Long, String> requestWaiting = new HashMap<>(BLOCKING_QUEUE_SIZE);
+    private long idRequest = 0;
 
 
     public ChatHackClient(String login, InetSocketAddress serverAddress, int port) throws IOException {
@@ -150,13 +153,16 @@ public class ChatHackClient {
                             targetMessages.add(message);
                         } else {
                             // Pour la demande de connexion
-                            var requestConnectionFrame = PrivateConnectionFrame.createPrivateConnectionFrame(OpCode.PRIVATE_CONNECTION_REQUEST.getOpCode(), target, serverAddress);
+                            var requestConnectionFrame = PrivateConnectionFrame.createPrivateConnectionFrame(OpCode.PRIVATE_CONNECTION_REQUEST.getOpCode(), target, idRequest, serverAddress);
                             requestConnectionFrame.fillByteBuffer(buffer);
                             clientToServerContext.queueMessage(buffer);
                             var queue = new ArrayBlockingQueue<String>(BLOCKING_QUEUE_SIZE);
                             queue.add(message);
                             //Message stocker temporairement
                             waitingMessage.put(target, queue);
+
+                            requestWaiting.put(idRequest, target);
+                            idRequest++;
                         }
                     } else {
                         // /Bob = file pour bob
@@ -189,6 +195,7 @@ public class ChatHackClient {
                             int opCode;
                             if (command2.equals("accept")) {
                                 opCode = OpCode.PRIVATE_CONNECTION_OK.getOpCode();
+                                //Create new connection
                             } else {
                                 opCode = OpCode.PRIVATE_CONNECTION_KO.getOpCode();
                             }
@@ -232,6 +239,24 @@ public class ChatHackClient {
 
     public ArrayBlockingQueue<PrivateConnectionFrame> getConnectionRequest() {
         return connectionRequest;
+    }
+
+    public void createPrivateConnection(PrivateConnectionFrame frame) {
+        try {
+            SocketChannel sc = SocketChannel.open();
+            sc.configureBlocking(false);
+            sc.connect(frame.getAddress());
+            SelectionKey key = sc.register(selector, SelectionKey.OP_CONNECT);
+            ClientToClientContext clientToClientContext = new ClientToClientContext(key, this);
+            key.attach(clientToClientContext);
+            contextPrivateConnection.put(frame.getLogin(), clientToClientContext);
+            ConnectionFrame presentationFrame = ConnectionFrame.createConnectionFrame(04, login);
+            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+            presentationFrame.fillByteBuffer(buffer);
+            clientToClientContext.queueMessage(buffer);
+        } catch (IOException e) {
+            return;
+        }
     }
 
     private void doAccept(SelectionKey key) throws IOException {
@@ -363,6 +388,14 @@ public class ChatHackClient {
 
     public HashMap<String, ArrayBlockingQueue<String>> getWaitingMessage() {
         return waitingMessage;
+    }
+
+    public ArrayList<String> getRefusedConnection() {
+        return refusedConnection;
+    }
+
+    public HashMap<Long, String> getRequestWaiting() {
+        return requestWaiting;
     }
 
     public boolean connected() {

@@ -61,6 +61,11 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
     }
 
     @Override
+    public void visit(PrivateConnectionResponseFrame frame) {
+
+    }
+
+    @Override
     public void visit(ConnectionFrame frame) {
         throw new UnsupportedOperationException();
     }

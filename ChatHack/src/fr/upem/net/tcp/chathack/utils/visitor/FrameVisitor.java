@@ -11,4 +11,5 @@ public interface FrameVisitor {
     void visit(LoginPasswordFrame frame);
     void visit(PrivateConnectionFrame frame);
     void visit(BDDServerResponseFrame bddServerResponseFrame);
+    void visit(PrivateConnectionResponseFrame frame);
 }

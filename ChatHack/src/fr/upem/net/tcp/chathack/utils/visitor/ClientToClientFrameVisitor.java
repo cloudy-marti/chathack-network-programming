@@ -30,11 +30,13 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
             case 4:
                 client.getContextPrivateConnection().put(frame.getLogin(), context);
                 var queue = client.getWaitingMessage().get(frame.getLogin());
+
                 while (!queue.isEmpty()) {
                     ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
                     var privateMessage = SimpleFrame.createSimpleFrame(OpCode.PRIVATE_MESSAGE.getOpCode(), queue.poll());
                     privateMessage.fillByteBuffer(buffer);
                     context.queueMessage(buffer);
+
                 }
                 break;
             default:
@@ -83,5 +85,10 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
     @Override
     public void visit(BDDServerResponseFrame bddServerResponseFrame) {
         throw new UnsupportedOperationException("BDD frames between clients are not allowed");
+    }
+
+    @Override
+    public void visit(PrivateConnectionResponseFrame frame) {
+
     }
 }

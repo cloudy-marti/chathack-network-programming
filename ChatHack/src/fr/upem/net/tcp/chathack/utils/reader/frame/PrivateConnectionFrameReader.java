@@ -1,10 +1,7 @@
 package fr.upem.net.tcp.chathack.utils.reader.frame;
 
 import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionFrame;
-import fr.upem.net.tcp.chathack.utils.reader.utils.IntReader;
-import fr.upem.net.tcp.chathack.utils.reader.utils.IpAddressReader;
-import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
-import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
+import fr.upem.net.tcp.chathack.utils.reader.utils.*;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -17,7 +14,7 @@ import java.util.logging.Logger;
 public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFrame> {
 
     private enum State {
-        DONE, WAITING_LOGIN, WAITING_ADDRESS, WAITING_PORT, ERROR
+        DONE, WAITING_LOGIN, WAITING_ADDRESS, WAITING_PORT, ERROR, WAITING_IDREQUEST
     }
 
     private State state = State.WAITING_LOGIN;
@@ -27,58 +24,76 @@ public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFra
     private String login;
     private ByteBuffer address;
     private int port;
+    private long idRequest;
+    private final StringReader stringReader = new StringReader();
+    private final IpAddressReader ipAddressReader = new IpAddressReader();
+    private final IntReader intReader = new IntReader();
+    private final LongReader longReader = new LongReader();
 
     /*
-                int       String        byte         byte     int
+                int       String        byte         byte     int       long
            --------------------------------------------------------
-           | SizeOfLogin | Login | SizeOfAddress | Address | Port |
+           | SizeOfLogin | Login | SizeOfAddress | Address | Port | idRequest
            --------------------------------------------------------
      */
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
-        if (state == State.DONE || state == State.ERROR) {
-            throw new IllegalStateException();
-        }
+        ProcessStatus status;
+        switch (state) {
+            case WAITING_LOGIN:
+                status = stringReader.process(buffer);
+                switch (status) {
+                    case DONE:
+                        login = stringReader.get();
+                        state = State.WAITING_ADDRESS;
+                        break;
+                    case REFILL:
+                        return ProcessStatus.REFILL;
+                    case ERROR:
+                        state = State.ERROR;
+                        return ProcessStatus.ERROR;
+                }
+            case WAITING_ADDRESS:
+                status = ipAddressReader.process(buffer);
+                switch (status) {
+                    case DONE:
+                        address = ipAddressReader.get();
+                        state = State.WAITING_PORT;
+                        break;
+                    case REFILL:
+                        return ProcessStatus.REFILL;
+                    case ERROR:
+                        state = State.ERROR;
+                        return ProcessStatus.ERROR;
+                }
+            case WAITING_PORT:
+                status = intReader.process(buffer);
+                switch (status) {
+                    case DONE:
+                        port = intReader.get();
+                        state = State.DONE;
+                        break;
+                    case REFILL:
+                        return ProcessStatus.REFILL;
+                    case ERROR:
+                        return ProcessStatus.ERROR;
+                }
 
-        StringReader stringReader = new StringReader();
-        if(state == State.WAITING_LOGIN) {
-            ProcessStatus status = stringReader.process(buffer);
-            switch (status) {
-                case DONE:
-                    login = stringReader.get();
-                    state = State.WAITING_ADDRESS;
-                    break;
-                case REFILL:
-                    return ProcessStatus.REFILL;
-                case ERROR:
-                    return ProcessStatus.ERROR;
-            }
-        }
-
-        IpAddressReader ipAddressReader = new IpAddressReader();
-        ProcessStatus status = ipAddressReader.process(buffer);
-        switch (status) {
-            case DONE:
-                address = ipAddressReader.get();
-                state = State.WAITING_PORT;
+            case WAITING_IDREQUEST:
+                status = longReader.process(buffer);
+                switch (status) {
+                    case DONE:
+                        idRequest = longReader.get();
+                        state = State.DONE;
+                        break;
+                    case REFILL:
+                        return ProcessStatus.REFILL;
+                    case ERROR:
+                        return ProcessStatus.ERROR;
+                }
                 break;
-            case REFILL:
-                return ProcessStatus.REFILL;
-            case ERROR:
-                return ProcessStatus.ERROR;
-        }
-
-        IntReader intReader = new IntReader();
-        status = intReader.process(buffer);
-        switch (status) {
-            case DONE:
-                port = intReader.get();
-                state = State.DONE;
-                break;
-            case REFILL:
-                return ProcessStatus.REFILL;
-            case ERROR:
-                return ProcessStatus.ERROR;
+            default:
+                throw new IllegalStateException();
         }
         return ProcessStatus.DONE;
     }
@@ -98,7 +113,7 @@ public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFra
         try {
             LOGGER.log(Level.INFO, "requesting to : " + login +
                     " with address : " + Arrays.toString(address.array()));
-            return PrivateConnectionFrame.createPrivateConnectionFrame(opcode, login,
+            return PrivateConnectionFrame.createPrivateConnectionFrame(opcode, login, idRequest,
                     new InetSocketAddress(InetAddress.getByAddress(address.array()), port));
         } catch (UnknownHostException e) {
             throw new AssertionError();
@@ -108,6 +123,10 @@ public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFra
     @Override
     public void reset() {
         state = State.WAITING_LOGIN;
+        stringReader.reset();
+        intReader.reset();
+        longReader.reset();
+        ipAddressReader.reset();
         internalBuffer.clear();
     }
 }
