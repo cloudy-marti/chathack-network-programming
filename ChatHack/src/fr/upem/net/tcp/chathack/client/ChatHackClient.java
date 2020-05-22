@@ -82,6 +82,10 @@ public class ChatHackClient {
         return this.frameLogin;
     }
 
+    public String getLogin() {
+        return this.login;
+    }
+
     private void consoleRun() {
         try {
             var scan = new Scanner(System.in);

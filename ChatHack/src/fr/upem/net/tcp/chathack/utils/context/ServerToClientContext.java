@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +39,8 @@ public class ServerToClientContext implements Context {
     private boolean accepted = false;
 
     private final ServerToClientFrameVisitor frameVisitor;
+
+    private ServerToClientContext privateClientConnection;
 
     public ServerToClientContext(ChatHackServer server, SelectionKey key, long id){
         this.key = key;
@@ -151,5 +155,13 @@ public class ServerToClientContext implements Context {
     public void setLoginAndPassword(String login, String password) {
         this.login = login;
         this.password = password;
+    }
+
+    public void setPrivateClientConnection(ServerToClientContext privateClientConnection) {
+        this.privateClientConnection = privateClientConnection;
+    }
+
+    public ServerToClientContext getPrivateClientConnection() {
+        return this.privateClientConnection;
     }
 }

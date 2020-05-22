@@ -6,6 +6,7 @@ import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
 
+import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,8 +52,17 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
             case 12:
                 client.stop();
                 break;
+            case 13:
+                // private connection accepted
+                LOGGER.log(Level.INFO, "yay user accepted");
+                // ouvrir la socket channel pour la connection
+                break;
+            case 14:
+                // private connection not accepted
+                LOGGER.log(Level.INFO, "nope user refused");
+                break;
             default:
-                throw new UnsupportedOperationException("this is not allowed on global chat.");
+                throw new UnsupportedOperationException("this is not allowed");
         }
     }
 
@@ -60,7 +70,10 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
     public void visit(PrivateConnectionFrame frame) {
         try {
             client.getConnectionRequest().put(frame);
-            System.out.println("$" + frame.getLogin() + " wants to send private messages to you. Do you accept ? Y/N");
+            System.out.println("Someone wants to send private messages to you. Do you accept ? Y/N");
+
+            InetSocketAddress sc = frame.getAddress();
+            // connect to requester
             //System.out.println(frame);
         } catch (InterruptedException ignored) {
         }

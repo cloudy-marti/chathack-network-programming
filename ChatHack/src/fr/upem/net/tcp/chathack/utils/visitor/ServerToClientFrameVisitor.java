@@ -75,6 +75,7 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
             context.queueMessage(tmp);
             return;
         }
+        destClient.setPrivateClientConnection(context);
         frame.fillByteBuffer(tmp);
         destClient.queueMessage(tmp);
     }
@@ -82,8 +83,8 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
     @Override
     public void visit(SimpleFrame frame) {
         int opcode = frame.getOpcode();
+        ByteBuffer tmp = ByteBuffer.allocate(1_024);
         if(opcode == 3) { // disconnection request
-            ByteBuffer tmp = ByteBuffer.allocate(1_024);
             SimpleFrame responseDisconnect = SimpleFrame.createSimpleFrame(15, "Disconnection OK");
             responseDisconnect.fillByteBuffer(tmp);
             context.queueMessage(tmp);
@@ -91,6 +92,10 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
             context.silentlyClose();
         } else if(opcode == 13 || opcode == 14) { // private connection response
             LOGGER.log(Level.INFO, "client has responded to private connection request");
+            ServerToClientContext dest = context.getPrivateClientConnection();
+            context.setPrivateClientConnection(null);
+            frame.fillByteBuffer(tmp);
+            dest.queueMessage(tmp);
         } else {
             throw new UnsupportedOperationException("client does not send these kind of frames");
         }

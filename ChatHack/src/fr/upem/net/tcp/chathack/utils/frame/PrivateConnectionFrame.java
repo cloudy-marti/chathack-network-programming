@@ -93,4 +93,8 @@ public class PrivateConnectionFrame implements ChatHackFrame {
     public String toString() {
         return super.toString();
     }
+
+    public InetSocketAddress getAddress() {
+        return address;
+    }
 }
