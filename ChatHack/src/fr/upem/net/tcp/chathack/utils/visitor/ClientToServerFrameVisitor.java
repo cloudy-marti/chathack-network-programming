@@ -17,7 +17,7 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
     private final ChatHackClient client;
     private static final int BUFFER_SIZE = 10_000;
 
-    public ClientToServerFrameVisitor(ClientToServerContext context, ChatHackClient client) {
+    public ClientToServerFrameVisitor(Context context, ChatHackClient client) {
         this.context = context;
         this.client = client;
     }
