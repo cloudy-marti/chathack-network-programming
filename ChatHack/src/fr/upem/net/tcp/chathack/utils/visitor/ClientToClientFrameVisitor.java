@@ -8,7 +8,11 @@ import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
 import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 public class ClientToClientFrameVisitor implements FrameVisitor {
     private final Context context;
@@ -23,7 +27,7 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
     @Override
     public void visit(ConnectionFrame frame) {
         switch (frame.getOpcode()) {
-            case 04:
+            case 4:
                 client.getContextPrivateConnection().put(frame.getLogin(), context);
                 var queue = client.getWaitingMessage().get(frame.getLogin());
                 while (!queue.isEmpty()) {
@@ -36,12 +40,18 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
             default:
                 throw new UnsupportedOperationException("The client can't receive this");
         }
-
     }
 
     @Override
     public void visit(FileFrame frame) {
-
+        File outputFile = new File("resources/" + client.getLogin() + "/" + frame.getFileName());
+        try {
+            System.out.println("Sending file "+ frame.getFileName() + " ...");
+            FileChannel channel = new FileOutputStream(outputFile).getChannel();
+            channel.write(frame.getFileData());
+        } catch (IOException ioE) {
+            System.out.println("Couldn't create file");
+        }
     }
 
     @Override

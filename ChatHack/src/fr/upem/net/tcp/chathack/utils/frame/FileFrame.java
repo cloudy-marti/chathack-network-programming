@@ -90,4 +90,12 @@ ENCODING : ASCII
     public String toString() {
         return super.toString();
     }
+
+    public String getFileName() {
+        return this.fileName;
+    }
+
+    public ByteBuffer getFileData() {
+        return this.fileData;
+    }
 }
