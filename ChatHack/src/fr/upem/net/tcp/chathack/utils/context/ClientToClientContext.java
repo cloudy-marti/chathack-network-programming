@@ -13,9 +13,11 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ClientToClientContext implements Context {
-    //private static final Logger logger = Logger.getLogger(ChatHackClient.Context.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ClientToClientContext.class.getName());
 
     final private SelectionKey key;
     final private SocketChannel sc;
@@ -57,7 +59,7 @@ public class ClientToClientContext implements Context {
 
     @Override
     public void treatFrame(ChatHackFrame frame) {
-        //frame.accept(frameVisitor);
+        frame.accept(frameVisitor);
     }
 
     @Override
@@ -97,7 +99,7 @@ public class ClientToClientContext implements Context {
         try {
             key.interestOps(interestOps);
         } catch (CancelledKeyException kE) {
-            //logger.log(Level.INFO, "connection has been shut down by the server");
+            LOGGER.log(Level.INFO, "connection has been shut down by the server");
             silentlyClose();
         }
     }
@@ -114,7 +116,7 @@ public class ClientToClientContext implements Context {
     @Override
     public void doRead() throws IOException {
         if (sc.read(inputBuffer) == -1) {
-            //logger.log(Level.INFO, "closed before reading");
+            LOGGER.log(Level.INFO, "closed before reading");
             inputClosed = true;
         }
         processIn();

@@ -7,7 +7,7 @@ public class IpAddressReader implements Reader<ByteBuffer> {
     private enum State {DONE,WAITING_SIZE,WAITING_BYTES,ERROR};
 
     private State state = State.WAITING_SIZE;
-    private final ByteBuffer internalBuffer = ByteBuffer.allocate(10_000); // write-mode
+    private ByteBuffer internalBuffer; // write-mode
     private int size;
     private ByteBuffer value;
 
@@ -24,6 +24,7 @@ public class IpAddressReader implements Reader<ByteBuffer> {
                     return ProcessStatus.REFILL;
                 }
                 size = buffer.get() & 0xFF;
+                internalBuffer = ByteBuffer.allocate(size);
                 state = State.WAITING_BYTES;
             } finally {
                 buffer.compact();

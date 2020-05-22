@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFrame> {
 
@@ -91,6 +92,8 @@ public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFra
             throw new IllegalStateException();
         }
         try {
+            System.out.println("requesting to : " + login +
+                    " with address : " + Arrays.toString(address.array()));
             return PrivateConnectionFrame.createPrivateConnectionFrame(opcode, login,
                     new InetSocketAddress(InetAddress.getByAddress(address.array()), port));
         } catch (UnknownHostException e) {
