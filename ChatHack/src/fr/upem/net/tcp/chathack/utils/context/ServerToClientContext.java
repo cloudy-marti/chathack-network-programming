@@ -41,6 +41,7 @@ public class ServerToClientContext implements Context {
     private final ServerToClientFrameVisitor frameVisitor;
 
     private ServerToClientContext privateClientConnection;
+    private long requestId = -1;
 
     public ServerToClientContext(ChatHackServer server, SelectionKey key, long id){
         this.key = key;
@@ -157,11 +158,16 @@ public class ServerToClientContext implements Context {
         this.password = password;
     }
 
-    public void setPrivateClientConnection(ServerToClientContext privateClientConnection) {
+    public void setPrivateClientConnection(ServerToClientContext privateClientConnection, long id) {
         this.privateClientConnection = privateClientConnection;
+        this.requestId = id;
     }
 
     public ServerToClientContext getPrivateClientConnection() {
         return this.privateClientConnection;
+    }
+
+    public long getRequestId() {
+        return this.requestId;
     }
 }

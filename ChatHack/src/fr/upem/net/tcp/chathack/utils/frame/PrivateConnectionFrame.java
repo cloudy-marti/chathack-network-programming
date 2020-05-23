@@ -101,4 +101,8 @@ public class PrivateConnectionFrame implements ChatHackFrame {
     public InetSocketAddress getAddress() {
         return address;
     }
+
+    public long getIdRequest() {
+        return idRequest;
+    }
 }

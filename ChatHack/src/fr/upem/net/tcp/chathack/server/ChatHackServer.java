@@ -1,13 +1,9 @@
 package fr.upem.net.tcp.chathack.server;
 
-import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.context.ServerToBDDContext;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
 import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
-import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionFrame;
-import fr.upem.net.tcp.chathack.utils.frame.SimpleFrame;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -23,13 +19,12 @@ import java.util.logging.Logger;
 public class ChatHackServer {
 
     static private final int BUFFER_SIZE = 10_000;
-    static private final int BDD_BUFFER_SIZE = 1_024;
     static private final Logger LOGGER = Logger.getLogger(ChatHackServer.class.getName());
 
     private final ServerSocketChannel serverSocketChannel;
     private final Selector selector;
 
-    // ChatHack context as a client to the BDD server
+    // ChatHack context as a client to the MDP server
     private final SocketChannel socketChannel;
     private final InetSocketAddress bddServerAddress;
     private ServerToBDDContext uniqueContextBDD;

@@ -78,7 +78,6 @@ public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFra
                     case ERROR:
                         return ProcessStatus.ERROR;
                 }
-
             case WAITING_IDREQUEST:
                 status = longReader.process(buffer);
                 switch (status) {
