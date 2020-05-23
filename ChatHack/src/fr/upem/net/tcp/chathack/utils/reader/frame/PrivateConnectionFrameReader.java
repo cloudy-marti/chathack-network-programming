@@ -32,9 +32,9 @@ public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFra
 
     /*
                 int       String        byte         byte     int       long
-           --------------------------------------------------------
-           | SizeOfLogin | Login | SizeOfAddress | Address | Port | idRequest
-           --------------------------------------------------------
+           --------------------------------------------------------------------
+           | SizeOfLogin | Login | SizeOfAddress | Address | Port | idRequest |
+           --------------------------------------------------------------------
      */
     @Override
     public ProcessStatus process(ByteBuffer buffer) {

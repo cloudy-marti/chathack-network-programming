@@ -193,6 +193,7 @@ public class ChatHackClient {
                             if (command2.equals("accept")) {
                                 opCode = PRIVATE_CONNECTION_OK;
                                 //Create new connection
+                                createPrivateConnection(frame);
                             } else {
                                 opCode = PRIVATE_CONNECTION_KO;
                             }
