@@ -77,14 +77,14 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
             context.queueMessage(tmp);
             return;
         }
-        destClient.setPrivateClientConnection(context);
+        destClient.setPrivateClientConnection(context, frame.getIdRequest());
         frame.fillByteBuffer(tmp);
         destClient.queueMessage(tmp);
     }
 
     @Override
     public void visit(PrivateConnectionResponseFrame frame) {
-
+        LOGGER.log(Level.INFO, "visiting private connection response frame");
     }
 
     @Override
@@ -92,7 +92,7 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
         int opcode = frame.getOpcode();
         ByteBuffer tmp = ByteBuffer.allocate(1_024);
         if(opcode == DISCONNECTION_REQUEST) { // disconnection request
-            SimpleFrame responseDisconnect = SimpleFrame.createSimpleFrame(15, "Disconnection OK");
+            SimpleFrame responseDisconnect = SimpleFrame.createSimpleFrame(DISCONNECTION_OK, "Disconnection OK");
             responseDisconnect.fillByteBuffer(tmp);
             context.queueMessage(tmp);
             server.removeClient(context.getId());
@@ -100,8 +100,12 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
         } else if(opcode == PRIVATE_CONNECTION_OK || opcode == PRIVATE_CONNECTION_KO) { // private connection response
             LOGGER.log(Level.INFO, "client has responded to private connection request");
             ServerToClientContext dest = context.getPrivateClientConnection();
-            context.setPrivateClientConnection(null);
-            frame.fillByteBuffer(tmp);
+            // reset private connection request parameters
+            // to avoid false positives
+            context.setPrivateClientConnection(null, -1);
+            PrivateConnectionResponseFrame responseFrame = PrivateConnectionResponseFrame
+                    .createPrivateConnectionResponseFrame(opcode, context.getRequestId());
+            responseFrame.fillByteBuffer(tmp);
             dest.queueMessage(tmp);
         } else {
             throw new UnsupportedOperationException("client does not send these kind of frames");
