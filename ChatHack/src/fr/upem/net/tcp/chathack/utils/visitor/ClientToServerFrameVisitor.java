@@ -53,16 +53,6 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
             case CONNECTION_KO:
                 client.stop();
                 break;
-           /* case 13:
-                // private connection accepted
-                LOGGER.log(Level.INFO, "yay user accepted");
-                // ouvrir la socket channel pour la connection
-                break;
-            case 14:
-                // private connection not accepted
-                LOGGER.log(Level.INFO, "nope user refused");
-
-                break;*/
             default:
                 throw new UnsupportedOperationException("this is not allowed");
         }
@@ -72,12 +62,26 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
     public void visit(PrivateConnectionFrame frame) {
         try {
             client.getConnectionRequest().put(frame);
-            System.out.println("Someone wants to send private messages to you. Do you accept ? Y/N");
-
-            InetSocketAddress sc = frame.getAddress();
-            // connect to requester
-            //System.out.println(frame);
+            System.out.println("Someone wants to send private messages to you. Do you accept ? ($accept/$refuse)");
         } catch (InterruptedException ignored) {
+        }
+    }
+
+    @Override
+    public void visit(PrivateConnectionResponseFrame frame) {
+        LOGGER.log(Level.INFO, "visiting private connection response frame");
+        switch (frame.getOpcode()) {
+            case PRIVATE_CONNECTION_OK:
+                // private connection is accepted
+                LOGGER.log(Level.INFO, "yay user accepted");
+                client.getRequestWaiting().remove(frame.getIdRequest());
+                break;
+            case PRIVATE_CONNECTION_KO:
+                // private connection not accepted
+                LOGGER.log(Level.INFO, "nope user refused");
+                String login = client.getRequestWaiting().remove(frame.getIdRequest());
+                client.getRefusedConnection().add(login);
+            default:
         }
     }
 
@@ -99,22 +103,5 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
     @Override
     public void visit(BDDServerResponseFrame bddServerResponseFrame) {
         throw new UnsupportedOperationException("client does not interact with BDD server");
-    }
-
-    @Override
-    public void visit(PrivateConnectionResponseFrame frame) {
-        switch (frame.getOpcode()) {
-            case PRIVATE_CONNECTION_OK:
-                // private connection is accepted
-                LOGGER.log(Level.INFO, "yay user accepted");
-                client.getRequestWaiting().remove(frame.getIdRequest());
-                break;
-            case PRIVATE_CONNECTION_KO:
-                // private connection not accepted
-                LOGGER.log(Level.INFO, "nope user refused");
-                String login = client.getRequestWaiting().remove(frame.getIdRequest());
-                client.getRefusedConnection().add(login);
-            default:
-        }
     }
 }
