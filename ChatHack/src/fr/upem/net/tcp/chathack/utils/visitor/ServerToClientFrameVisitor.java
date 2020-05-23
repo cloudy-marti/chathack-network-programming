@@ -30,6 +30,7 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
     @Override
     public void visit(ConnectionFrame frame) {
         LOGGER.log(Level.INFO, "Visiting ConnectionFrame from Client Id : " + context.getId());
+        ServerToClientContext destClient = server.getClientByLogin(frame.getLogin());
         server.saveClientLogin(context.getId(), frame.getLogin());
         context.setLoginAndPassword(frame.getLogin(), "");
         BDDServerFrame bddFrame = BDDServerFrame.createBDDServerFrame(context.getId(), frame.getLogin());
@@ -72,7 +73,8 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
         ServerToClientContext destClient = server.getClientByLogin(dest);
         ByteBuffer tmp = ByteBuffer.allocate(1_024);
         if(destClient == null) {
-            SimpleFrame response = SimpleFrame.createSimpleFrame(30, "dest login not recognised");
+            PrivateConnectionResponseFrame response = PrivateConnectionResponseFrame
+                    .createPrivateConnectionResponseFrame(PRIVATE_CONNECTION_KO, frame.getIdRequest());
             response.fillByteBuffer(tmp);
             context.queueMessage(tmp);
             return;

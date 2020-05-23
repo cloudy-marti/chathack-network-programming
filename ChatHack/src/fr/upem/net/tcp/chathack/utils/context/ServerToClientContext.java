@@ -8,6 +8,7 @@ import fr.upem.net.tcp.chathack.utils.visitor.ServerToClientFrameVisitor;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -107,7 +108,12 @@ public class ServerToClientContext implements Context {
             silentlyClose();
             return;
         }
-        key.interestOps(interestOps);
+
+        try {
+            key.interestOps(interestOps);
+        } catch (CancelledKeyException e) {
+            silentlyClose();
+        }
     }
 
     public void silentlyClose() {

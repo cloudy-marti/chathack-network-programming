@@ -124,8 +124,7 @@ public class ChatHackServer {
     public void broadcast(GlobalMessageFrame msg) {
         ByteBuffer tmp = ByteBuffer.allocate(BUFFER_SIZE);
         msg.fillByteBuffer(tmp);
-        clientsByID.forEach((id, client) -> client.queueMessage(tmp));
-        /*
+//        clientsByID.forEach((id, client) -> client.queueMessage(tmp));
         Set<SelectionKey> selectionKeySet = selector.keys();
         for (SelectionKey key : selectionKeySet) {
             if(!(key.channel() instanceof ServerSocketChannel)) {
@@ -136,8 +135,6 @@ public class ChatHackServer {
                 }
             }
         }
-
-         */
     }
 
 
