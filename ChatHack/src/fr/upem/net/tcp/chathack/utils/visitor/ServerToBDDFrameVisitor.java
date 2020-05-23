@@ -33,9 +33,13 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
         if(bddServerResponseFrame.isPresentOnBDD()) {
             if(server.getClientById(id).getPassword().isEmpty()) {
                 LOGGER.log(Level.INFO, "Login already in use, cannot be taken");
-                //server.removeClient(id);
                 responseConnect = SimpleFrame.createSimpleFrame(CONNECTION_KO,
                         "Login already in use, cannot be taken");
+                ByteBuffer tmp = ByteBuffer.allocate(1_024);
+                responseConnect.fillByteBuffer(tmp);
+                client.queueMessage(tmp);
+                server.removeClient(id);
+                return;
             } else {
                 LOGGER.log(Level.INFO, "Connection with login and password accepted, welcome to ChatHack");
                 responseConnect = SimpleFrame.createSimpleFrame(CONNECTION_WITH_LOGIN_AND_PASSWORD_OK,
@@ -54,7 +58,12 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
                 server.broadcast(welcomeMessage);
             } else {
                 LOGGER.log(Level.INFO, "Login and password not accepted");
-                responseConnect = SimpleFrame.createSimpleFrame(CONNECTION_KO, "Login and password not accepted");
+                responseConnect = SimpleFrame
+                        .createSimpleFrame(CONNECTION_KO, "Login and password not accepted");
+                ByteBuffer tmp = ByteBuffer.allocate(1_024);
+                responseConnect.fillByteBuffer(tmp);
+                client.queueMessage(tmp);
+                server.removeClient(id);
             }
         }
         ByteBuffer tmp = ByteBuffer.allocate(1_024);
@@ -64,7 +73,7 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(PrivateConnectionResponseFrame frame) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
