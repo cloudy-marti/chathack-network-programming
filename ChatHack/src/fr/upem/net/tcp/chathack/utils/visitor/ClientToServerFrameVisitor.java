@@ -1,7 +1,6 @@
 package fr.upem.net.tcp.chathack.utils.visitor;
 
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
-import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
@@ -9,6 +8,8 @@ import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
 
 public class ClientToServerFrameVisitor implements FrameVisitor {
 
@@ -25,7 +26,7 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(GlobalMessageFrame frame) {
-        if (frame.getOpcode() == 20) {
+        if (frame.getOpcode() == GLOBAL_MESSAGE) {
             //System.out.println(frame);
             if (frame.getLogin().isEmpty()) { // message from the server
                 System.out.println(frame.getMsg());
@@ -40,16 +41,16 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
     @Override
     public void visit(SimpleFrame frame) {
         switch (frame.getOpcode()) {
-            case 10:
-            case 11:
+            case CONNECTION_WITH_LOGIN_OK:
+            case CONNECTION_WITH_LOGIN_AND_PASSWORD_OK:
                 if (client.connected()) {
                     throw new IllegalStateException("The client is already connected.");
                 }
                 LOGGER.log(Level.INFO, "Response frame OK, server accepted the connection");
                 client.setConnected();
                 break;
-            case 15:
-            case 12:
+            case DISCONNECTION_OK:
+            case CONNECTION_KO:
                 client.stop();
                 break;
            /* case 13:
@@ -103,12 +104,12 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
     @Override
     public void visit(PrivateConnectionResponseFrame frame) {
         switch (frame.getOpcode()) {
-            case 13:
+            case PRIVATE_CONNECTION_OK:
                 // private connection is accepted
                 LOGGER.log(Level.INFO, "yay user accepted");
                 client.getRequestWaiting().remove(frame.getIdRequest());
                 break;
-            case 14:
+            case PRIVATE_CONNECTION_KO:
                 // private connection not accepted
                 LOGGER.log(Level.INFO, "nope user refused");
                 String login = client.getRequestWaiting().remove(frame.getIdRequest());

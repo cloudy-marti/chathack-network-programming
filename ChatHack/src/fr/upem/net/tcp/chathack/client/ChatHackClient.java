@@ -4,24 +4,21 @@ import fr.upem.net.tcp.chathack.utils.context.ClientToClientContext;
 import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
-import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
 
 public class ChatHackClient {
     static private final int BUFFER_SIZE = 10_000;
@@ -49,7 +46,6 @@ public class ChatHackClient {
     private final ChatHackFrame frameLogin;
     private final HashMap<Long, String> requestWaiting = new HashMap<>(BLOCKING_QUEUE_SIZE);
     private long idRequest = 0;
-
 
     public ChatHackClient(String login, InetSocketAddress serverAddress, int port) throws IOException {
         //this(login, "", serverAddress, port);
@@ -141,7 +137,7 @@ public class ChatHackClient {
                         //Si on a une connexion privée déjà établie
                         if (contextPrivateConnection.containsKey(target)) {
                             var context = contextPrivateConnection.get(target);
-                            var privateMessage = SimpleFrame.createSimpleFrame(OpCode.PRIVATE_MESSAGE.getOpCode(), message);
+                            var privateMessage = SimpleFrame.createSimpleFrame(PRIVATE_MESSAGE, message);
                             privateMessage.fillByteBuffer(buffer);
                             context.queueMessage(buffer);
                         } else if (refusedConnection.contains(target)) {
@@ -153,7 +149,8 @@ public class ChatHackClient {
                             targetMessages.add(message);
                         } else {
                             // Pour la demande de connexion
-                            var requestConnectionFrame = PrivateConnectionFrame.createPrivateConnectionFrame(OpCode.PRIVATE_CONNECTION_REQUEST.getOpCode(), target, idRequest, serverAddress);
+                            var requestConnectionFrame = PrivateConnectionFrame
+                                    .createPrivateConnectionFrame(PRIVATE_CONNECTION_REQUEST, target, idRequest, serverAddress);
                             requestConnectionFrame.fillByteBuffer(buffer);
                             clientToServerContext.queueMessage(buffer);
                             var queue = new ArrayBlockingQueue<String>(BLOCKING_QUEUE_SIZE);
@@ -169,7 +166,7 @@ public class ChatHackClient {
 
                     }//Deconnection
                 } else if (command.startsWith("&")) {
-                    var deconnection = ConnectionFrame.createConnectionFrame(OpCode.DISCONNECTION_REQUEST.getOpCode(), login);
+                    var deconnection = ConnectionFrame.createConnectionFrame(DISCONNECTION_REQUEST, login);
                     deconnection.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
                     for (SelectionKey key : selector.keys()) {
@@ -194,10 +191,10 @@ public class ChatHackClient {
                             PrivateConnectionFrame frame = connectionRequest.poll();
                             int opCode;
                             if (command2.equals("accept")) {
-                                opCode = OpCode.PRIVATE_CONNECTION_OK.getOpCode();
+                                opCode = PRIVATE_CONNECTION_OK;
                                 //Create new connection
                             } else {
-                                opCode = OpCode.PRIVATE_CONNECTION_KO.getOpCode();
+                                opCode = PRIVATE_CONNECTION_KO;
                             }
                             SimpleFrame newFrame = SimpleFrame.createSimpleFrame(opCode, frame.getLogin());
                             newFrame.fillByteBuffer(buffer);
@@ -208,7 +205,7 @@ public class ChatHackClient {
                     }
                 } else {
                     //Broadcast
-                    var broadcastMsg = GlobalMessageFrame.createGlobalMessageFrame(OpCode.GLOBAL_MESSAGE.getOpCode(), login, command);
+                    var broadcastMsg = GlobalMessageFrame.createGlobalMessageFrame(GLOBAL_MESSAGE, login, command);
                     broadcastMsg.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
                 }

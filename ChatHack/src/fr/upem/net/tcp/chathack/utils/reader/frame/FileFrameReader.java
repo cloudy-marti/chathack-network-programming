@@ -81,6 +81,7 @@ public class FileFrameReader implements Reader<FileFrame> {
 
     @Override
     public void reset() {
-
+        internalBuffer.clear();
+        state = State.WAITING_FILE_NAME;
     }
 }

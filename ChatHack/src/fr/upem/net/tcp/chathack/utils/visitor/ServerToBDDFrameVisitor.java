@@ -10,6 +10,8 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
+
 public class ServerToBDDFrameVisitor implements FrameVisitor {
 
     private final static Logger LOGGER = Logger.getLogger(ServerToBDDFrameVisitor.class.getName());
@@ -32,27 +34,27 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
             if(server.getClientById(id).getPassword().isEmpty()) {
                 LOGGER.log(Level.INFO, "Login already in use, cannot be taken");
                 //server.removeClient(id);
-                responseConnect = SimpleFrame.createSimpleFrame(12,
+                responseConnect = SimpleFrame.createSimpleFrame(CONNECTION_KO,
                         "Login already in use, cannot be taken");
             } else {
                 LOGGER.log(Level.INFO, "Connection with login and password accepted, welcome to ChatHack");
-                responseConnect = SimpleFrame.createSimpleFrame(11,
+                responseConnect = SimpleFrame.createSimpleFrame(CONNECTION_WITH_LOGIN_AND_PASSWORD_OK,
                         "Connection with login and password accepted, welcome to ChatHack");
-                welcomeMessage = GlobalMessageFrame.createGlobalMessageFrame(20, "",
+                welcomeMessage = GlobalMessageFrame.createGlobalMessageFrame(GLOBAL_MESSAGE, "",
                         client.getLogin() + " has entered the chat");
                 server.broadcast(welcomeMessage);
             }
         } else {
             if(server.getClientById(id).getPassword().isEmpty()) {
                 LOGGER.log(Level.INFO, "Login available, welcome to ChatHack");
-                responseConnect = SimpleFrame.createSimpleFrame(10,
+                responseConnect = SimpleFrame.createSimpleFrame(CONNECTION_WITH_LOGIN_OK,
                         "Login available, welcome to ChatHack");
-                welcomeMessage = GlobalMessageFrame.createGlobalMessageFrame(20, "",
+                welcomeMessage = GlobalMessageFrame.createGlobalMessageFrame(GLOBAL_MESSAGE, "",
                         client.getLogin() + " has entered the chat");
                 server.broadcast(welcomeMessage);
             } else {
                 LOGGER.log(Level.INFO, "Login and password not accepted");
-                responseConnect = SimpleFrame.createSimpleFrame(12, "Login and password not accepted");
+                responseConnect = SimpleFrame.createSimpleFrame(CONNECTION_KO, "Login and password not accepted");
             }
         }
         ByteBuffer tmp = ByteBuffer.allocate(1_024);

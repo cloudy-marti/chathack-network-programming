@@ -3,16 +3,15 @@ package fr.upem.net.tcp.chathack.utils.visitor;
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
-import fr.upem.net.tcp.chathack.utils.opcodes.OpCode;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+
+import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
 
 public class ClientToClientFrameVisitor implements FrameVisitor {
     private final Context context;
@@ -27,16 +26,15 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
     @Override
     public void visit(ConnectionFrame frame) {
         switch (frame.getOpcode()) {
-            case 4:
+            case PRESENTATION_LOGIN:
                 client.getContextPrivateConnection().put(frame.getLogin(), context);
                 var queue = client.getWaitingMessage().get(frame.getLogin());
 
                 while (!queue.isEmpty()) {
                     ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-                    var privateMessage = SimpleFrame.createSimpleFrame(OpCode.PRIVATE_MESSAGE.getOpCode(), queue.poll());
+                    var privateMessage = SimpleFrame.createSimpleFrame(PRIVATE_MESSAGE, queue.poll());
                     privateMessage.fillByteBuffer(buffer);
                     context.queueMessage(buffer);
-
                 }
                 break;
             default:
@@ -64,7 +62,7 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
     @Override
     public void visit(SimpleFrame frame) {
         switch (frame.getOpcode()) {
-            case 21:
+            case PRIVATE_MESSAGE:
                 System.out.println(frame);
                 break;
             default:

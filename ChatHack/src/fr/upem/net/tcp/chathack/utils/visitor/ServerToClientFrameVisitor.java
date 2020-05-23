@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
+
 public class ServerToClientFrameVisitor implements FrameVisitor {
 
     private final static Logger LOGGER = Logger.getLogger(ServerToClientFrameVisitor.class.getName());
@@ -81,16 +83,21 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
     }
 
     @Override
+    public void visit(PrivateConnectionResponseFrame frame) {
+
+    }
+
+    @Override
     public void visit(SimpleFrame frame) {
         int opcode = frame.getOpcode();
         ByteBuffer tmp = ByteBuffer.allocate(1_024);
-        if(opcode == 3) { // disconnection request
+        if(opcode == DISCONNECTION_REQUEST) { // disconnection request
             SimpleFrame responseDisconnect = SimpleFrame.createSimpleFrame(15, "Disconnection OK");
             responseDisconnect.fillByteBuffer(tmp);
             context.queueMessage(tmp);
             server.removeClient(context.getId());
             context.silentlyClose();
-        } else if(opcode == 13 || opcode == 14) { // private connection response
+        } else if(opcode == PRIVATE_CONNECTION_OK || opcode == PRIVATE_CONNECTION_KO) { // private connection response
             LOGGER.log(Level.INFO, "client has responded to private connection request");
             ServerToClientContext dest = context.getPrivateClientConnection();
             context.setPrivateClientConnection(null);
@@ -109,10 +116,5 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
     @Override
     public void visit(BDDServerResponseFrame bddServerResponseFrame) {
         throw new UnsupportedOperationException("server does not send bdd frames to client");
-    }
-
-    @Override
-    public void visit(PrivateConnectionResponseFrame frame) {
-
     }
 }
