@@ -1,6 +1,7 @@
 package fr.upem.net.tcp.chathack.utils.visitor;
 
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
+import fr.upem.net.tcp.chathack.utils.context.ClientToClientContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
@@ -14,11 +15,11 @@ import java.nio.channels.FileChannel;
 import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
 
 public class ClientToClientFrameVisitor implements FrameVisitor {
-    private final Context context;
+    private final ClientToClientContext context;
     private final ChatHackClient client;
     private static final int BUFFER_SIZE = 10_000;
 
-    public ClientToClientFrameVisitor(Context context, ChatHackClient client) {
+    public ClientToClientFrameVisitor(ClientToClientContext context, ChatHackClient client) {
         this.context = context;
         this.client = client;
     }
@@ -27,6 +28,7 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
     public void visit(ConnectionFrame frame) {
         switch (frame.getOpcode()) {
             case PRESENTATION_LOGIN:
+                context.login = frame.getLogin();
                 client.getContextPrivateConnection().put(frame.getLogin(), context);
                 var queue = client.getWaitingMessage().get(frame.getLogin());
 
@@ -35,6 +37,7 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
                     var privateMessage = SimpleFrame.createSimpleFrame(PRIVATE_MESSAGE, queue.poll());
                     privateMessage.fillByteBuffer(buffer);
                     context.queueMessage(buffer);
+                    System.out.println("[" + context.login + "] <- " + privateMessage.getMessage());
                 }
                 break;
             default:
@@ -63,7 +66,7 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
     public void visit(SimpleFrame frame) {
         switch (frame.getOpcode()) {
             case PRIVATE_MESSAGE:
-                System.out.println(frame);
+                System.out.println("[" + context.login+"] -> " + frame);
                 break;
             default:
                 throw new UnsupportedOperationException("Connection frames between clients are not allowed.");

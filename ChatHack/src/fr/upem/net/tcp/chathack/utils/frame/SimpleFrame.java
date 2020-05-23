@@ -79,6 +79,10 @@ public class SimpleFrame implements ChatHackFrame {
 
     @Override
     public String toString() {
-        return super.toString();
+        return message;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

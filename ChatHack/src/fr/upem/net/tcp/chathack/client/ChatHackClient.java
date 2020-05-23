@@ -27,9 +27,9 @@ public class ChatHackClient {
 
     private final SocketChannel sc;
     private final ServerSocketChannel ssc;
-    private final int port;
     private final Selector selector;
     private final InetSocketAddress serverAddress;
+    private final InetSocketAddress localServerAddress;
     private String login;
     private String password;
     private final Thread console;
@@ -45,35 +45,33 @@ public class ChatHackClient {
     private final ArrayBlockingQueue<PrivateConnectionFrame> connectionRequest = new ArrayBlockingQueue<>(BLOCKING_QUEUE_SIZE);
     private final ChatHackFrame frameLogin;
     private final HashMap<Long, String> requestWaiting = new HashMap<>(BLOCKING_QUEUE_SIZE);
-    private long idRequest = 0;
+    private long idRequest = 1;
 
-    public ChatHackClient(String login, InetSocketAddress serverAddress, int port) throws IOException {
-        this.serverAddress = serverAddress;
-        this.login = login;
-        this.password = "";
-        this.sc = SocketChannel.open();
-        this.selector = Selector.open();
-        this.console = new Thread(this::consoleRun);
-        this.port = port;
-        this.ssc = ServerSocketChannel.open();
-
-        LOGGER.log(Level.INFO, "creating login frame");
-        this.frameLogin = ConnectionFrame.createConnectionFrame(0, login);
-    }
-
-    // constructor with login and password
-    public ChatHackClient(String login, String password, InetSocketAddress serverAddress, int port) throws IOException {
+    private ChatHackClient(String login, String password,InetSocketAddress serverAddress, ChatHackFrame frameLogin) throws IOException {
         this.serverAddress = serverAddress;
         this.login = login;
         this.password = password;
         this.sc = SocketChannel.open();
         this.selector = Selector.open();
         this.console = new Thread(this::consoleRun);
-        this.port = port;
-        this.ssc = ServerSocketChannel.open();
 
+        this.ssc = ServerSocketChannel.open();
+        ssc.bind(null);
+        this.localServerAddress = new InetSocketAddress(ssc.socket().getInetAddress(),ssc.socket().getLocalPort());
+        this.frameLogin = frameLogin;
+
+
+    }
+    public ChatHackClient(String login, InetSocketAddress serverAddress) throws IOException {
+        this(login,"",serverAddress,ConnectionFrame.createConnectionFrame(0, login));
+        LOGGER.log(Level.INFO, "creating login frame");
+    }
+
+    // constructor with login and password
+    public ChatHackClient(String login, String password, InetSocketAddress serverAddress) throws IOException {
+        this(login,password,serverAddress,LoginPasswordFrame.createLoginPasswordFrame(1, login, password));
         LOGGER.log(Level.INFO, "creating login with password frame");
-        this.frameLogin = LoginPasswordFrame.createLoginPasswordFrame(1, login, password);
+
     }
 
     public ChatHackFrame getFrameLogin() {
@@ -145,6 +143,7 @@ public class ChatHackClient {
                             var privateMessage = SimpleFrame.createSimpleFrame(PRIVATE_MESSAGE, message);
                             privateMessage.fillByteBuffer(buffer);
                             context.queueMessage(buffer);
+                            System.out.println("[" + target + "] <- " + message );
                         } else if (refusedConnection.contains(target)) {
                             System.out.println("The client : " + target + " as already refused the connection");
                             return;
@@ -155,7 +154,7 @@ public class ChatHackClient {
                         } else {
                             // Pour la demande de connexion
                             var requestConnectionFrame = PrivateConnectionFrame
-                                    .createPrivateConnectionFrame(PRIVATE_CONNECTION_REQUEST, target, idRequest, serverAddress);
+                                    .createPrivateConnectionFrame(PRIVATE_CONNECTION_REQUEST, target, idRequest, localServerAddress);
                             requestConnectionFrame.fillByteBuffer(buffer);
                             clientToServerContext.queueMessage(buffer);
                             var queue = new ArrayBlockingQueue<String>(BLOCKING_QUEUE_SIZE);
@@ -221,15 +220,18 @@ public class ChatHackClient {
     private static final Logger LOGGER = Logger.getLogger(ChatHackClient.class.getName());
 
     public void launch() throws IOException {
+        ssc.configureBlocking(false);
+        ssc.register(selector, SelectionKey.OP_ACCEPT);
+
         sc.configureBlocking(false);
         sc.connect(serverAddress);
         var key = sc.register(selector, SelectionKey.OP_CONNECT);
         clientToServerContext = new ClientToServerContext(key, this);
         key.attach(clientToServerContext);
 
-        ssc.configureBlocking(false);
-        ssc.bind(null);
+
         while (!Thread.interrupted() && !wantADisconnection) {
+            //printKeys();
             try {
                 selector.select(this::treatKey);
                 processCommands();
@@ -252,10 +254,11 @@ public class ChatHackClient {
             ClientToClientContext clientToClientContext = new ClientToClientContext(key, this);
             key.attach(clientToClientContext);
             contextPrivateConnection.put(frame.getLogin(), clientToClientContext);
+            clientToClientContext.login = frame.getLogin();
             ConnectionFrame presentationFrame = ConnectionFrame.createConnectionFrame(PRESENTATION_LOGIN, login);
             ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
             presentationFrame.fillByteBuffer(buffer);
-            clientToClientContext.queueMessage(buffer);
+            clientToClientContext.queueMessageWhithOutUpdateInterestOps(buffer);
         } catch (IOException ignored) {
         }
     }
@@ -266,7 +269,7 @@ public class ChatHackClient {
             return;
         }
         sc.configureBlocking(false);
-        SelectionKey scKey = sc.register(selector, SelectionKey.OP_CONNECT);
+        SelectionKey scKey = sc.register(selector, SelectionKey.OP_READ);
         var clientContext = new ClientToClientContext(scKey, this);
         scKey.attach(clientContext);
     }
@@ -426,9 +429,9 @@ public class ChatHackClient {
             return;
         }
         if (args.length == 3) {
-            new ChatHackClient(args[0], new InetSocketAddress(args[1], Integer.parseInt(args[2])), Integer.parseInt(args[2])).launch();
+            new ChatHackClient(args[0], new InetSocketAddress(args[1], Integer.parseInt(args[2]))).launch();
         } else {
-            new ChatHackClient(args[0], args[1], new InetSocketAddress(args[2], Integer.parseInt(args[3])), Integer.parseInt(args[3])).launch();
+            new ChatHackClient(args[0], args[1], new InetSocketAddress(args[2], Integer.parseInt(args[3]))).launch();
         }
     }
 }

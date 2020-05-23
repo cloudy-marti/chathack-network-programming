@@ -27,6 +27,7 @@ public class ClientToClientContext implements Context {
     final private FrameReader frameReader = new FrameReader();
     private boolean inputClosed = false;
     private final ChatHackClient client;
+    public String login = null;
 
     private final ClientToClientFrameVisitor frameVisitor;
 
@@ -69,6 +70,13 @@ public class ClientToClientContext implements Context {
         updateInterestOps();
     }
 
+
+    public void queueMessageWhithOutUpdateInterestOps(ByteBuffer msg) {
+        queue.add(msg);
+        processOut();
+
+    }
+
     @Override
     public void processOut() {
         while (!queue.isEmpty()) {
@@ -85,6 +93,7 @@ public class ClientToClientContext implements Context {
     @Override
     public void updateInterestOps() {
         var interestOps = 0;
+
         if (!inputClosed && inputBuffer.hasRemaining()) {
             interestOps = interestOps | SelectionKey.OP_READ;
         }

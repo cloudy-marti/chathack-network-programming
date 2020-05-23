@@ -2,6 +2,7 @@ package fr.upem.net.tcp.chathack.utils.reader.frame;
 
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
 import fr.upem.net.tcp.chathack.utils.frame.LoginPasswordFrame;
+import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionResponseFrame;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 
 import java.nio.ByteBuffer;
@@ -28,6 +29,7 @@ public class FrameReader implements Reader<ChatHackFrame> {
     private final MessageFrameReader messageFrameReader = new MessageFrameReader();
     private final SimpleFrameReader simpleFrameReader = new SimpleFrameReader();
     private final FileFrameReader fileFrameReader = new FileFrameReader();
+    private final PrivateConnectionResponseReader privateConnectionResponseReader = new PrivateConnectionResponseReader();
 
     @Override
     public ProcessStatus process(ByteBuffer bb) {
@@ -39,38 +41,37 @@ public class FrameReader implements Reader<ChatHackFrame> {
                         return ProcessStatus.REFILL;
                     }
                     opCode = bb.get();
+                    state = State.WAITING_FOR_FRAME;
                 } finally {
                     bb.compact();
                 }
+
                 switch (opCode) {
+                    case ChatHackFrame.PRESENTATION_LOGIN:
                     case ChatHackFrame.CONNECTION_WITH_LOGIN:
                         currentReader = connectionFrameReader;
-                        state = State.WAITING_FOR_FRAME;
                         break;
                     case ChatHackFrame.CONNECTION_WITH_LOGIN_AND_PASSWORD:
                         currentReader = loginPasswordFrameReader;
-                        state = State.WAITING_FOR_FRAME;
                         break;
                     case ChatHackFrame.GLOBAL_MESSAGE:
                         currentReader = messageFrameReader;
-                        state = State.WAITING_FOR_FRAME;
+                        break;
+                    case ChatHackFrame.PRIVATE_CONNECTION_OK:
+                    case ChatHackFrame.PRIVATE_CONNECTION_KO:
+                        currentReader =privateConnectionResponseReader;
                         break;
                     case ChatHackFrame.PRIVATE_CONNECTION_REQUEST:
                         currentReader = privateConnectionFrameReader;
-                        state = State.WAITING_FOR_FRAME;
                         break;
                     case ChatHackFrame.PRIVATE_FILE:
                         currentReader = fileFrameReader;
-                        state = State.WAITING_FOR_FRAME;
                         break;
                     case ChatHackFrame.PRIVATE_MESSAGE:
                     case ChatHackFrame.DISCONNECTION_REQUEST:
-                    case ChatHackFrame.PRESENTATION_LOGIN: // ??
                     case ChatHackFrame.CONNECTION_WITH_LOGIN_OK:
                     case ChatHackFrame.CONNECTION_WITH_LOGIN_AND_PASSWORD_OK:
                     case ChatHackFrame.CONNECTION_KO:
-                    case ChatHackFrame.PRIVATE_CONNECTION_OK:
-                    case ChatHackFrame.PRIVATE_CONNECTION_KO:
                     case ChatHackFrame.DISCONNECTION_OK:
                     case ChatHackFrame.DISCONNECTION_KO:
                     case ChatHackFrame.LOGIN_ERROR:
@@ -78,7 +79,6 @@ public class FrameReader implements Reader<ChatHackFrame> {
                     case ChatHackFrame.INVALID_ADDRESS:
                     case ChatHackFrame.INVALID_PORT:
                         currentReader = simpleFrameReader;
-                        state = State.WAITING_FOR_FRAME;
                         break;
                     default:
                         state = State.ERROR;
