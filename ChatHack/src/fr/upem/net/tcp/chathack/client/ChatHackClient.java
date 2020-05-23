@@ -48,7 +48,6 @@ public class ChatHackClient {
     private long idRequest = 0;
 
     public ChatHackClient(String login, InetSocketAddress serverAddress, int port) throws IOException {
-        //this(login, "", serverAddress, port);
         this.serverAddress = serverAddress;
         this.login = login;
         this.password = "";
@@ -121,6 +120,7 @@ public class ChatHackClient {
                 var command = commandQueue.poll();
                 ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
                 //private msg + file
+                assert command != null;
                 if (command.startsWith("/") || command.startsWith("@")) {
                     //Extraction du Login
                     var splitTab = command.split(" ", 2);
@@ -133,7 +133,12 @@ public class ChatHackClient {
                     //@Bob = message privé pour bob
                     if (command.startsWith("@")) {
                         //La suite de mon tab donc mon msg
-                        var message = splitTab[1];
+                        String message;
+                        if(splitTab.length == 1) {
+                            message = "";
+                        } else {
+                            message = splitTab[1];
+                        }
                         //Si on a une connexion privée déjà établie
                         if (contextPrivateConnection.containsKey(target)) {
                             var context = contextPrivateConnection.get(target);
@@ -181,7 +186,6 @@ public class ChatHackClient {
                         } else {
                             ctx.silentlyClose();
                         }
-
                     }
                     //Accept or refuse connection client to client
                 } else if (command.startsWith("$")) {
@@ -248,12 +252,11 @@ public class ChatHackClient {
             ClientToClientContext clientToClientContext = new ClientToClientContext(key, this);
             key.attach(clientToClientContext);
             contextPrivateConnection.put(frame.getLogin(), clientToClientContext);
-            ConnectionFrame presentationFrame = ConnectionFrame.createConnectionFrame(04, login);
+            ConnectionFrame presentationFrame = ConnectionFrame.createConnectionFrame(PRESENTATION_LOGIN, login);
             ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
             presentationFrame.fillByteBuffer(buffer);
             clientToClientContext.queueMessage(buffer);
-        } catch (IOException e) {
-            return;
+        } catch (IOException ignored) {
         }
     }
 
