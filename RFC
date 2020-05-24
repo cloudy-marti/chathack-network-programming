@@ -337,10 +337,18 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
            Figure 5-5 : Private connection response frame
                         
     When a private connection request is accepted by a client, it will send an
-    acknowledgment frame to the server as shown in the Figure 5-4. The OpCode
-    is 13. The server will redirect this frame to the requesting client.
-                
-    If the client refuses the private connexion, the opcode will be 14.
+    acknowledgment frame to the server as shown in the Figure 5-4. 
+    The server will redirect this frame to the requesting client.
+    
+                         byte      long    
+                    --------------------------
+                    | Opcode |   idRequest   |
+                    --------------------------
+           Figure 5-6 : Private connection response frame for opCode 14 and 13
+          
+    This frame allowed to know the type of the private request connection, then 
+    we know with the opCode 13 that the private connection is OK, but if it's 
+    the opCode 14 then the private connection will be KO.
     
 5.2.3. Disconnection frame 
 
