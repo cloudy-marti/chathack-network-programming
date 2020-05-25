@@ -11,7 +11,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -19,14 +18,11 @@ import java.util.logging.Logger;
 
 public class ClientToServerContext implements Context {
 
-    //private static final Logger logger = Logger.getLogger(ChatHackClient.Context.class.getName());
-
     final private SelectionKey key;
     final private SocketChannel sc;
     final private ByteBuffer inputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
     final private ByteBuffer outputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
     final private Queue<ByteBuffer> queue = new LinkedList<>(); // buffers read-mode
-    final private FrameReader frameReader = new FrameReader();
     private boolean inputClosed = false;
     private final ChatHackClient client;
 
@@ -42,7 +38,7 @@ public class ClientToServerContext implements Context {
     @Override
     public void processIn() {
         FrameReader frameReader = new FrameReader();
-        for (; ; ) {
+        for (;;) {
             Reader.ProcessStatus status = frameReader.process(inputBuffer);
             switch (status) {
                 case ERROR:

@@ -11,7 +11,6 @@ import java.nio.ByteBuffer;
                 --------------
                 | Size | Msg |
                 --------------
-
                 ErrorFrame/AckFrame/ConnectionFrame/ResponseFrame
  */
 

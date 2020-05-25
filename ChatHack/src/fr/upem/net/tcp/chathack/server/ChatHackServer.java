@@ -43,6 +43,12 @@ public class ChatHackServer {
         this.socketChannel = SocketChannel.open();
     }
 
+    /**
+     * Initialize the connections to the MDP server and open the server port.
+     * Launch the server
+     *
+     * @throws IOException if an operation on the channels fails
+     */
     public void launch() throws IOException {
         // connect to bdd server as a client
         socketChannel.configureBlocking(false);
@@ -138,6 +144,10 @@ public class ChatHackServer {
     }
 
 
+    /**
+     * Send a request to the MDP server to know whether the login with/without password is valid
+     * @param buffer frame to be sent to the MDP server
+     */
     public void sendRequestToBDD(ByteBuffer buffer) {
         uniqueContextBDD.queueMessage(buffer);
     }
@@ -150,18 +160,38 @@ public class ChatHackServer {
         }
     }
 
+    /**
+     * Return the context of the client that is known by this id
+     * @param id numeric value known only by the server
+     * @return Client context with the corresponding id
+     */
     public ServerToClientContext getClientById(long id) {
         return clientsByID.get(id);
     }
 
+    /**
+     * Return the context of the client that is known by this alias
+     * @param login Alias chosen by the client itself and known by the server.
+     * @return Client context with the corresponding login
+     */
     public ServerToClientContext getClientByLogin(String login) {
         return clientsByLogin.get(login);
     }
 
+    /**
+     * Save the alias of the client next to its context
+     * @param id numeric value corresponding to a client known only by the server
+     * @param login Alias chosen by the client itself
+     */
     public void saveClientLogin(long id, String login) {
         this.clientsByLogin.put(login, clientsByID.get(id));
     }
 
+    /**
+     * When a client is disconnected, remove it from connected clients of the server so it doesn't try to perform read
+     * and write operations on it anymore.
+     * @param id numeric value corresponding to the disconnected client
+     */
     public void removeClient(long id) {
         ServerToClientContext client = clientsByID.get(id);
         clientsByLogin.remove(client.getLogin(), client);
@@ -184,7 +214,6 @@ public class ChatHackServer {
     /***
      *  Theses methods are here to help understanding the behavior of the selector
      ***/
-
     private String interestOpsToString(SelectionKey key){
         if (!key.isValid()) {
             return "CANCELLED";

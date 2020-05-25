@@ -24,7 +24,6 @@ public class ClientToClientContext implements Context {
     final private ByteBuffer inputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
     final private ByteBuffer outputBuffer = ByteBuffer.allocate(BUFFER_SIZE);
     final private Queue<ByteBuffer> queue = new LinkedList<>(); // buffers read-mode
-    final private FrameReader frameReader = new FrameReader();
     private boolean inputClosed = false;
     private final ChatHackClient client;
     private String login = null;

@@ -77,6 +77,7 @@ public class ByteBufferReader implements Reader<ByteBuffer> {
 
     @Override
     public void reset() {
-
+        state = State.WAITING_SIZE;
+        internalBuffer.clear();
     }
 }

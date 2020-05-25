@@ -99,8 +99,8 @@ public class ChatHackClient {
     /**
      * Send a command to the selector via commandQueue and wake it up
      *
-     * @param msg
-     * @throws InterruptedException
+     * @param msg Command written by the user
+     * @throws InterruptedException if the console thread is interrupted by the main thread
      */
     private void sendCommand(String msg) throws InterruptedException {
         synchronized (commandQueue) {
@@ -110,7 +110,7 @@ public class ChatHackClient {
     }
 
     /**
-     * Processes the command from commandQueue
+     * Processes the command from commandQueue.
      */
     private void processCommands() {
         while (!commandQueue.isEmpty()) {
@@ -170,8 +170,8 @@ public class ChatHackClient {
 
                     }//Deconnection
                 } else if (command.startsWith("&")) {
-                    var deconnection = ConnectionFrame.createConnectionFrame(DISCONNECTION_REQUEST, login);
-                    deconnection.fillByteBuffer(buffer);
+                    var disconnection = ConnectionFrame.createConnectionFrame(DISCONNECTION_REQUEST, login);
+                    disconnection.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
                     for (SelectionKey key : selector.keys()) {
                         Context ctx = (Context) key.attachment();

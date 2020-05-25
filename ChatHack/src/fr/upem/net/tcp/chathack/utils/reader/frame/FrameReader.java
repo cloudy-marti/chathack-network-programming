@@ -1,17 +1,11 @@
 package fr.upem.net.tcp.chathack.utils.reader.frame;
 
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
-import fr.upem.net.tcp.chathack.utils.frame.LoginPasswordFrame;
-import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionResponseFrame;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class FrameReader implements Reader<ChatHackFrame> {
-
-    private final static Logger LOGGER = Logger.getLogger(FrameReader.class.getName());
 
     private enum State {DONE,WAITING_FOR_OPCODE,WAITING_FOR_FRAME,ERROR};
 

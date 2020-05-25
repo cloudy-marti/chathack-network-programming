@@ -37,7 +37,6 @@ public class ServerToClientContext implements Context {
     final private ChatHackServer server;
 
     private boolean inputClosed = false;
-    private boolean accepted = false;
 
     private final ServerToClientFrameVisitor frameVisitor;
 

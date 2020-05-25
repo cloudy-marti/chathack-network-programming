@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFrame> {
 
     private enum State {
-        DONE, WAITING_LOGIN, WAITING_ADDRESS, WAITING_PORT, ERROR, WAITING_IDREQUEST
+        DONE, WAITING_LOGIN, WAITING_ADDRESS, WAITING_PORT, ERROR, WAITING_ID_REQUEST
     }
 
     private State state = State.WAITING_LOGIN;
@@ -78,7 +78,7 @@ public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFra
                     case ERROR:
                         return ProcessStatus.ERROR;
                 }
-            case WAITING_IDREQUEST:
+            case WAITING_ID_REQUEST:
                 status = longReader.process(buffer);
                 switch (status) {
                     case DONE:
