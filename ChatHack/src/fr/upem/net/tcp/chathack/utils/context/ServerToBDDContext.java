@@ -2,9 +2,7 @@ package fr.upem.net.tcp.chathack.utils.context;
 
 import fr.upem.net.tcp.chathack.server.ChatHackServer;
 import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
-import fr.upem.net.tcp.chathack.utils.reader.frame.FrameReader;
-import fr.upem.net.tcp.chathack.utils.reader.frame.serverbdd.BDDFrameReader;
+import fr.upem.net.tcp.chathack.utils.reader.frame.BDDFrameReader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.visitor.ServerToBDDFrameVisitor;
 

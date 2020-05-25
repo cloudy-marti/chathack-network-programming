@@ -1,7 +1,7 @@
 package fr.upem.net.tcp.chathack.utils.visitor;
 
 import fr.upem.net.tcp.chathack.utils.frame.*;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
+import fr.upem.net.tcp.chathack.utils.frame.BDDServerResponseFrame;
 
 public interface FrameVisitor {
     void visit(ConnectionFrame frame);
