@@ -3,9 +3,8 @@ package fr.upem.net.tcp.chathack.utils.visitor;
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
+import fr.upem.net.tcp.chathack.utils.frame.BDDServerResponseFrame;
 
-import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

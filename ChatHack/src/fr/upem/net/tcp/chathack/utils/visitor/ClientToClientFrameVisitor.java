@@ -2,9 +2,8 @@ package fr.upem.net.tcp.chathack.utils.visitor;
 
 import fr.upem.net.tcp.chathack.client.ChatHackClient;
 import fr.upem.net.tcp.chathack.utils.context.ClientToClientContext;
-import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
+import fr.upem.net.tcp.chathack.utils.frame.BDDServerResponseFrame;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,22 +25,20 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(ConnectionFrame frame) {
-        switch (frame.getOpcode()) {
-            case PRESENTATION_LOGIN:
-                context.login = frame.getLogin();
-                client.getContextPrivateConnection().put(frame.getLogin(), context);
-                var queue = client.getWaitingMessage().get(frame.getLogin());
+        if (frame.getOpcode() == PRESENTATION_LOGIN) {
+            context.setLogin(frame.getLogin());
+            client.getContextPrivateConnection().put(frame.getLogin(), context);
+            var queue = client.getWaitingMessage().get(frame.getLogin());
 
-                while (!queue.isEmpty()) {
-                    ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-                    var privateMessage = SimpleFrame.createSimpleFrame(PRIVATE_MESSAGE, queue.poll());
-                    privateMessage.fillByteBuffer(buffer);
-                    context.queueMessage(buffer);
-                    System.out.println("[" + context.login + "] <- " + privateMessage.getMessage());
-                }
-                break;
-            default:
-                throw new UnsupportedOperationException("The client can't receive this");
+            while (!queue.isEmpty()) {
+                ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+                var privateMessage = SimpleFrame.createSimpleFrame(PRIVATE_MESSAGE, queue.poll());
+                privateMessage.fillByteBuffer(buffer);
+                context.queueMessage(buffer);
+                System.out.println("[" + context.getLogin() + "] <- " + privateMessage.getMessage());
+            }
+        } else {
+            throw new UnsupportedOperationException("The client can't receive this");
         }
     }
 
@@ -66,7 +63,7 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
     public void visit(SimpleFrame frame) {
         switch (frame.getOpcode()) {
             case PRIVATE_MESSAGE:
-                System.out.println("[" + context.login+"] -> " + frame);
+                System.out.println("[" + context.getLogin() + "] -> " + frame);
                 break;
             default:
                 throw new UnsupportedOperationException("Connection frames between clients are not allowed.");

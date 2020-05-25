@@ -3,9 +3,9 @@ package fr.upem.net.tcp.chathack.utils.visitor;
 import fr.upem.net.tcp.chathack.server.ChatHackServer;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
 import fr.upem.net.tcp.chathack.utils.frame.*;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrame;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerFrameWithPassword;
-import fr.upem.net.tcp.chathack.utils.frame.serverbdd.BDDServerResponseFrame;
+import fr.upem.net.tcp.chathack.utils.frame.BDDServerFrame;
+import fr.upem.net.tcp.chathack.utils.frame.BDDServerFrameWithPassword;
+import fr.upem.net.tcp.chathack.utils.frame.BDDServerResponseFrame;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Level;

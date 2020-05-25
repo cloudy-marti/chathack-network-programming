@@ -27,7 +27,7 @@ public class ClientToClientContext implements Context {
     final private FrameReader frameReader = new FrameReader();
     private boolean inputClosed = false;
     private final ChatHackClient client;
-    public String login = null;
+    private String login = null;
 
     private final ClientToClientFrameVisitor frameVisitor;
 
@@ -146,5 +146,13 @@ public class ClientToClientContext implements Context {
             return;
         }
         updateInterestOps();
+    }
+
+    public String getLogin() {
+        return this.login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 }

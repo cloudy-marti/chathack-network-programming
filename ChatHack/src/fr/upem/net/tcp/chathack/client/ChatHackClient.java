@@ -254,7 +254,7 @@ public class ChatHackClient {
             ClientToClientContext clientToClientContext = new ClientToClientContext(key, this);
             key.attach(clientToClientContext);
             contextPrivateConnection.put(frame.getLogin(), clientToClientContext);
-            clientToClientContext.login = frame.getLogin();
+            clientToClientContext.setLogin(frame.getLogin());
             ConnectionFrame presentationFrame = ConnectionFrame.createConnectionFrame(PRESENTATION_LOGIN, login);
             ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
             presentationFrame.fillByteBuffer(buffer);
