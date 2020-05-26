@@ -9,7 +9,7 @@ In private exchange mode, users can exchange messages as well as files.
 The following commands allow communication between customers and Broadcast message too :
 
 ### Message -> send the message in broadcast to all the connected users
-### @bob message -> Send a private message to the client bob
+### @someoneWhoIsntInGit message -> Send a private message to the client someoneWhoIsntInGit
 ### /bob file.png -> Send a private file to the client bob
 ### $accept -> Accept the connection
 ### $refuse -> Refuse the connection
