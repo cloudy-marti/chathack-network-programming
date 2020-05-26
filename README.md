@@ -1,4 +1,4 @@
-**ChatHack**
+# ChatHack
 
 The ChatHack project is an application that allows users to chat with each other.
 To do so, users can chat publicly, by sending messages to all connected users, 
@@ -28,9 +28,9 @@ where <port_mdp> is a free port of the machine.
 The ChatHack client is a Jar too, To launch it, you have to go to the folder where the 
 executable is located and do the following command :
 
-#### (Without Password) java -jar ./ChatHackClient <login> <address_chathack> <port_chathack>
+#### (Without Password) java -jar ./ChatHackClient "login" <address_chathack> <port_chathack>
 
-#### (With Password) java -jar ./ChatHackClient <login> <password> <address_chathack> <port_chathack>
+#### (With Password) java -jar ./ChatHackClient "login" "password" <address_chathack> <port_chathack>
 
 # Command to be used once the server and client are running :
 
