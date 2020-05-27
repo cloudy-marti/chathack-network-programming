@@ -473,14 +473,12 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
 
     A termination of the connection is done when a client makes a disconnection 
     request and this request is accepted without any errors. The server then 
-    marks the user as disconnected. In the case of a non-registered user, the 
-    nickname becomes available for further use.
+    marks the user as disconnected. 
 
 8. Premature Termination
 
     In the case of the client disconnecting promptly, the server will mark the
-    user as disconnected and in the case of a non-registered user, the username
-    becomes available for further use.
+    user as disconnected.
     
 I. Appendix
 
@@ -495,7 +493,7 @@ Practical examples
         ---------------------
         | 00 | 6 | "Bob" |
         ---------------------
-    The server checks if "Bob" is already taken by a connected or registered
+    The server checks if "Bob" is already taken by a connected
     user. If it is available, the server sends an acceptation response:
         -----------------------------------
         | 10 | 19 | "Welcome to ChatHack" |
