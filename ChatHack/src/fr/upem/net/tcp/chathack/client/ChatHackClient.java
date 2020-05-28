@@ -143,7 +143,7 @@ public class ChatHackClient {
                             var privateMessage = SimpleFrame.createSimpleFrame(PRIVATE_MESSAGE, message);
                             privateMessage.fillByteBuffer(buffer);
                             context.queueMessage(buffer);
-                            System.out.println("[" + target + "] <- " + message );
+                            System.out.println("Send to : " + target + " -> " + message );
                         } else if (refusedConnection.contains(target)) {
                             System.out.println("The client : " + target + " as already refused the connection");
                             return;
@@ -200,7 +200,7 @@ public class ChatHackClient {
                             } else {
                                 opCode = PRIVATE_CONNECTION_KO;
                             }
-                            SimpleFrame newFrame = SimpleFrame.createSimpleFrame(opCode, frame.getLogin());
+                            PrivateConnectionResponseFrame newFrame = PrivateConnectionResponseFrame.createPrivateConnectionResponseFrame(opCode, frame.getIdRequest());
                             newFrame.fillByteBuffer(buffer);
                             clientToServerContext.queueMessage(buffer);
                         }

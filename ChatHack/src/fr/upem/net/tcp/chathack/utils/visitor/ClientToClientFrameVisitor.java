@@ -35,7 +35,7 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
                 var privateMessage = SimpleFrame.createSimpleFrame(PRIVATE_MESSAGE, queue.poll());
                 privateMessage.fillByteBuffer(buffer);
                 context.queueMessage(buffer);
-                System.out.println("[" + context.getLogin() + "] <- " + privateMessage.getMessage());
+                System.out.println("Send to : " + context.getLogin() + " -> " + privateMessage.getMessage() );
             }
         } else {
             throw new UnsupportedOperationException("The client can't receive this");
@@ -63,7 +63,7 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
     public void visit(SimpleFrame frame) {
         switch (frame.getOpcode()) {
             case PRIVATE_MESSAGE:
-                System.out.println("[" + context.getLogin() + "] -> " + frame);
+                System.out.println("Message receive from : " + context.getLogin() + " -> " + frame);
                 break;
             default:
                 throw new UnsupportedOperationException("Connection frames between clients are not allowed.");

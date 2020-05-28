@@ -118,6 +118,7 @@ public class ServerToClientContext implements Context {
     public void silentlyClose() {
         try {
             sc.close();
+            LOGGER.log(Level.INFO, "SC CLOSE CLIENT");
         } catch (IOException e) {
             // ignore exception
         }

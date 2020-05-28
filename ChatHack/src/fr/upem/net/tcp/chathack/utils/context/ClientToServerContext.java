@@ -85,6 +85,7 @@ public class ClientToServerContext implements Context {
     @Override
     public void updateInterestOps() {
         var interestOps = 0;
+
         if (!inputClosed && inputBuffer.hasRemaining()) {
             interestOps = interestOps | SelectionKey.OP_READ;
         }

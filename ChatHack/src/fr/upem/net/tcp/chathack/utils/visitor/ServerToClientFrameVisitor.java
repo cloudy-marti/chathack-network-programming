@@ -80,7 +80,8 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
             return;
         }
         destClient.setPrivateClientConnection(context, frame.getIdRequest());
-        frame.fillByteBuffer(tmp);
+        PrivateConnectionFrame newFrame = PrivateConnectionFrame.createPrivateConnectionFrame(frame.getOpcode(),context.getLogin(),frame.getIdRequest(),frame.getAddress());
+        newFrame.fillByteBuffer(tmp);
         destClient.queueMessage(tmp);
     }
 
