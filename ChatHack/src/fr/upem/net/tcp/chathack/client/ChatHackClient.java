@@ -179,8 +179,7 @@ public class ChatHackClient {
                             continue;
                         }
                         if (ctx instanceof ClientToServerContext) {
-                            ClientToServerContext ctxServer = (ClientToServerContext) ctx;
-                            ctxServer.setInputClosed();
+                            continue;
 
                         } else {
                             ctx.silentlyClose();

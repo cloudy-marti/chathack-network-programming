@@ -49,6 +49,9 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
                 client.setConnected();
                 break;
             case DISCONNECTION_OK:
+                System.out.println(frame.getMessage());
+                System.exit(0);
+                break;
             case CONNECTION_KO:
                 client.stop();
                 break;

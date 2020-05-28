@@ -126,7 +126,7 @@ public class ServerToClientContext implements Context {
 
     public void doRead() throws IOException {
         if(sc.read(inputBuffer) == -1) {
-            LOGGER.log(Level.INFO, "Client has closed the connection");
+            LOGGER.log(Level.INFO, "Client has input closed the connection");
             inputClosed = true;
         }
         processIn();
@@ -175,5 +175,9 @@ public class ServerToClientContext implements Context {
 
     public long getRequestId() {
         return this.requestId;
+    }
+
+    public void setInputClosed() {
+        this.inputClosed = true;
     }
 }
