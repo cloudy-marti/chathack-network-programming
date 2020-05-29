@@ -285,11 +285,11 @@ RFC 9692                    PROTOCOL Revision 2                   April 2020
         -----------------------------------------------------------------
         | Opcode | SizeOfLogin | Login | SizeOfAddress | Address | Port |
         -----------------------------------------------------------------
-                        Figure 5-3 : Login frame
+                        Figure 5-3 : Private Connection Frame
                         
-    Login frames have the format shown in Figure 5-3. The OpCode associated to
-    this type of request is 02 and the field Login corresponds to the alias of
-    the user to whom the client wants to be directly connected.
+    Private Connection Frame have the format shown in Figure 5-3. The OpCode 
+    associated to this type of request is 02 and the field Login corresponds 
+    to the alias of the user to whom the client wants to be directly connected.
     
     This same frame is used by the server to transmit the request to the client
     to whom the first user wants to be connected to.
