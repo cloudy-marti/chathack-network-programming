@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 
 import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
-import static java.nio.file.StandardOpenOption.WRITE;
+import static java.nio.file.StandardOpenOption.*;
 
 public class ClientToClientFrameVisitor implements FrameVisitor {
     private final ClientToClientContext context;
@@ -52,7 +52,7 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
         Objects.requireNonNull(frame);
         try {
             System.out.println("Receiving file " + frame.getFileName() + " ...");
-            Files.write(Paths.get("resources/output_files/" + frame.getFileName()), frame.getFileData().array(), CREATE_NEW, WRITE);
+            Files.write(Paths.get(client.getPath() +"received_" + frame.getFileName()), frame.getFileData().array(),  WRITE, TRUNCATE_EXISTING);
         } catch (IOException ioE) {
             System.out.println("Couldn't create file");
         }

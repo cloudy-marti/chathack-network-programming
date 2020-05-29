@@ -42,8 +42,9 @@ public class ChatHackClient {
     private final ChatHackFrame frameLogin;
     private final HashMap<Long, String> requestWaiting = new HashMap<>(BLOCKING_QUEUE_SIZE);
     private long idRequest = 1;
+    private final String path;
 
-    private ChatHackClient(String login, InetSocketAddress serverAddress, ChatHackFrame frameLogin) throws IOException {
+    private ChatHackClient(String login, InetSocketAddress serverAddress, ChatHackFrame frameLogin, String path) throws IOException {
         this.serverAddress = serverAddress;
         this.login = login;
         this.sc = SocketChannel.open();
@@ -51,17 +52,18 @@ public class ChatHackClient {
         this.console = new Thread(this::consoleRun);
         this.ssc = ServerSocketChannel.open();
         ssc.bind(null);
-        this.localServerAddress = new InetSocketAddress(ssc.socket().getInetAddress(),ssc.socket().getLocalPort());
+        this.localServerAddress = new InetSocketAddress(ssc.socket().getInetAddress(), ssc.socket().getLocalPort());
         this.frameLogin = frameLogin;
+        this.path = path;
     }
 
-    public ChatHackClient(String login, InetSocketAddress serverAddress) throws IOException {
-        this(login,serverAddress,ConnectionFrame.createConnectionFrame(0, login));
+    public ChatHackClient(String login, InetSocketAddress serverAddress, String path) throws IOException {
+        this(login, serverAddress, ConnectionFrame.createConnectionFrame(0, login), path);
     }
 
     // constructor with login and password
-    public ChatHackClient(String login, String password, InetSocketAddress serverAddress) throws IOException {
-        this(login,serverAddress,LoginPasswordFrame.createLoginPasswordFrame(1, login, password));
+    public ChatHackClient(String login, String password, InetSocketAddress serverAddress, String path) throws IOException {
+        this(login, serverAddress, LoginPasswordFrame.createLoginPasswordFrame(1, login, password), path);
     }
 
     public ChatHackFrame getFrameLogin() {
@@ -118,7 +120,7 @@ public class ChatHackClient {
                     }
                     //Start with 1 for the first letter of the Login
                     var target = splitTab[0].substring(1);
-                    if(target.equals(login)) {
+                    if (target.equals(login)) {
                         System.out.println("You can't send private messages to yourself !");
                         break;
                     }
@@ -126,7 +128,7 @@ public class ChatHackClient {
                     if (command.startsWith("@")) {
                         //La suite de mon tab donc mon msg
                         String message;
-                        if(splitTab.length == 1) {
+                        if (splitTab.length == 1) {
                             message = "";
                         } else {
                             message = splitTab[1];
@@ -137,7 +139,7 @@ public class ChatHackClient {
                             var privateMessage = SimpleFrame.createSimpleFrame(PRIVATE_MESSAGE, message);
                             privateMessage.fillByteBuffer(buffer);
                             context.queueMessage(buffer);
-                            System.out.println("Send to : " + target + " -> " + message );
+                            System.out.println("Send to : " + target + " -> " + message);
                         } else if (refusedConnection.contains(target)) {
                             System.out.println("The client : " + target + " has already refused the connection");
                             return;
@@ -159,31 +161,31 @@ public class ChatHackClient {
                             idRequest++;
                         }
                     } else { // command starts with "/"
-                        if(!contextPrivateConnection.containsKey(target)) {
+                        if (!contextPrivateConnection.containsKey(target)) {
                             System.out.println("Send a private message in order to create a private connection.");
                             break;
                         }
-                        if(splitTab.length == 1) {
+                        if (splitTab.length == 1) {
                             System.out.println("You must specify a file in order to send it.");
                             break;
                         }
                         String filePath = splitTab[1];
-                        try(RandomAccessFile store = new RandomAccessFile(filePath, "r")) {
-                            try(FileChannel fileChannel = store.getChannel()) {
+                        try (RandomAccessFile store = new RandomAccessFile(path + filePath, "r")) {
+                            try (FileChannel fileChannel = store.getChannel()) {
                                 // get name of file from the path name
                                 int lastSlash;
                                 String fileName;
-                                if((lastSlash = filePath.lastIndexOf("/")) == -1) {
+                                if ((lastSlash = filePath.lastIndexOf("/")) == -1) {
                                     fileName = filePath;
                                 } else {
-                                    fileName = filePath.substring(lastSlash+1);
+                                    fileName = filePath.substring(lastSlash + 1);
                                 }
                                 long fileSize = fileChannel.size();
-                                if(fileSize > 1_024) {
+                                if (fileSize > 1_024) {
                                     System.out.println("File too large.");
                                     break;
                                 }
-                                ByteBuffer fileBuffer = ByteBuffer.allocate((int)fileSize);
+                                ByteBuffer fileBuffer = ByteBuffer.allocate((int) fileSize);
                                 fileChannel.read(fileBuffer);
                                 fileBuffer.flip();
                                 FileFrame fileFrame = FileFrame.createFileFrame(PRIVATE_FILE, fileName, fileBuffer);
@@ -203,7 +205,7 @@ public class ChatHackClient {
                     clientToServerContext.queueMessage(buffer);
                     for (SelectionKey key : selector.keys()) {
                         Context ctx = (Context) key.attachment();
-                        if(ctx instanceof ClientToClientContext) {
+                        if (ctx instanceof ClientToClientContext) {
                             ctx.silentlyClose();
                         }
                     }
@@ -366,14 +368,18 @@ public class ChatHackClient {
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {
-        if (args.length != 3 && args.length != 4) {
+        if (args.length != 4 && args.length != 5) {
             usage();
             return;
         }
-        if (args.length == 3) {
-            new ChatHackClient(args[0], new InetSocketAddress(args[1], Integer.parseInt(args[2]))).launch();
+        if (args.length == 4) {
+            new ChatHackClient(args[0], new InetSocketAddress(args[1], Integer.parseInt(args[2])), args[3]).launch();
         } else {
-            new ChatHackClient(args[0], args[1], new InetSocketAddress(args[2], Integer.parseInt(args[3]))).launch();
+            new ChatHackClient(args[0], args[1], new InetSocketAddress(args[2], Integer.parseInt(args[3])), args[4]).launch();
         }
+    }
+
+    public String getPath() {
+        return path;
     }
 }
