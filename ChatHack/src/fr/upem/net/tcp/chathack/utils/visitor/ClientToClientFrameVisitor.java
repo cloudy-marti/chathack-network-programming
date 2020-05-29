@@ -49,30 +49,28 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(FileFrame frame) {
-        File outputFile = new File("resources/" + client.getLogin() + "/" + frame.getFileName());
+        Objects.requireNonNull(frame);
         try {
-            System.out.println("Sending file "+ frame.getFileName() + " ...");
-            FileChannel channel = new FileOutputStream(outputFile).getChannel();
-            channel.write(frame.getFileData());
+            System.out.println("Receiving file " + frame.getFileName() + " ...");
+            Files.write(Paths.get("resources/output_files/" + frame.getFileName()), frame.getFileData().array(), CREATE_NEW, WRITE);
         } catch (IOException ioE) {
             System.out.println("Couldn't create file");
         }
     }
 
     @Override
-    public void visit(GlobalMessageFrame frame) {
-        throw new UnsupportedOperationException("Connection frames between clients are not allowed.");
+    public void visit(SimpleFrame frame) {
+        Objects.requireNonNull(frame);
+        if (frame.getOpcode() == PRIVATE_MESSAGE) {
+            System.out.println("Message receive from : " + context.getLogin() + " -> " + frame);
+        } else {
+            throw new UnsupportedOperationException("Connection frames between clients are not allowed.");
+        }
     }
 
     @Override
-    public void visit(SimpleFrame frame) {
-        switch (frame.getOpcode()) {
-            case PRIVATE_MESSAGE:
-                System.out.println("Message receive from : " + context.getLogin() + " -> " + frame);
-                break;
-            default:
-                throw new UnsupportedOperationException("Connection frames between clients are not allowed.");
-        }
+    public void visit(GlobalMessageFrame frame) {
+        throw new UnsupportedOperationException("Connection frames between clients are not allowed.");
     }
 
     @Override
