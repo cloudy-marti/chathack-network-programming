@@ -95,7 +95,7 @@ public class ChatHackServer {
                 ((Context) key.attachment()).doRead();
             }
         } catch (IOException e) {
-            LOGGER.log(Level.INFO,"Connection closed with client due to IOException",e);
+            LOGGER.log(Level.INFO,"Connection closed with client due to IOException");
             silentlyClose(key);
         }
     }
