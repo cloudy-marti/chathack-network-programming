@@ -7,7 +7,6 @@ import fr.upem.net.tcp.chathack.utils.frame.BDDServerFrame;
 import fr.upem.net.tcp.chathack.utils.frame.BDDServerFrameWithPassword;
 import fr.upem.net.tcp.chathack.utils.frame.BDDServerResponseFrame;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,8 +29,8 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(ConnectionFrame frame) {
-        switch(frame.getOpcode()) {
-            case CONNECTION_WITH_LOGIN:
+        int opcode = frame.getOpcode();
+        if(opcode == CONNECTION_WITH_LOGIN) {
             LOGGER.log(Level.INFO, "Visiting ConnectionFrame from Client Id : " + context.getId());
             ServerToClientContext destClient = server.getClientByLogin(frame.getLogin());
             server.saveClientLogin(context.getId(), frame.getLogin());
@@ -40,16 +39,8 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
             ByteBuffer tmp = ByteBuffer.allocate(BDD_BUFFER_SIZE);
             bddFrame.fillByteBuffer(tmp);
             server.sendRequestToBDD(tmp);
-            case DISCONNECTION_REQUEST:
-                ByteBuffer bb = ByteBuffer.allocate(1024);
-                SimpleFrame newFrame = SimpleFrame.createSimpleFrame(DISCONNECTION_OK,"You are disconnected");
-                frame.fillByteBuffer(bb);
-                context.setInputClosed();
-                context.queueMessage(bb);
-
-            default:
-                throw new UnsupportedOperationException("client does not send these kind of frames");
-
+        } else {
+            throw new UnsupportedOperationException("client does not send these kind of frames");
         }
     }
 
@@ -109,12 +100,15 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
         int opcode = frame.getOpcode();
         ByteBuffer tmp = ByteBuffer.allocate(1_024);
         if(opcode == DISCONNECTION_REQUEST) { // disconnection request
-            SimpleFrame responseDisconnect = SimpleFrame.createSimpleFrame(DISCONNECTION_OK, "Disconnection OK");
-            responseDisconnect.fillByteBuffer(tmp);
-            //context.setInputClosed();
-            context.queueMessage(tmp);
+            LOGGER.log(Level.INFO, "disconnection request");
+            GlobalMessageFrame byeMessage = GlobalMessageFrame.createGlobalMessageFrame(GLOBAL_MESSAGE, "",
+                    context.getLogin() + " has disconnected");
+            server.broadcast(byeMessage);
+            ByteBuffer bb = ByteBuffer.allocate(1024);
+            SimpleFrame disconnectionFrame = SimpleFrame.createSimpleFrame(DISCONNECTION_OK,"You are disconnected");
+            disconnectionFrame.fillByteBuffer(bb);
+            context.queueMessage(bb);
             server.removeClient(context.getId());
-
         } else if(opcode == PRIVATE_CONNECTION_OK || opcode == PRIVATE_CONNECTION_KO) { // private connection response
             LOGGER.log(Level.INFO, "client has responded to private connection request");
             ServerToClientContext dest = context.getPrivateClientConnection();
