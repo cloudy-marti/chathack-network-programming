@@ -5,8 +5,7 @@ import fr.upem.net.tcp.chathack.utils.context.ClientToServerContext;
 import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.frame.*;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
@@ -145,7 +144,7 @@ public class ChatHackClient {
                             context.queueMessage(buffer);
                             System.out.println("Send to : " + target + " -> " + message );
                         } else if (refusedConnection.contains(target)) {
-                            System.out.println("The client : " + target + " as already refused the connection");
+                            System.out.println("The client : " + target + " has already refused the connection");
                             return;
                         } else if (waitingMessage.containsKey(target)) {
                             //Cas ou le client a fait la demande de connexion mais n'a pas encore eu de réponse 'délais entre ok et ko de la part de client 2
@@ -159,29 +158,59 @@ public class ChatHackClient {
                             clientToServerContext.queueMessage(buffer);
                             var queue = new ArrayBlockingQueue<String>(BLOCKING_QUEUE_SIZE);
                             queue.add(message);
-                            //Message stocker temporairement
+                            //Message stocké temporairement
                             waitingMessage.put(target, queue);
 
                             requestWaiting.put(idRequest, target);
                             idRequest++;
                         }
-                    } else {
+                    } else { // command starts with "/"
                         // /Bob = file pour bob
-
-                    }//Deconnection
-                } else if (command.startsWith("&")) {
+                        if(!contextPrivateConnection.containsKey(target)) {
+                            System.out.println("Send a private message in order to create a private connection.");
+                            break;
+                        }
+                        if(splitTab.length == 1) {
+                            System.out.println("You must specify a file in order to send it.");
+                            break;
+                        }
+                        String filePath = splitTab[1];
+                        try(RandomAccessFile store = new RandomAccessFile(filePath, "r")) {
+                            try(FileChannel fileChannel = store.getChannel()) {
+                                // get name of file from the path name
+                                int lastSlash;
+                                String fileName;
+                                if((lastSlash = filePath.lastIndexOf("/")) == -1) {
+                                    fileName = filePath;
+                                } else {
+                                    fileName = filePath.substring(lastSlash+1);
+                                }
+                                long fileSize = fileChannel.size();
+                                if(fileSize > 1_024) {
+                                    System.out.println("File too large.");
+                                    break;
+                                }
+                                ByteBuffer fileBuffer = ByteBuffer.allocate((int)fileSize);
+                                fileChannel.read(fileBuffer);
+                                fileBuffer.flip();
+                                FileFrame fileFrame = FileFrame.createFileFrame(PRIVATE_FILE, fileName, fileBuffer);
+                                Context context = contextPrivateConnection.get(target);
+                                ByteBuffer privateFileBuffer = ByteBuffer.allocate(10_000);
+                                fileFrame.fillByteBuffer(privateFileBuffer);
+                                context.queueMessage(privateFileBuffer);
+                            }
+                        } catch (IOException e) {
+                            System.out.println("file not found");
+                            break;
+                        }
+                    }
+                } else if (command.startsWith("&")) { // disconnection
                     var disconnection = ConnectionFrame.createConnectionFrame(DISCONNECTION_REQUEST, login);
                     disconnection.fillByteBuffer(buffer);
                     clientToServerContext.queueMessage(buffer);
                     for (SelectionKey key : selector.keys()) {
                         Context ctx = (Context) key.attachment();
-                        if (ctx == null) {
-                            continue;
-                        }
-                        if (ctx instanceof ClientToServerContext) {
-                            continue;
-
-                        } else {
+                        if(ctx instanceof ClientToClientContext) {
                             ctx.silentlyClose();
                         }
                     }
