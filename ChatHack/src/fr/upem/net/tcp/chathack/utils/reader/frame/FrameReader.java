@@ -4,6 +4,7 @@ import fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public class FrameReader implements Reader<ChatHackFrame> {
 
@@ -27,6 +28,7 @@ public class FrameReader implements Reader<ChatHackFrame> {
 
     @Override
     public ProcessStatus process(ByteBuffer bb) {
+        Objects.requireNonNull(bb);
         switch (state) {
             case WAITING_FOR_OPCODE:
                 bb.flip();

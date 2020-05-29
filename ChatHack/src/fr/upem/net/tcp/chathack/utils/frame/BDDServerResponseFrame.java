@@ -6,14 +6,12 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 public class BDDServerResponseFrame implements ChatHackFrame {
-
     /*
              byte  Long
             ------------
             | 0/1 | id |
             ------------
- */
-
+    */
     private final byte isValid;
     private final long id;
     private final ByteBuffer bddBuffer;
@@ -33,6 +31,7 @@ public class BDDServerResponseFrame implements ChatHackFrame {
 
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
+        Objects.requireNonNull(bbdst);
         if (checkBufferSize(bbdst)) {
             bbdst.put(bddBuffer);
             bddBuffer.flip();
@@ -49,6 +48,7 @@ public class BDDServerResponseFrame implements ChatHackFrame {
 
     @Override
     public void accept(FrameVisitor visitor) {
+        Objects.requireNonNull(visitor);
         visitor.visit(this);
     }
 

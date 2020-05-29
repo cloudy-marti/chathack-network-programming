@@ -12,6 +12,7 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +36,8 @@ public class ServerToBDDContext implements Context {
     private final ServerToBDDFrameVisitor frameVisitor;
 
     public ServerToBDDContext(SelectionKey key, ChatHackServer server) {
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(server);
         this.key = key;
         this.sc = (SocketChannel) key.channel();
         this.server = server;
@@ -63,11 +66,13 @@ public class ServerToBDDContext implements Context {
 
     @Override
     public void treatFrame(ChatHackFrame frame) {
+        Objects.requireNonNull(frame);
         frame.accept(frameVisitor);
     }
 
     @Override
     public void queueMessage(ByteBuffer msg) {
+        Objects.requireNonNull(msg);
         messageQueue.add(msg);
         processOut();
         updateInterestOps();

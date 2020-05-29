@@ -42,7 +42,6 @@ public class PrivateConnectionFrame implements ChatHackFrame {
     }
 
     public static PrivateConnectionFrame createPrivateConnectionFrame(int opcode, String login, long idRequest, InetSocketAddress address) {
-
         Objects.requireNonNull(login);
         byte opCodeByte = Integer.valueOf(opcode).byteValue();
         ByteBuffer loginConnection = UTF_8.encode(login);
@@ -58,12 +57,12 @@ public class PrivateConnectionFrame implements ChatHackFrame {
         privateConnectionbb.putInt(address.getPort());
         privateConnectionbb.putLong(idRequest);
         privateConnectionbb.flip();
-
         return new PrivateConnectionFrame(opcode, login, address, idRequest, privateConnectionbb);
     }
 
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
+        Objects.requireNonNull(bbdst);
         if (checkBufferSize(bbdst)) {
             bbdst.put(privateConnectionbb);
             privateConnectionbb.flip();
@@ -81,6 +80,7 @@ public class PrivateConnectionFrame implements ChatHackFrame {
 
     @Override
     public void accept(FrameVisitor visitor) {
+        Objects.requireNonNull(visitor);
         visitor.visit(this);
     }
 

@@ -3,15 +3,12 @@ package fr.upem.net.tcp.chathack.utils.frame;
 import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class PrivateConnectionResponseFrame implements ChatHackFrame {
     private final int opcode;
     private final long idRequest;
     private final ByteBuffer connectionFrame;
-    private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
     private PrivateConnectionResponseFrame(int opcode, long idRequest, ByteBuffer connectionFrame) {
         if (opcode < 0) {
@@ -38,11 +35,11 @@ public class PrivateConnectionResponseFrame implements ChatHackFrame {
 
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
+        Objects.requireNonNull(bbdst);
         if (checkBufferSize(bbdst)) {
             bbdst.put(connectionFrame);
             connectionFrame.flip();
             bbdst.flip();
-            //bbdst.compact();
         } else {
             throw new IllegalArgumentException();
         }
@@ -57,6 +54,7 @@ public class PrivateConnectionResponseFrame implements ChatHackFrame {
 
     @Override
     public void accept(FrameVisitor visitor) {
+        Objects.requireNonNull(visitor);
         visitor.visit(this);
     }
 

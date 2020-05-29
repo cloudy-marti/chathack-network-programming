@@ -3,11 +3,9 @@ package fr.upem.net.tcp.chathack.utils.reader.frame;
 import fr.upem.net.tcp.chathack.utils.frame.PrivateConnectionResponseFrame;
 import fr.upem.net.tcp.chathack.utils.reader.utils.LongReader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
-import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
 
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Objects;
 
 public class PrivateConnectionResponseReader implements Reader<PrivateConnectionResponseFrame> {
     private enum State {
@@ -22,6 +20,7 @@ public class PrivateConnectionResponseReader implements Reader<PrivateConnection
 
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
+        Objects.requireNonNull(buffer);
         if (state == State.DONE || state == State.ERROR) {
             throw new IllegalStateException();
         }

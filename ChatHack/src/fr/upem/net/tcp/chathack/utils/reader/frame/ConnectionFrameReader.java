@@ -5,6 +5,7 @@ import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,6 +25,7 @@ public class ConnectionFrameReader implements Reader<ConnectionFrame> {
 
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
+        Objects.requireNonNull(buffer);
         if (state == State.DONE || state == State.ERROR) {
             LOGGGER.log(Level.INFO, state.toString());
             throw new IllegalStateException();

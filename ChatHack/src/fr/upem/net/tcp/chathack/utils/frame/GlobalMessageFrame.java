@@ -37,12 +37,6 @@ public class GlobalMessageFrame implements ChatHackFrame {
         this.globalMessageFrame = globalMessageFrame;
     }
 
-    /* Design Pattern Factory
-     * Enlève le code complexe du constructeur
-     * Peut cacher la classe
-     *
-     * Singleton : Garantie que dans toute la vm on n'a qu'une seule instance
-     * */
     public static GlobalMessageFrame createGlobalMessageFrame(int opCode, String login, String msg) {
         if (opCode < 0) {
             throw new IllegalArgumentException("OpCode can't be a negative value");
@@ -68,6 +62,7 @@ public class GlobalMessageFrame implements ChatHackFrame {
 
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
+        Objects.requireNonNull(bbdst);
         if (checkBufferSize(bbdst)) {
             bbdst.put(globalMessageFrame);
             globalMessageFrame.flip();
@@ -86,6 +81,7 @@ public class GlobalMessageFrame implements ChatHackFrame {
 
     @Override
     public void accept(FrameVisitor visitor) {
+        Objects.requireNonNull(visitor);
         visitor.visit(this);
     }
 

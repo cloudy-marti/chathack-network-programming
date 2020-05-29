@@ -4,7 +4,6 @@ import fr.upem.net.tcp.chathack.utils.context.Context;
 import fr.upem.net.tcp.chathack.utils.context.ServerToBDDContext;
 import fr.upem.net.tcp.chathack.utils.context.ServerToClientContext;
 import fr.upem.net.tcp.chathack.utils.frame.GlobalMessageFrame;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
@@ -16,7 +15,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// test commit
 public class ChatHackServer {
 
     static private final int BUFFER_SIZE = 10_000;
@@ -29,7 +27,6 @@ public class ChatHackServer {
     private final SocketChannel socketChannel;
     private final InetSocketAddress bddServerAddress;
     private ServerToBDDContext uniqueContextBDD;
-
 
     private long id = 0;
     private final HashMap<Long, ServerToClientContext> clientsByID = new HashMap<>();
@@ -151,14 +148,6 @@ public class ChatHackServer {
      */
     public void sendRequestToBDD(ByteBuffer buffer) {
         uniqueContextBDD.queueMessage(buffer);
-    }
-
-    public void registerClientMDP(String login, String password) {
-        try(FileWriter fileWriter = new FileWriter("resources/save.txt", true)) {
-            fileWriter.append(login).append("$").append(password);
-        } catch (IOException ioE) {
-            LOGGER.log(Level.SEVERE, "save.txt cannot be opened due to IOException");
-        }
     }
 
     /**

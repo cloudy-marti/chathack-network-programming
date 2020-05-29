@@ -12,9 +12,8 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClientToServerContext implements Context {
 
@@ -57,11 +56,13 @@ public class ClientToServerContext implements Context {
 
     @Override
     public void treatFrame(ChatHackFrame frame) {
+        Objects.requireNonNull(frame);
         frame.accept(frameVisitor);
     }
 
     @Override
     public void queueMessage(ByteBuffer msg) {
+        Objects.requireNonNull(msg);
         queue.add(msg);
         processOut();
         updateInterestOps();
@@ -81,7 +82,6 @@ public class ClientToServerContext implements Context {
         }
     }
 
-    private final static Logger LOGGER = Logger.getLogger(ClientToServerContext.class.getName());
     @Override
     public void updateInterestOps() {
         var interestOps = 0;
@@ -100,7 +100,6 @@ public class ClientToServerContext implements Context {
         try {
             key.interestOps(interestOps);
         } catch (CancelledKeyException kE) {
-            LOGGER.log(Level.INFO, "connection has been shut down by the server");
             silentlyClose();
         }
     }
@@ -117,7 +116,6 @@ public class ClientToServerContext implements Context {
     @Override
     public void doRead() throws IOException {
         if (sc.read(inputBuffer) == -1) {
-            //logger.log(Level.INFO, "closed before reading");
             inputClosed = true;
         }
         processIn();
@@ -137,16 +135,10 @@ public class ClientToServerContext implements Context {
         if (!sc.finishConnect()) {
             return;
         }
-
         ChatHackFrame frameLogin = client.getFrameLogin();
         ByteBuffer bb = ByteBuffer.allocate(1_024);
         frameLogin.fillByteBuffer(bb);
-        queueMessage(bb); //<- c ici que ça plante définitivement
-
+        queueMessage(bb);
         updateInterestOps();
-    }
-
-    public void setInputClosed() {
-        this.inputClosed = true;
     }
 }

@@ -5,13 +5,15 @@ import fr.upem.net.tcp.chathack.utils.context.ClientToClientContext;
 import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.frame.BDDServerResponseFrame;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 public class ClientToClientFrameVisitor implements FrameVisitor {
     private final ClientToClientContext context;
@@ -19,12 +21,15 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
     private static final int BUFFER_SIZE = 10_000;
 
     public ClientToClientFrameVisitor(ClientToClientContext context, ChatHackClient client) {
+        Objects.requireNonNull(context);
+        Objects.requireNonNull(client);
         this.context = context;
         this.client = client;
     }
 
     @Override
     public void visit(ConnectionFrame frame) {
+        Objects.requireNonNull(frame);
         if (frame.getOpcode() == PRESENTATION_LOGIN) {
             context.setLogin(frame.getLogin());
             client.getContextPrivateConnection().put(frame.getLogin(), context);
@@ -87,6 +92,5 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(PrivateConnectionResponseFrame frame) {
-
     }
 }

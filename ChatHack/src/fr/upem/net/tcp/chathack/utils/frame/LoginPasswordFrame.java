@@ -8,14 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /*
-opCode : 01
-
                byte       int      String          int          String
             ------------------------------------------------------------
             | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
             ------------------------------------------------------------
-
-ENCODING : ASCII
  */
 
 public class LoginPasswordFrame implements ChatHackFrame {
@@ -64,6 +60,7 @@ public class LoginPasswordFrame implements ChatHackFrame {
 
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
+        Objects.requireNonNull(bbdst);
         if (checkBufferSize(bbdst)) {
             bbdst.put(loginPasswordBuffer);
             loginPasswordBuffer.flip();
@@ -81,6 +78,7 @@ public class LoginPasswordFrame implements ChatHackFrame {
 
     @Override
     public void accept(FrameVisitor visitor) {
+        Objects.requireNonNull(visitor);
         visitor.visit(this);
     }
 

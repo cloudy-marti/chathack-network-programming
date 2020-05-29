@@ -12,6 +12,7 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,8 @@ public class ClientToClientContext implements Context {
     private final ClientToClientFrameVisitor frameVisitor;
 
     public ClientToClientContext(SelectionKey key, ChatHackClient client) {
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(client);
         this.key = key;
         this.sc = (SocketChannel) key.channel();
         this.client = client;
@@ -59,21 +62,23 @@ public class ClientToClientContext implements Context {
 
     @Override
     public void treatFrame(ChatHackFrame frame) {
+        Objects.requireNonNull(frame);
         frame.accept(frameVisitor);
     }
 
     @Override
     public void queueMessage(ByteBuffer msg) {
+        Objects.requireNonNull(msg);
         queue.add(msg);
         processOut();
         updateInterestOps();
     }
 
 
-    public void queueMessageWhithOutUpdateInterestOps(ByteBuffer msg) {
+    public void queueMessageWithoutUpdateInterestOps(ByteBuffer msg) {
+        Objects.requireNonNull(msg);
         queue.add(msg);
         processOut();
-
     }
 
     @Override
@@ -92,7 +97,6 @@ public class ClientToClientContext implements Context {
     @Override
     public void updateInterestOps() {
         var interestOps = 0;
-
         if (!inputClosed && inputBuffer.hasRemaining()) {
             interestOps = interestOps | SelectionKey.OP_READ;
         }
@@ -103,7 +107,6 @@ public class ClientToClientContext implements Context {
             silentlyClose();
             return;
         }
-
         try {
             key.interestOps(interestOps);
         } catch (CancelledKeyException kE) {

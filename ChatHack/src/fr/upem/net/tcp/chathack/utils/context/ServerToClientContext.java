@@ -11,16 +11,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ServerToClientContext implements Context {
-
-    private static final Logger LOGGER = Logger.getLogger(ServerToClientContext.class.getName());
 
     final private SelectionKey key;
     final private SocketChannel sc;
@@ -34,8 +29,6 @@ public class ServerToClientContext implements Context {
 
     final private Queue<ByteBuffer> messageQueue = new LinkedList<>();
 
-    final private ChatHackServer server;
-
     private boolean inputClosed = false;
 
     private final ServerToClientFrameVisitor frameVisitor;
@@ -44,9 +37,10 @@ public class ServerToClientContext implements Context {
     private long requestId = -1;
 
     public ServerToClientContext(ChatHackServer server, SelectionKey key, long id){
+        Objects.requireNonNull(server);
+        Objects.requireNonNull(key);
         this.key = key;
         this.sc = (SocketChannel) key.channel();
-        this.server = server;
         this.frameVisitor = new ServerToClientFrameVisitor(this, server);
         this.id = id;
     }
@@ -71,12 +65,13 @@ public class ServerToClientContext implements Context {
     }
 
     public void treatFrame(ChatHackFrame frame) {
-        LOGGER.log(Level.INFO, "Accepting frame with opcode " + frame.getOpcode());
+        Objects.requireNonNull(frame);
         frame.accept(frameVisitor);
     }
 
     @Override
     public void queueMessage(ByteBuffer msg) {
+        Objects.requireNonNull(msg);
         messageQueue.add(msg);
         processOut();
         updateInterestOps();
@@ -118,7 +113,6 @@ public class ServerToClientContext implements Context {
     public void silentlyClose() {
         try {
             sc.close();
-            LOGGER.log(Level.INFO, "SC CLOSE CLIENT");
         } catch (IOException e) {
             // ignore exception
         }
@@ -126,7 +120,6 @@ public class ServerToClientContext implements Context {
 
     public void doRead() throws IOException {
         if(sc.read(inputBuffer) == -1) {
-            LOGGER.log(Level.INFO, "Client has input closed the connection");
             inputClosed = true;
         }
         processIn();
@@ -175,9 +168,5 @@ public class ServerToClientContext implements Context {
 
     public long getRequestId() {
         return this.requestId;
-    }
-
-    public void setInputClosed() {
-        this.inputClosed = true;
     }
 }

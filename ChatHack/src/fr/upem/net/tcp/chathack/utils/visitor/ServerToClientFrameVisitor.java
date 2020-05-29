@@ -8,6 +8,7 @@ import fr.upem.net.tcp.chathack.utils.frame.BDDServerFrameWithPassword;
 import fr.upem.net.tcp.chathack.utils.frame.BDDServerResponseFrame;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +30,7 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(ConnectionFrame frame) {
+        Objects.requireNonNull(frame);
         int opcode = frame.getOpcode();
         if(opcode == CONNECTION_WITH_LOGIN) {
             LOGGER.log(Level.INFO, "Visiting ConnectionFrame from Client Id : " + context.getId());
@@ -46,7 +48,7 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(LoginPasswordFrame frame) {
-        LOGGER.log(Level.INFO, "Visiting LoginPasswordFrame from Client Id : " + context.getId());
+        Objects.requireNonNull(frame);
         if(server.getClientByLogin(frame.getLogin()) != null) {
             SimpleFrame responseConnect = SimpleFrame.createSimpleFrame(12,
                     "Registered user already connected");
@@ -67,13 +69,13 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(GlobalMessageFrame frame) {
-        LOGGER.log(Level.INFO, "Visiting GlobalMessageFrame");
+        Objects.requireNonNull(frame);
         server.broadcast(frame);
     }
 
     @Override
     public void visit(PrivateConnectionFrame frame) {
-        LOGGER.log(Level.INFO, "Visiting PrivateConnectionFrame coming from client Id : " + context.getId());
+        Objects.requireNonNull(frame);
         String dest = frame.getLogin();
         ServerToClientContext destClient = server.getClientByLogin(dest);
         ByteBuffer tmp = ByteBuffer.allocate(1_024);
@@ -92,11 +94,14 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(PrivateConnectionResponseFrame frame) {
-        LOGGER.log(Level.INFO, "visiting private connection response frame");
+        ByteBuffer buffer = ByteBuffer.allocate(1_024);
+        frame.fillByteBuffer(buffer);
+        context.queueMessage(buffer);
     }
 
     @Override
     public void visit(SimpleFrame frame) {
+        Objects.requireNonNull(frame);
         int opcode = frame.getOpcode();
         ByteBuffer tmp = ByteBuffer.allocate(1_024);
         if(opcode == DISCONNECTION_REQUEST) { // disconnection request

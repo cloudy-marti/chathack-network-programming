@@ -7,6 +7,7 @@ import fr.upem.net.tcp.chathack.utils.frame.*;
 import fr.upem.net.tcp.chathack.utils.frame.BDDServerResponseFrame;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,12 +26,13 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
     }
 
     @Override
-    public void visit(BDDServerResponseFrame bddServerResponseFrame) {
-        long id = bddServerResponseFrame.getId();
+    public void visit(BDDServerResponseFrame frame) {
+        Objects.requireNonNull(frame);
+        long id = frame.getId();
         ServerToClientContext client = server.getClientById(id);
         SimpleFrame responseConnect;
         GlobalMessageFrame welcomeMessage;
-        if(bddServerResponseFrame.isPresentOnBDD()) {
+        if(frame.isPresentOnBDD()) {
             if(server.getClientById(id).getPassword().isEmpty()) {
                 LOGGER.log(Level.INFO, "Login already in use, cannot be taken");
                 responseConnect = SimpleFrame.createSimpleFrame(CONNECTION_KO,

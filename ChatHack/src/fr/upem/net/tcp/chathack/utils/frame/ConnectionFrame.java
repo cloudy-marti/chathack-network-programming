@@ -53,11 +53,11 @@ public class ConnectionFrame implements ChatHackFrame {
 
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
+        Objects.requireNonNull(bbdst);
         if (checkBufferSize(bbdst)) {
             bbdst.put(connectionFrame);
             connectionFrame.flip();
             bbdst.flip();
-            //bbdst.compact();
         } else {
             throw new IllegalArgumentException();
         }
@@ -72,6 +72,7 @@ public class ConnectionFrame implements ChatHackFrame {
 
     @Override
     public void accept(FrameVisitor visitor) {
+        Objects.requireNonNull(visitor);
         visitor.visit(this);
     }
 

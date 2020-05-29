@@ -6,6 +6,7 @@ import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public class FileFrameReader implements Reader<FileFrame> {
 
@@ -28,6 +29,7 @@ public class FileFrameReader implements Reader<FileFrame> {
  */
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
+        Objects.requireNonNull(buffer);
         if (state == State.DONE || state == State.ERROR) {
             throw new IllegalStateException();
         }

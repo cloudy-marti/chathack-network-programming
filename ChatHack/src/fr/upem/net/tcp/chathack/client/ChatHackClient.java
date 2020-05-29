@@ -12,7 +12,6 @@ import java.nio.channels.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,11 +29,9 @@ public class ChatHackClient {
     private final InetSocketAddress serverAddress;
     private final InetSocketAddress localServerAddress;
     private String login;
-    private String password;
     private final Thread console;
     private final ArrayBlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(10);
     private Context clientToServerContext;
-    private Context clientToClientContext;
     boolean isConnected = false;
     boolean wantADisconnection = false;
     //Récupérer le context pour savoir avec qui je suis connecté
@@ -46,31 +43,25 @@ public class ChatHackClient {
     private final HashMap<Long, String> requestWaiting = new HashMap<>(BLOCKING_QUEUE_SIZE);
     private long idRequest = 1;
 
-    private ChatHackClient(String login, String password,InetSocketAddress serverAddress, ChatHackFrame frameLogin) throws IOException {
+    private ChatHackClient(String login, InetSocketAddress serverAddress, ChatHackFrame frameLogin) throws IOException {
         this.serverAddress = serverAddress;
         this.login = login;
-        this.password = password;
         this.sc = SocketChannel.open();
         this.selector = Selector.open();
         this.console = new Thread(this::consoleRun);
-
         this.ssc = ServerSocketChannel.open();
         ssc.bind(null);
         this.localServerAddress = new InetSocketAddress(ssc.socket().getInetAddress(),ssc.socket().getLocalPort());
         this.frameLogin = frameLogin;
-
-
     }
+
     public ChatHackClient(String login, InetSocketAddress serverAddress) throws IOException {
-        this(login,"",serverAddress,ConnectionFrame.createConnectionFrame(0, login));
-        LOGGER.log(Level.INFO, "creating login frame");
+        this(login,serverAddress,ConnectionFrame.createConnectionFrame(0, login));
     }
 
     // constructor with login and password
     public ChatHackClient(String login, String password, InetSocketAddress serverAddress) throws IOException {
-        this(login,password,serverAddress,LoginPasswordFrame.createLoginPasswordFrame(1, login, password));
-        LOGGER.log(Level.INFO, "creating login with password frame");
-
+        this(login,serverAddress,LoginPasswordFrame.createLoginPasswordFrame(1, login, password));
     }
 
     public ChatHackFrame getFrameLogin() {
@@ -160,12 +151,10 @@ public class ChatHackClient {
                             queue.add(message);
                             //Message stocké temporairement
                             waitingMessage.put(target, queue);
-
                             requestWaiting.put(idRequest, target);
                             idRequest++;
                         }
                     } else { // command starts with "/"
-                        // /Bob = file pour bob
                         if(!contextPrivateConnection.containsKey(target)) {
                             System.out.println("Send a private message in order to create a private connection.");
                             break;
@@ -214,7 +203,7 @@ public class ChatHackClient {
                             ctx.silentlyClose();
                         }
                     }
-                    //Accept or refuse connection client to client
+                    // Accept or refuse connection client to client
                 } else if (command.startsWith("$")) {
                     var command2 = command.substring(1);
                     if (command2.equals("accept") || command2.equals("refuse")) {
@@ -245,8 +234,6 @@ public class ChatHackClient {
         }
     }
 
-    private static final Logger LOGGER = Logger.getLogger(ChatHackClient.class.getName());
-
     public void launch() throws IOException {
         ssc.configureBlocking(false);
         ssc.register(selector, SelectionKey.OP_ACCEPT);
@@ -257,9 +244,7 @@ public class ChatHackClient {
         clientToServerContext = new ClientToServerContext(key, this);
         key.attach(clientToServerContext);
 
-
         while (!Thread.interrupted() && !wantADisconnection) {
-            //printKeys();
             try {
                 selector.select(this::treatKey);
                 processCommands();
@@ -286,7 +271,7 @@ public class ChatHackClient {
             ConnectionFrame presentationFrame = ConnectionFrame.createConnectionFrame(PRESENTATION_LOGIN, login);
             ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
             presentationFrame.fillByteBuffer(buffer);
-            clientToClientContext.queueMessageWhithOutUpdateInterestOps(buffer);
+            clientToClientContext.queueMessageWithoutUpdateInterestOps(buffer);
         } catch (IOException ignored) {
         }
     }
@@ -303,7 +288,6 @@ public class ChatHackClient {
     }
 
     private void treatKey(SelectionKey key) {
-        //printSelectedKey(key); // for debug
         try {
             if (key.isValid() && key.isAcceptable()) {
                 doAccept(key);
@@ -314,90 +298,17 @@ public class ChatHackClient {
         }
         try {
             if (key.isValid() && key.isConnectable()) {
-                //LOGGER.log(Level.INFO, "key is connectable");
                 ((Context) key.attachment()).doConnect();
             }
             if (key.isValid() && key.isWritable()) {
-                //LOGGER.log(Level.INFO, "key is writable");
                 ((Context) key.attachment()).doWrite();
             }
             if (key.isValid() && key.isReadable()) {
-                //LOGGER.log(Level.INFO, "key is readable");
                 ((Context) key.attachment()).doRead();
             }
         } catch (IOException e) {
             logger.log(Level.INFO, "Connection closed with client due to IOException", e);
             ((Context) key.attachment()).silentlyClose();
-        }
-    }
-
-    /***
-     * Theses methods are here to help understanding the behavior of the selector
-     ***/
-
-    private String interestOpsToString(SelectionKey key) {
-        if (!key.isValid()) {
-            return "CANCELLED";
-        }
-        int interestOps = key.interestOps();
-        ArrayList<String> list = new ArrayList<>();
-        if ((interestOps & SelectionKey.OP_ACCEPT) != 0)
-            list.add("OP_ACCEPT");
-        if ((interestOps & SelectionKey.OP_READ) != 0)
-            list.add("OP_READ");
-        if ((interestOps & SelectionKey.OP_WRITE) != 0)
-            list.add("OP_WRITE");
-        return String.join("|", list);
-    }
-
-    public void printKeys() {
-        Set<SelectionKey> selectionKeySet = selector.keys();
-        if (selectionKeySet.isEmpty()) {
-            System.out.println("The selector contains no key : this should not happen!");
-            return;
-        }
-        System.out.println("The selector contains:");
-        for (SelectionKey key : selectionKeySet) {
-            SelectableChannel channel = key.channel();
-            if (channel instanceof ServerSocketChannel) {
-                System.out.println("\tKey for ServerSocketChannel : " + interestOpsToString(key));
-            } else {
-                SocketChannel sc = (SocketChannel) channel;
-                System.out.println("\tKey for Client " + remoteAddressToString(sc) + " : " + interestOpsToString(key));
-            }
-        }
-    }
-
-    public void printSelectedKey(SelectionKey key) {
-        SelectableChannel channel = key.channel();
-        if (channel instanceof ServerSocketChannel) {
-            System.out.println("\tServerSocketChannel can perform : " + possibleActionsToString(key));
-        } else {
-            SocketChannel sc = (SocketChannel) channel;
-            System.out.println(
-                    "\tClient " + remoteAddressToString(sc) + " can perform : " + possibleActionsToString(key));
-        }
-    }
-
-    private String possibleActionsToString(SelectionKey key) {
-        if (!key.isValid()) {
-            return "CANCELLED";
-        }
-        ArrayList<String> list = new ArrayList<>();
-        if (key.isAcceptable())
-            list.add("ACCEPT");
-        if (key.isReadable())
-            list.add("READ");
-        if (key.isWritable())
-            list.add("WRITE");
-        return String.join(" and ", list);
-    }
-
-    private String remoteAddressToString(SocketChannel sc) {
-        try {
-            return sc.getRemoteAddress().toString();
-        } catch (IOException e) {
-            return "???";
         }
     }
 

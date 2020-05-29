@@ -6,6 +6,7 @@ import fr.upem.net.tcp.chathack.utils.reader.utils.LongReader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public class BDDFrameReader implements Reader<ChatHackFrame> {
 
@@ -19,6 +20,7 @@ public class BDDFrameReader implements Reader<ChatHackFrame> {
 
     @Override
     public ProcessStatus process(ByteBuffer bb) {
+        Objects.requireNonNull(bb);
         if(state == State.WAITING_FOR_RESPONSE_CODE) {
             bb.flip();
             try {

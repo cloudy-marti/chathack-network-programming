@@ -39,6 +39,7 @@ public class BDDServerFrame implements ChatHackFrame {
 
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
+        Objects.requireNonNull(bbdst);
         if (checkBufferSize(bbdst)) {
             bbdst.put(bddBuffer);
             bddBuffer.flip();

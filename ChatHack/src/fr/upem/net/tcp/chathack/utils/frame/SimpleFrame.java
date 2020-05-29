@@ -7,15 +7,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-/*
-opCode : 10 11 12 13 14 15 21 30 31 32 33 34 35
-
+    /*
                   byte     int   String
                 -----------------------
                 | Opcode | Size | Msg |
                 -----------------------
-ENCODING : UTF 8
- */
+     */
 public class SimpleFrame implements ChatHackFrame {
     private final int opcode;
     private final String message;
@@ -52,6 +49,7 @@ public class SimpleFrame implements ChatHackFrame {
 
     @Override
     public void fillByteBuffer(ByteBuffer bbdst) {
+        Objects.requireNonNull(bbdst);
         if (checkBufferSize(bbdst)) {
             bbdst.put(simpleFrame);
             simpleFrame.flip();
@@ -69,6 +67,7 @@ public class SimpleFrame implements ChatHackFrame {
 
     @Override
     public void accept(FrameVisitor visitor) {
+        Objects.requireNonNull(visitor);
         visitor.visit(this);
     }
 

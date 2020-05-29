@@ -5,6 +5,7 @@ import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public class MessageFrameReader implements Reader<GlobalMessageFrame> {
     private enum State {DONE, WAITING_LOGIN, WAITING_MSG, ERROR};
@@ -16,8 +17,7 @@ public class MessageFrameReader implements Reader<GlobalMessageFrame> {
     private String login;
     private String message;
 
-    // opcodes 01, 20 and 21
-    /* Format
+    /*
      * +-------------------+-------+-----------------+------+
      * | Login size (BYTE) | Login | Text size (INT) | Text |
      * +-------------------+-------+-----------------+------+
@@ -25,6 +25,7 @@ public class MessageFrameReader implements Reader<GlobalMessageFrame> {
 
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
+        Objects.requireNonNull(buffer);
         if (state == State.DONE || state == State.ERROR) {
             throw new IllegalStateException();
         }

@@ -5,14 +5,14 @@ import fr.upem.net.tcp.chathack.utils.reader.utils.Reader;
 import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
-/*
+    /*
                   int   String
                 --------------
                 | Size | Msg |
                 --------------
-                ErrorFrame/AckFrame/ConnectionFrame/ResponseFrame
- */
+    */
 
 public class SimpleFrameReader implements Reader<SimpleFrame> {
 
@@ -26,6 +26,7 @@ public class SimpleFrameReader implements Reader<SimpleFrame> {
 
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
+        Objects.requireNonNull(buffer);
         if (state == State.DONE || state == State.ERROR) {
             throw new IllegalStateException();
         }

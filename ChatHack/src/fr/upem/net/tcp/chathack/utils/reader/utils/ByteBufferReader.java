@@ -67,12 +67,12 @@ public class ByteBufferReader implements Reader<ByteBuffer> {
 
     @Override
     public ByteBuffer get() {
-        return null;
+        return value;
     }
 
     @Override
     public ByteBuffer get(int opcode) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
