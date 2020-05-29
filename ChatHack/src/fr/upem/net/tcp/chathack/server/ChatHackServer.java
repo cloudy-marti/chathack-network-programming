@@ -128,19 +128,8 @@ public class ChatHackServer {
     public void broadcast(GlobalMessageFrame msg) {
         ByteBuffer tmp = ByteBuffer.allocate(BUFFER_SIZE);
         msg.fillByteBuffer(tmp);
-//        clientsByID.forEach((id, client) -> client.queueMessage(tmp));
-        Set<SelectionKey> selectionKeySet = selector.keys();
-        for (SelectionKey key : selectionKeySet) {
-            if(!(key.channel() instanceof ServerSocketChannel)) {
-                if(key.attachment() instanceof ServerToClientContext) {
-                    System.out.print("broadcasting to : ");
-                    printSelectedKey(key);
-                    ((Context)key.attachment()).queueMessage(tmp);
-                }
-            }
-        }
+        clientsByID.forEach((id, client) -> client.queueMessage(tmp));
     }
-
 
     /**
      * Send a request to the MDP server to know whether the login with/without password is valid

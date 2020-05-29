@@ -5,8 +5,23 @@ import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 import java.nio.ByteBuffer;
 
 public interface ChatHackFrame {
+    /**
+     * Fill the given buffer with the frame data
+     * @param bbdst buffer to be filled
+     */
     void fillByteBuffer(ByteBuffer bbdst);
+
+    /**
+     * Check if the given buffer has enough space
+     * @param buffer buffer to be tested
+     * @return true if buffer can be filled, false if not
+     */
     boolean checkBufferSize(ByteBuffer buffer);
+
+    /**
+     * FrameVisitor wrapping method
+     * @param visitor
+     */
     void accept(FrameVisitor visitor);
     int getOpcode();
 

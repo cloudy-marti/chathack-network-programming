@@ -118,6 +118,10 @@ public class ChatHackClient {
                     }
                     //Start with 1 for the first letter of the Login
                     var target = splitTab[0].substring(1);
+                    if(target.equals(login)) {
+                        System.out.println("You can't send private messages to yourself !");
+                        break;
+                    }
                     //@Bob = message privé pour bob
                     if (command.startsWith("@")) {
                         //La suite de mon tab donc mon msg
@@ -212,7 +216,6 @@ public class ChatHackClient {
                             int opCode;
                             if (command2.equals("accept")) {
                                 opCode = PRIVATE_CONNECTION_OK;
-                                //Create new connection
                                 createPrivateConnection(frame);
                             } else {
                                 opCode = PRIVATE_CONNECTION_KO;
