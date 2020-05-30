@@ -15,7 +15,7 @@ import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
 import static java.nio.file.StandardOpenOption.*;
 
 /**
- * Perform operations on received frames in a private client->client connection
+ * Perform operations on received frames in a private client-client connection
  */
 public class ClientToClientFrameVisitor implements FrameVisitor {
     private final ClientToClientContext context;
