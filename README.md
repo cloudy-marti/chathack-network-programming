@@ -1,4 +1,3 @@
-
 # ChatHack
 
 The ChatHack project is an application that allows users to chat with each other.
@@ -14,7 +13,9 @@ You need to go on the **ChatHack** directory on your terminal and follow these i
 The ChatHack projet can be compiled using Ant. Type the following commands in order to compile and get the JAR executables in the build directory :
 
 > ``ant init``
+
 > ``ant compile``
+
 > ``ant makeJars``
 
 You can combine the commands above like this :
