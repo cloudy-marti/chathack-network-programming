@@ -160,6 +160,8 @@ local.properties
 # Typically, this file would be tracked if it contains build/dependency configurations:
 #.project
 
+# ignore generated javadoc
+ChatHack/doc/*
 
 # DO NOT IGNORE
 !build.xml
