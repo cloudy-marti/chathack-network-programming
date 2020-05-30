@@ -62,10 +62,13 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
         Objects.requireNonNull(frame);
         try {
             System.out.println("Receiving file " + frame.getFileName() + " ...");
-            Files.write(Paths.get(client.getPath() +"received_" + frame.getFileName()), frame.getFileData().array(),  WRITE, TRUNCATE_EXISTING);
+            Files.write(Paths.get(client.getPath() +"received_" + frame.getFileName()), frame.getFileData().array(),
+                    WRITE, CREATE_NEW, TRUNCATE_EXISTING);
         } catch (IOException ioE) {
             System.out.println("Couldn't create file");
+            return;
         }
+        System.out.println("File downloaded !");
     }
 
     /**
