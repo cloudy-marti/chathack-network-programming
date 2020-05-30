@@ -62,10 +62,10 @@ The ChatHack client is a Jar too, To launch it, you have to go to the folder whe
 executable is located and do the following command :
 
 > ``# Without Password``
-> ``java -jar ./ChatHackClient.jar "login" <address_chathack> <port_chathack>``
+> ``java -jar ./ChatHackClient.jar "login" <address_chathack> <port_chathack> <path_fichier>``
 
 > ``With Password``
-> ``java -jar ./ChatHackClient.jar "login" "password" <address_chathack> <port_chathack>``
+> ``java -jar ./ChatHackClient.jar "login" "password" <address_chathack> <port_chathack> <path_fichier>``
 
 ## Commands available when using the ChatHack Client
 
