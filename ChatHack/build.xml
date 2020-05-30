@@ -5,22 +5,25 @@
     <property name="src" location="src"/>
     <property name="build" location="build"/>
     <property name="out" location="out/production"/>
+    <property name="doc" location="doc"/>
     <property name="serverJar" location="ChatHackServer.jar"/>
     <property name="clientJar" location="ChatHackClient.jar"/>
 
+    <!-- Initialize build environment -->
     <target name="init">
         <!-- Create the timestamp -->
         <tstamp/>
-        <!-- Create the build directory structure used by compile -->
+        <!-- Create the directory structure used by building tasks -->
         <mkdir dir="${out}"/>
         <mkdir dir="${build}"/>
     </target>
 
+    <!-- Compile the java code from ${src} to ${build} -->
     <target name="compile" depends="init" description="compile the source">
-        <!-- Compile the java code from ${src} to ${build} -->
         <javac srcdir="${src}" destdir="${out}"/>
     </target>
 
+    <!-- Generate JAR executables -->
     <target name="makeJars" depends="compile" description="build the jars">
         <!-- Create ChatHack server executable JAR -->
         <jar destfile="${serverJar}"
@@ -40,10 +43,21 @@
         </jar>
     </target>
 
-    <target name="clean" description="clean the builds">
-        <!-- Delete the ${build} and ${dist} directory trees -->
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <target name="clean" depends="init" description="clean the builds">
         <delete dir="${build}"/>
-        <delete dir="out"/>
+        <delete dir="${out}"/>
+    </target>
+
+    <!-- Generate Javadoc from sources -->
+    <target name="javadoc" description="generate javadoc from source">
+        <mkdir dir="${doc}"/>
+        <javadoc sourcepath="${src}" destdir="${doc}"/>
+    </target>
+
+    <!-- Delete Javadoc -->
+    <target name="clearDoc" depends="javadoc" description="delete generated doc">
+        <delete dir="${doc}"/>
     </target>
 
 </project>
