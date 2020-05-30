@@ -1,0 +1,49 @@
+<project name="ChatHack" basedir=".">
+    <description>
+        TCP non-blocking client and server that follow the protocol ChatHack.
+    </description>
+    <property name="src" location="src"/>
+    <property name="build" location="build"/>
+    <property name="out" location="out/production"/>
+    <property name="serverJar" location="ChatHackServer.jar"/>
+    <property name="clientJar" location="ChatHackClient.jar"/>
+
+    <target name="init">
+        <!-- Create the timestamp -->
+        <tstamp/>
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${out}"/>
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="compile" depends="init" description="compile the source">
+        <!-- Compile the java code from ${src} to ${build} -->
+        <javac srcdir="${src}" destdir="${out}"/>
+    </target>
+
+    <target name="makeJars" depends="compile" description="build the jars">
+        <!-- Create ChatHack server executable JAR -->
+        <jar destfile="${serverJar}"
+             basedir="${out}"
+             includes="fr/upem/net/tcp/chathack/**/*.class">
+            <manifest>
+                <attribute name="Main-Class" value="fr.upem.net.tcp.chathack.server.ChatHackServer"/>
+            </manifest>
+        </jar>
+        <!-- Create ChatHack client executable JAR -->
+        <jar destfile="${clientJar}"
+             basedir="${out}"
+             includes="fr/upem/net/tcp/chathack/**/*.class">
+            <manifest>
+                <attribute name="Main-Class" value="fr.upem.net.tcp.chathack.client.ChatHackClient"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="clean" description="clean the builds">
+        <!-- Delete the ${build} and ${dist} directory trees -->
+        <delete dir="${build}"/>
+        <delete dir="out"/>
+    </target>
+
+</project>
