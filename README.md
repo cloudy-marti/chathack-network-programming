@@ -1,3 +1,4 @@
+
 # ChatHack
 
 The ChatHack project is an application that allows users to chat with each other.
@@ -6,40 +7,68 @@ and privately, by chatting with only one other user when he has given his approv
 
 In private exchange mode, users can exchange messages as well as files.
 
-The following commands allow communication between customers and Broadcast message too :
+You need to go on the **ChatHack** directory on your terminal and follow these instructions.
 
-# Setting up the environment
+## Compiling and creating JAR files
 
-## MDPServer
-first to launch the application and allow users with passwords to log in, you have to
+The ChatHack projet can be compiled using Ant. Type the following commands in order to compile and get the JAR executables in the build directory :
+
+> ``ant init``
+> ``ant compile``
+> ``ant makeJars``
+
+You can combine the commands above like this :
+
+> ``ant init compile makeJars``
+
+If you want to get a clean repository, you may clean the generated files with the following command :
+
+> ``ant clean``
+
+## Generate JavaDoc
+
+You can also generate the javadoc from the files using ant :
+
+> ``ant javadoc``
+
+To delete the javadoc files, use :
+
+> ``ant clearDoc``
+
+## Setting up the environment
+
+### MDPServer
+To launch the server and allow users with passwords to log in, you have to
 launch the ServerMDP jar with :
 
-#### java -jar ./ServerMDP.jar <port_mdp> <chemin/vers/fichier_de_sauvegarde>
+> ``java -jar ./ServerMDP.jar <port_mdp> <path/to/save_file.txt>``
 
-# Server & Client
+### Server & Client
 
-The ChatHack server is a Jar  To launch it, you have to go to the folder where the 
+The ChatHack server is a Jar executable. To launch it, you have to go to the folder where the 
 executable is located and do the following command :
 
-#### java -jar ./ChatHackServer <port_chathack> <address_mdp> <port_mdp>
+> ``java -jar ./ChatHackServer <port_chathack> <address_mdp> <port_mdp>``
 
-where <port_mdp> is a free port of the machine.
+Where <port_mdp> is a free port of the machine.
 
 The ChatHack client is a Jar too, To launch it, you have to go to the folder where the 
 executable is located and do the following command :
 
-#### (Without Password) java -jar ./ChatHackClient "login" <address_chathack> <port_chathack>
+> ``# Without Password``
+> ``java -jar ./ChatHackClient "login" <address_chathack> <port_chathack>``
 
-#### (With Password) java -jar ./ChatHackClient "login" "password" <address_chathack> <port_chathack>
+> ``With Password``
+> ``java -jar ./ChatHackClient "login" "password" <address_chathack> <port_chathack>``
 
-# Command to be used once the server and client are running :
+## Commands available when using the ChatHack Client
 
-### Message -> send the message in broadcast to all the connected users
-### @someoneWhoIsntInGit message -> Send a private message to the client someoneWhoIsntInGit
-### /bob file.png -> Send a private file to the client bob
-### $accept -> Accept the connection
-### $refuse -> Refuse the connection
-### & -> Disconnected
+* **Message ->** Send the message in broadcast to all the connected users
+* **@someoneWhoIsntInGit message ->** Send a private message to the client someoneWhoIsntInGit
+* **/bob file ->** Send a private file to the client bob
+* **$accept ->** Accept the connection
+* **$refuse ->** Refuse the connection
+* **& ->** Disconnected
 
 
 MARTI Emilie - MECHOUK Lisa
