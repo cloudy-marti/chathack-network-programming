@@ -15,10 +15,18 @@ import java.util.Objects;
  */
 public class BDDServerFrameWithPassword implements ChatHackFrame {
 
+    private final long id;
+    private final String login;
+    private final String password;
     private final ByteBuffer bddBuffer;
 
-    private BDDServerFrameWithPassword(ByteBuffer bddBuffer) {
+    private BDDServerFrameWithPassword(long id, String login, String password, ByteBuffer bddBuffer) {
+        Objects.requireNonNull(login);
+        Objects.requireNonNull(password);
         Objects.requireNonNull(bddBuffer);
+        this.id = id;
+        this.login = login;
+        this.password = password;
         this.bddBuffer = bddBuffer;
     }
 
@@ -32,7 +40,7 @@ public class BDDServerFrameWithPassword implements ChatHackFrame {
         ByteBuffer buffer = ByteBuffer.allocate(1 + Long.BYTES + 2*Integer.BYTES + loginSize + passwordSize);
         byte opcode = 1;
         buffer.put(opcode).putLong(id).putInt(loginSize).put(tmpLogin).putInt(passwordSize).put(tmpPassword).flip();
-        return new BDDServerFrameWithPassword(buffer);
+        return new BDDServerFrameWithPassword(id, login, password, buffer);
     }
 
     @Override
