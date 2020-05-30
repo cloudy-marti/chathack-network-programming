@@ -6,8 +6,8 @@
     <property name="build" location="build"/>
     <property name="out" location="out/production"/>
     <property name="doc" location="doc"/>
-    <property name="serverJar" location="ChatHackServer.jar"/>
-    <property name="clientJar" location="ChatHackClient.jar"/>
+    <property name="serverJar" location="build/ChatHackServer.jar"/>
+    <property name="clientJar" location="build/ChatHackClient.jar"/>
 
     <!-- Initialize build environment -->
     <target name="init">
