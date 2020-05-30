@@ -6,10 +6,7 @@ and privately, by chatting with only one other user when he has given his approv
 
 In private exchange mode, users can exchange messages as well as files.
 
-In the ChatHack folder, the serverChatHack and clientChatHack jars represent the
-final jars of the project, which are already build. In source you have the file 
-you want to send and receive and in documentation there is the user documentation, 
-the developpement documentation and the javadoc
+In the ChatHack folder, the serverChatHack and clientChatHack jars represent the final jars of the project, which are already build. In source you have the file you want to send and receive and in documentation there is the user documentation, the developpement documentation and the javadoc
 
 You need to go on the **ChatHack** directory where the build.xml is and follow these instructions.
 
@@ -47,7 +44,9 @@ To delete the javadoc files, use :
 To launch the server and allow users with passwords to log in, you have to
 launch the ServerMDP jar with :
 
-> ``java -jar ./ServerMDP.jar <port_mdp> <path/to/save_file.txt>``
+> ``java -jar ./ServerMDP.jar <port_mdp> <./path/to/save_file.txt>``
+
+the save_file.txt needs to have some login and password information separate by $ like hello$password
 
 ### Server & Client
 
@@ -64,7 +63,7 @@ executable is located and do the following command :
 > ``# Without Password``
 > ``java -jar ./ChatHackClient.jar "login" <address_chathack> <port_chathack> <path_fichier>``
 
-> ``With Password``
+> ``# With Password``
 > ``java -jar ./ChatHackClient.jar "login" "password" <address_chathack> <port_chathack> <path_fichier>``
 
 ## Commands available when using the ChatHack Client
