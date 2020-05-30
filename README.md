@@ -11,7 +11,7 @@ final jars of the project, which are already build. In source you have the file
 you want to send and receive and in documentation there is the user documentation, 
 the developpement documentation and the javadoc
 
-You need to go on the **ChatHack** directory on your terminal and follow these instructions.
+You need to go on the **ChatHack** directory where the build.xml is and follow these instructions.
 
 ## Compiling and creating JAR files
 
