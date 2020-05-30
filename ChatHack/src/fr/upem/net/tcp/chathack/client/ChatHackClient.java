@@ -18,6 +18,9 @@ import java.util.logging.Logger;
 
 import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
 
+/**
+ * TCP Non-blocking client that follows the ChatHack protocol
+ */
 public class ChatHackClient {
     static private final int BUFFER_SIZE = 10_000;
     static private final int BLOCKING_QUEUE_SIZE = 100;
@@ -34,7 +37,7 @@ public class ChatHackClient {
     private Context clientToServerContext;
     boolean isConnected = false;
     boolean wantADisconnection = false;
-    //Récupérer le context pour savoir avec qui je suis connecté
+    // Retrieve context to know with whom this is privately connected
     private final HashMap<String, Context> contextPrivateConnection = new HashMap<>();
     private final HashMap<String, ArrayBlockingQueue<String>> waitingMessage = new HashMap<>();
     private final ArrayList<String> refusedConnection = new ArrayList<>();
@@ -74,6 +77,9 @@ public class ChatHackClient {
         return this.login;
     }
 
+    /**
+     * Console thread's runnable that will allow the client to send commands and messages to ChatHack
+     */
     private void consoleRun() {
         try {
             var scan = new Scanner(System.in);
@@ -90,7 +96,6 @@ public class ChatHackClient {
 
     /**
      * Send a command to the selector via commandQueue and wake it up
-     *
      * @param msg Command written by the user
      * @throws InterruptedException if the console thread is interrupted by the main thread
      */
@@ -102,7 +107,12 @@ public class ChatHackClient {
     }
 
     /**
-     * Processes the command from commandQueue.
+     * Processes the command from commandQueue. The commands are the following :
+     * <b>message</b> : Message to be sent on global chat
+     * <b>@login message</b> : Message to be sent on private to another connected client
+     * <b>$accept/$refuse</b> : Accept or refuse private connection request to another connected client
+     * <b>/login path_of_file</b> : File to be sent on private to another connected client
+     * <b>&</b> : Disconnection request
      */
     private void processCommands() {
         while (!commandQueue.isEmpty()) {
@@ -112,10 +122,10 @@ public class ChatHackClient {
                 //private msg + file
                 assert command != null;
                 if (command.startsWith("/") || command.startsWith("@")) {
-                    //Extraction du Login
+                    // get login
                     var splitTab = command.split(" ", 2);
                     if (splitTab[0].length() < 1) {
-                        //Login incorrect car inferieur à 1
+                        // empty login is a wrong login
                         break;
                     }
                     //Start with 1 for the first letter of the Login
@@ -124,16 +134,15 @@ public class ChatHackClient {
                         System.out.println("You can't send private messages to yourself !");
                         break;
                     }
-                    //@Bob = message privé pour bob
-                    if (command.startsWith("@")) {
-                        //La suite de mon tab donc mon msg
+                    if (command.startsWith("@")) { // private message
+                        // next String of the array is the message
                         String message;
                         if (splitTab.length == 1) {
                             message = "";
                         } else {
                             message = splitTab[1];
                         }
-                        //Si on a une connexion privée déjà établie
+                        // There is already a private connection
                         if (contextPrivateConnection.containsKey(target)) {
                             var context = contextPrivateConnection.get(target);
                             var privateMessage = SimpleFrame.createSimpleFrame(PRIVATE_MESSAGE, message);
@@ -144,18 +153,19 @@ public class ChatHackClient {
                             System.out.println("The client : " + target + " has already refused the connection");
                             return;
                         } else if (waitingMessage.containsKey(target)) {
-                            //Cas ou le client a fait la demande de connexion mais n'a pas encore eu de réponse 'délais entre ok et ko de la part de client 2
+                            // if the target client does not respond within a certain delay
                             var targetMessages = waitingMessage.get(target);
                             targetMessages.add(message);
                         } else {
-                            // Pour la demande de connexion
+                            // Connection request
                             var requestConnectionFrame = PrivateConnectionFrame
-                                    .createPrivateConnectionFrame(PRIVATE_CONNECTION_REQUEST, target, idRequest, localServerAddress);
+                                    .createPrivateConnectionFrame(PRIVATE_CONNECTION_REQUEST, target, idRequest,
+                                            localServerAddress);
                             requestConnectionFrame.fillByteBuffer(buffer);
                             clientToServerContext.queueMessage(buffer);
                             var queue = new ArrayBlockingQueue<String>(BLOCKING_QUEUE_SIZE);
                             queue.add(message);
-                            //Message stocké temporairement
+                            // Message kept for a certain time
                             waitingMessage.put(target, queue);
                             requestWaiting.put(idRequest, target);
                             idRequest++;
@@ -239,6 +249,10 @@ public class ChatHackClient {
         }
     }
 
+    /**
+     * Initialize and launch the client in non-blocking mode
+     * @throws IOException if one of the socket channel or the selector methods fails
+     */
     public void launch() throws IOException {
         ssc.configureBlocking(false);
         ssc.register(selector, SelectionKey.OP_ACCEPT);
@@ -263,6 +277,11 @@ public class ChatHackClient {
         return connectionRequest;
     }
 
+    /**
+     * Connect to a channel opened by client who wants a private connection
+     * And send a presentation frame to inform that the connection is OK
+     * @param frame private connection frame that contains the address to be connected to
+     */
     public void createPrivateConnection(PrivateConnectionFrame frame) {
         try {
             SocketChannel sc = SocketChannel.open();
@@ -326,8 +345,8 @@ public class ChatHackClient {
     }
 
     private static void usage() {
-        System.out.println("Usage : ChatHackClient login hostname port\n" +
-                "Usage with password : ChatHackClient login password hostname port");
+        System.out.println("Usage : ChatHackClient login hostname port path_of_files\n" +
+                "Usage with password : ChatHackClient login password hostname port path_of_files");
     }
 
     public HashMap<String, Context> getContextPrivateConnection() {
@@ -355,6 +374,9 @@ public class ChatHackClient {
         isConnected = true;
     }
 
+    /**
+     * Close all active private connections and the client itself.
+     */
     public void stop() {
         console.interrupt();
         for (SelectionKey key : selector.keys()) {

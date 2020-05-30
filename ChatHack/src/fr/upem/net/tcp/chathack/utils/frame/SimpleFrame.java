@@ -7,12 +7,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-    /*
-                  byte     int   String
-                -----------------------
-                | Opcode | Size | Msg |
-                -----------------------
-     */
+/**
+ * Multipurpose simple frame
+ *                   byte     int   String
+ *                 -----------------------
+ *                 | Opcode | Size | Msg |
+ *                 -----------------------
+ */
 public class SimpleFrame implements ChatHackFrame {
     private final int opcode;
     private final String message;

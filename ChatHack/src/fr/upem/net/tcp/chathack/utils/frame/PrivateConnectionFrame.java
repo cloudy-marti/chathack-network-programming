@@ -1,6 +1,5 @@
 package fr.upem.net.tcp.chathack.utils.frame;
 
-
 import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 
 import java.net.InetSocketAddress;
@@ -9,13 +8,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-/*
-opCode : 02
-
-               byte       int      String     byte            byte     int
-            -----------------------------------------------------------------
-            | Opcode | SizeOfLogin | Login | SizeOfAddress | Address | Port |
-            -----------------------------------------------------------------
+/**
+ * Private connection request frame
+ *                byte       int      String     byte            byte     int
+ *             -----------------------------------------------------------------
+ *             | Opcode | SizeOfLogin | Login | SizeOfAddress | Address | Port |
+ *             -----------------------------------------------------------------
  */
 public class PrivateConnectionFrame implements ChatHackFrame {
     private final int opcode;

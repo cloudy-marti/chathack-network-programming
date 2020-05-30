@@ -7,17 +7,14 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+/**
+ * File transmission frame
+ *            byte        int          String       int       byte
+ *         ----------------------------------------------------------
+ *         | Opcode | SizeOfFileName | FileName | SizeOfFile | File |
+ *         ----------------------------------------------------------
+ */
 public class FileFrame implements ChatHackFrame {
-
-    /*
-opCode : 22
-           byte        int          String       int       byte
-        ----------------------------------------------------------
-        | Opcode | SizeOfFileName | FileName | SizeOfFile | File |
-        ----------------------------------------------------------
-
-ENCODING : ASCII
-     */
 
     private final int opCode;
     private final String fileName;

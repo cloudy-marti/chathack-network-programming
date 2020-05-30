@@ -4,6 +4,9 @@ import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 
 import java.nio.ByteBuffer;
 
+/**
+ * ChatHack frames interface
+ */
 public interface ChatHackFrame {
     /**
      * Fill the given buffer with the frame data
@@ -20,7 +23,7 @@ public interface ChatHackFrame {
 
     /**
      * FrameVisitor wrapping method
-     * @param visitor
+     * @param visitor used to accept the frame
      */
     void accept(FrameVisitor visitor);
     int getOpcode();

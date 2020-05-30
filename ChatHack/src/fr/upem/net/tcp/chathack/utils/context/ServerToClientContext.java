@@ -15,6 +15,9 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 
+/**
+ * Context of the client <---> server connection known by the client
+ */
 public class ServerToClientContext implements Context {
 
     final private SelectionKey key;
@@ -45,6 +48,7 @@ public class ServerToClientContext implements Context {
         this.id = id;
     }
 
+    @Override
     public void processIn() {
         FrameReader frameReader = new FrameReader();
         for(;;) {
@@ -64,6 +68,7 @@ public class ServerToClientContext implements Context {
         }
     }
 
+    @Override
     public void treatFrame(ChatHackFrame frame) {
         Objects.requireNonNull(frame);
         frame.accept(frameVisitor);
@@ -77,6 +82,7 @@ public class ServerToClientContext implements Context {
         updateInterestOps();
     }
 
+    @Override
     public void processOut() {
         while (!messageQueue.isEmpty()) {
             ByteBuffer tmp = messageQueue.peek();
@@ -90,6 +96,7 @@ public class ServerToClientContext implements Context {
         }
     }
 
+    @Override
     public void updateInterestOps() {
         int interestOps = 0;
         if(!inputClosed && inputBuffer.hasRemaining()) {
@@ -110,6 +117,7 @@ public class ServerToClientContext implements Context {
         }
     }
 
+    @Override
     public void silentlyClose() {
         try {
             sc.close();
@@ -118,6 +126,7 @@ public class ServerToClientContext implements Context {
         }
     }
 
+    @Override
     public void doRead() throws IOException {
         if(sc.read(inputBuffer) == -1) {
             inputClosed = true;

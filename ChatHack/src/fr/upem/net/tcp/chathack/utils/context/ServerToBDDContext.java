@@ -17,6 +17,9 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Context of the server ChatHack<---> serverMDP connection known by the server ChatHack
+ */
 public class ServerToBDDContext implements Context {
 
     private static final int BUFFER_SIZE = 1_024;

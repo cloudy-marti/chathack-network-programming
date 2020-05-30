@@ -15,6 +15,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Non blocking TCP server that follows ChatHack protocol
+ */
 public class ChatHackServer {
 
     static private final int BUFFER_SIZE = 10_000;

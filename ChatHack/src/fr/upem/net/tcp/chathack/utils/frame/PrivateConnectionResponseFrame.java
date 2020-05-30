@@ -5,6 +5,13 @@ import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
+/**
+ * Private connection response frame
+ *                         byte      long
+ *                     -----------------------
+ *                     | Opcode | idRequest |
+ *                     ----------------------
+ */
 public class PrivateConnectionResponseFrame implements ChatHackFrame {
     private final int opcode;
     private final long idRequest;

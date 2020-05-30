@@ -17,6 +17,9 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Context of the client <---> client connection known by each client
+ */
 public class ClientToClientContext implements Context {
     private static final Logger LOGGER = Logger.getLogger(ClientToClientContext.class.getName());
 

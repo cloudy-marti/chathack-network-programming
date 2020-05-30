@@ -13,6 +13,9 @@ import java.util.logging.Logger;
 
 import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
 
+/**
+ * Perform operations on received frames by the ChatHack server from the server MDP
+ */
 public class ServerToBDDFrameVisitor implements FrameVisitor {
 
     private final static Logger LOGGER = Logger.getLogger(ServerToBDDFrameVisitor.class.getName());
@@ -25,6 +28,10 @@ public class ServerToBDDFrameVisitor implements FrameVisitor {
         this.server = server;
     }
 
+    /**
+     * ServerMDP response to a request for check a login or pair of login/password
+     * @param frame that contains the response
+     */
     @Override
     public void visit(BDDServerResponseFrame frame) {
         Objects.requireNonNull(frame);

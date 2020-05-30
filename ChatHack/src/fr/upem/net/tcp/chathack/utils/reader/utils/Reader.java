@@ -2,6 +2,10 @@ package fr.upem.net.tcp.chathack.utils.reader.utils;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Reader interface that allows to decode a bytebuffer into an understandable object
+ * @param <T> Object to be found from the given bytebuffer
+ */
 public interface Reader<T> {
     enum ProcessStatus {DONE,REFILL,ERROR};
 

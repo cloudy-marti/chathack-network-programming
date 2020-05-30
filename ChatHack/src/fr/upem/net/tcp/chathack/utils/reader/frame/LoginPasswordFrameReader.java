@@ -18,12 +18,6 @@ public class LoginPasswordFrameReader implements Reader<LoginPasswordFrame> {
     private String login;
     private String message;
 
-    /*
-     * +-------------------+-------+-----------------+------+
-     * | Login size (BYTE) | Login | Text size (INT) | Text |
-     * +-------------------+-------+-----------------+------+
-     */
-
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
         Objects.requireNonNull(buffer);

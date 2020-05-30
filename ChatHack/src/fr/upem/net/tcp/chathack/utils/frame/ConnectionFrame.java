@@ -7,15 +7,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-/*
-opCode : 00 03
-
-               byte       int      String
-            --------------------------------
-            | Opcode | SizeOfLogin | Login |
-            --------------------------------
-
-ENCODING : ASCII
+/**
+ * Connection request frame
+ *                byte       int      String
+ *             --------------------------------
+ *             | Opcode | SizeOfLogin | Login |
+ *             --------------------------------
  */
 public class ConnectionFrame implements ChatHackFrame {
     private final int opcode;

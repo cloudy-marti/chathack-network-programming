@@ -7,13 +7,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-/*
-               byte       int      String          int          String
-            ------------------------------------------------------------
-            | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
-            ------------------------------------------------------------
+/**
+ * Connection request frame with login and password
+ *                byte       int      String          int          String
+ *             ------------------------------------------------------------
+ *             | Opcode | SizeOfLogin | Login | SizeOfPassword | Password |
+ *             ------------------------------------------------------------
  */
-
 public class LoginPasswordFrame implements ChatHackFrame {
 
     private final int opcode;

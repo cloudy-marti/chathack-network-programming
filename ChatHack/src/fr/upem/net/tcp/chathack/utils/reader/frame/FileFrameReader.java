@@ -21,12 +21,6 @@ public class FileFrameReader implements Reader<FileFrame> {
     private String fileName;
     private ByteBuffer fileData;
 
-    /*
-           int          String       int       byte
-    -------------------------------------------------
-    | SizeOfFileName | FileName | SizeOfFile | File |
-    -------------------------------------------------
- */
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
         Objects.requireNonNull(buffer);

@@ -7,13 +7,6 @@ import fr.upem.net.tcp.chathack.utils.reader.utils.StringReader;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-    /*
-                  int   String
-                --------------
-                | Size | Msg |
-                --------------
-    */
-
 public class SimpleFrameReader implements Reader<SimpleFrame> {
 
     private enum State {DONE, WAITING, ERROR};

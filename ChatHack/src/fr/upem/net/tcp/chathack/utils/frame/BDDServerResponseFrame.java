@@ -5,13 +5,15 @@ import fr.upem.net.tcp.chathack.utils.visitor.FrameVisitor;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
+/**
+ * ServerMDP's response frame when asked to check a login or pair of login/password
+ *               byte  Long
+ *             ------------
+ *             | 0/1 | id |
+ *             ------------
+ */
 public class BDDServerResponseFrame implements ChatHackFrame {
-    /*
-             byte  Long
-            ------------
-            | 0/1 | id |
-            ------------
-    */
+
     private final byte isValid;
     private final long id;
     private final ByteBuffer bddBuffer;

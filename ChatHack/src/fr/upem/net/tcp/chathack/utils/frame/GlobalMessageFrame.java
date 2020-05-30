@@ -7,14 +7,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-/*
-opCode : 20
-               byte       int      String       int          String
-            ----------------------------------------------------------
-            | Opcode | SizeOfLogin | Login | SizeOfMessage | Message |
-            ----------------------------------------------------------
-
-ENCODING : ASCII for login/password & UTF 8 for Message
+/**
+ * Global message to be broadcasted to all connected clients frame
+ *                byte       int      String       int          String
+ *             ----------------------------------------------------------
+ *             | Opcode | SizeOfLogin | Login | SizeOfMessage | Message |
+ *             ----------------------------------------------------------
  */
 public class GlobalMessageFrame implements ChatHackFrame {
 

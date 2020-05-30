@@ -7,10 +7,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFrame> {
 
@@ -31,12 +28,6 @@ public class PrivateConnectionFrameReader implements Reader<PrivateConnectionFra
     private final IntReader intReader = new IntReader();
     private final LongReader longReader = new LongReader();
 
-    /*
-                int       String        byte         byte     int       long
-           --------------------------------------------------------------------
-           | SizeOfLogin | Login | SizeOfAddress | Address | Port | idRequest |
-           --------------------------------------------------------------------
-     */
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
         Objects.requireNonNull(buffer);

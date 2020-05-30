@@ -9,12 +9,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 
 import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
 import static java.nio.file.StandardOpenOption.*;
 
+/**
+ * Perform operations on received frames in a private client->client connection
+ */
 public class ClientToClientFrameVisitor implements FrameVisitor {
     private final ClientToClientContext context;
     private final ChatHackClient client;
@@ -27,6 +29,10 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
         this.client = client;
     }
 
+    /**
+     * Frame received when a connection is accepted
+     * @param frame that contains the presentation
+     */
     @Override
     public void visit(ConnectionFrame frame) {
         Objects.requireNonNull(frame);
@@ -47,6 +53,10 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
         }
     }
 
+    /**
+     * Receive and download a frame
+     * @param frame containing the file data
+     */
     @Override
     public void visit(FileFrame frame) {
         Objects.requireNonNull(frame);
@@ -58,6 +68,10 @@ public class ClientToClientFrameVisitor implements FrameVisitor {
         }
     }
 
+    /**
+     * Messages exchanged privately
+     * @param frame that contains the message data
+     */
     @Override
     public void visit(SimpleFrame frame) {
         Objects.requireNonNull(frame);

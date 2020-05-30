@@ -6,27 +6,19 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+/**
+ * Server request frame to ask to check a pair of login/password
+ *             byte Long  String   String
+ *            -----------------------------
+ *            | 1 | id | Login | Password |
+ *            -----------------------------
+ */
 public class BDDServerFrameWithPassword implements ChatHackFrame {
 
-    /*
-            byte Long  String   String
-            -----------------------------
-            | 1 | id | Login | Password |
-            -----------------------------
- */
-
-    private final long id;
-    private final String login;
-    private final String password;
     private final ByteBuffer bddBuffer;
 
-    private BDDServerFrameWithPassword(long id, String login, String password, ByteBuffer bddBuffer) {
-        Objects.requireNonNull(login);
-        Objects.requireNonNull(password);
+    private BDDServerFrameWithPassword(ByteBuffer bddBuffer) {
         Objects.requireNonNull(bddBuffer);
-        this.id = id;
-        this.login = login;
-        this.password = password;
         this.bddBuffer = bddBuffer;
     }
 
@@ -40,7 +32,7 @@ public class BDDServerFrameWithPassword implements ChatHackFrame {
         ByteBuffer buffer = ByteBuffer.allocate(1 + Long.BYTES + 2*Integer.BYTES + loginSize + passwordSize);
         byte opcode = 1;
         buffer.put(opcode).putLong(id).putInt(loginSize).put(tmpLogin).putInt(passwordSize).put(tmpPassword).flip();
-        return new BDDServerFrameWithPassword(id, login, password, buffer);
+        return new BDDServerFrameWithPassword(buffer);
     }
 
     @Override
@@ -57,7 +49,7 @@ public class BDDServerFrameWithPassword implements ChatHackFrame {
 
     @Override
     public boolean checkBufferSize(ByteBuffer buffer) {
-        return (buffer.remaining() >= bddBuffer.remaining());
+        return buffer.remaining() >= bddBuffer.remaining();
     }
 
     @Override // unused

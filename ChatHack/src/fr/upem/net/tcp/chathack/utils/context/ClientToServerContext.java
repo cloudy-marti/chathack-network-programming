@@ -15,6 +15,9 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 
+/**
+ * Context of the client <---> server connection known by the client
+ */
 public class ClientToServerContext implements Context {
 
     final private SelectionKey key;

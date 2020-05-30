@@ -13,11 +13,6 @@ public class StringReader implements Reader<String> {
     private int size;
     private String value;
 
-    /* Format :
-     * +------------+------------+
-     * | Size (INT) |  Text UTF8 |
-     * +------------+------------+
-     */
     @Override
     public ProcessStatus process(ByteBuffer buffer) {
         if (state == State.DONE || state == State.ERROR) {

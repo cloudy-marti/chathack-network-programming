@@ -9,6 +9,9 @@ import java.util.Objects;
 
 import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
 
+/**
+ * Perform operations on received frames by the client from the server ChatHack
+ */
 public class ClientToServerFrameVisitor implements FrameVisitor {
 
     private final Context context;
@@ -19,13 +22,17 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
         this.client = client;
     }
 
+    /**
+     * Message received by the server and to be displayed
+     * @param frame that contains the message
+     */
     @Override
     public void visit(GlobalMessageFrame frame) {
         Objects.requireNonNull(frame);
         if (frame.getOpcode() == GLOBAL_MESSAGE) {
             if (frame.getLogin().isEmpty()) { // message from the server
                 System.out.println(frame.getMsg());
-            } else {
+            } else { // global message from a client
                 System.out.println(frame.getLogin() + ": " + frame.getMsg());
             }
         } else {
@@ -33,6 +40,10 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
         }
     }
 
+    /**
+     * Connection and Disconnection acquittal frames
+     * @param frame that contains the ack code
+     */
     @Override
     public void visit(SimpleFrame frame) {
         Objects.requireNonNull(frame);
@@ -57,6 +68,10 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
         }
     }
 
+    /**
+     * Private connection request from another client transmitted by the server
+     * @param frame that contains the connection information
+     */
     @Override
     public void visit(PrivateConnectionFrame frame) {
         Objects.requireNonNull(frame);
@@ -67,6 +82,10 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
         }
     }
 
+    /**
+     * Private connection response from another client transmitted by the server
+     * @param frame that contains the ack code
+     */
     @Override
     public void visit(PrivateConnectionResponseFrame frame) {
         Objects.requireNonNull(frame);
@@ -92,7 +111,7 @@ public class ClientToServerFrameVisitor implements FrameVisitor {
 
     @Override
     public void visit(LoginPasswordFrame frame) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("This frame cannot be received by the client.");
     }
 
     @Override

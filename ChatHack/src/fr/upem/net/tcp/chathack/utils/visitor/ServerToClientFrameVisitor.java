@@ -14,6 +14,9 @@ import java.util.logging.Logger;
 
 import static fr.upem.net.tcp.chathack.utils.frame.ChatHackFrame.*;
 
+/**
+ * Perform operations on received frames by the server from a client
+ */
 public class ServerToClientFrameVisitor implements FrameVisitor {
 
     private final static Logger LOGGER = Logger.getLogger(ServerToClientFrameVisitor.class.getName());
@@ -28,6 +31,11 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
         this.server = server;
     }
 
+    /**
+     * Client's connection request frame
+     * Ask the serverMDP to check the login availability
+     * @param frame that contains connection information such as the login of the client
+     */
     @Override
     public void visit(ConnectionFrame frame) {
         Objects.requireNonNull(frame);
@@ -46,6 +54,11 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
         }
     }
 
+    /**
+     * Client's connection with password request frame
+     * Ask the serverMDP to check the login/password pair validity
+     * @param frame that contains connection information such as the pair login and password
+     */
     @Override
     public void visit(LoginPasswordFrame frame) {
         Objects.requireNonNull(frame);
@@ -67,12 +80,21 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
         server.sendRequestToBDD(tmp);
     }
 
+    /**
+     * Global message to be broadcasted to all connected clients
+     * @param frame that contains the message
+     */
     @Override
     public void visit(GlobalMessageFrame frame) {
         Objects.requireNonNull(frame);
         server.broadcast(frame);
     }
 
+    /**
+     * Private connection request frame from a client
+     * To be relayed to the targeted client
+     * @param frame that contains information about address and target login
+     */
     @Override
     public void visit(PrivateConnectionFrame frame) {
         Objects.requireNonNull(frame);
@@ -87,11 +109,16 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
             return;
         }
         destClient.setPrivateClientConnection(context, frame.getIdRequest());
-        PrivateConnectionFrame newFrame = PrivateConnectionFrame.createPrivateConnectionFrame(frame.getOpcode(),context.getLogin(),frame.getIdRequest(),frame.getAddress());
+        PrivateConnectionFrame newFrame = PrivateConnectionFrame
+                .createPrivateConnectionFrame(frame.getOpcode(),context.getLogin(),frame.getIdRequest(),frame.getAddress());
         newFrame.fillByteBuffer(tmp);
         destClient.queueMessage(tmp);
     }
 
+    /**
+     * Private connection response frame to be sent to the requesting client
+     * @param frame that contains the code of the response
+     */
     @Override
     public void visit(PrivateConnectionResponseFrame frame) {
         ByteBuffer buffer = ByteBuffer.allocate(1_024);
@@ -99,6 +126,11 @@ public class ServerToClientFrameVisitor implements FrameVisitor {
         context.queueMessage(buffer);
     }
 
+    /**
+     * Frame for a disconnection request or acquittal frame for the private connection request to be relayed to the
+     * requesting client
+     * @param frame that contains the data
+     */
     @Override
     public void visit(SimpleFrame frame) {
         Objects.requireNonNull(frame);
